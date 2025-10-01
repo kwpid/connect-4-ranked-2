@@ -3,6 +3,7 @@ import { LeaderboardEntry, PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { getSeasonRewardCoins } from '../../utils/rankSystem';
 import { getTitleFromId } from '../../utils/titleManager';
+import { getCurrentSeasonData, getTimeUntilSeasonEnd } from '../../utils/seasonManager';
 
 interface LeaderboardScreenProps {
   leaderboard: LeaderboardEntry[];
@@ -13,11 +14,15 @@ interface LeaderboardScreenProps {
 
 export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo }: LeaderboardScreenProps) {
   const playerInTop30 = leaderboard.find(e => e.isPlayer);
+  const seasonData = getCurrentSeasonData();
+  const timeRemaining = getTimeUntilSeasonEnd();
+  const playerRank = getRankByTrophies(playerData.trophies);
+  const tierColor = getTierColor(playerRank.tier);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <button
             onClick={onBack}
             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
@@ -31,6 +36,35 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
           >
             📋 Ranks
           </button>
+        </div>
+        
+        {/* Season Info Section */}
+        <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur rounded-xl p-6 mb-6 border border-purple-500/50">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-gray-400 text-sm mb-1">Season</p>
+              <p className="text-2xl font-bold text-purple-400">#{seasonData.seasonNumber}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-400 text-sm mb-1">Time Remaining</p>
+              <p className="text-2xl font-bold text-blue-400">{timeRemaining}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-400 text-sm mb-1">Your Rank</p>
+              <p className="text-2xl font-bold" style={{ color: tierColor }}>{playerRank.name}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-400 text-sm mb-1">Your Trophies</p>
+              <p className="text-2xl font-bold text-yellow-400">🏆 {playerData.trophies}</p>
+            </div>
+          </div>
+          {playerInTop30 && (
+            <div className="mt-4 pt-4 border-t border-purple-500/30 text-center">
+              <p className="text-yellow-400 font-semibold">
+                🎯 Leaderboard Position: #{playerInTop30.rank}
+              </p>
+            </div>
+          )}
         </div>
         
         {/* Player Status */}
