@@ -3,7 +3,9 @@ import { MatchState, PlayerData, GameResult } from '../../types/game';
 import { createEmptyBoard, dropPiece, checkWinner } from '../../utils/gameLogic';
 import { AIPlayer } from '../../utils/aiPlayer';
 import { Connect4Board } from './Connect4Board';
-import { calculateTrophyChange } from '../../utils/rankSystem';
+import { calculateTrophyChange, getRankByTrophies } from '../../utils/rankSystem';
+import { getTitleFromId } from '../../utils/titleManager';
+import { getCurrentSeasonData } from '../../utils/seasonManager';
 
 interface GameScreenProps {
   playerData: PlayerData;
@@ -29,7 +31,37 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
     const variance = Math.floor(Math.random() * 60) - 30; // -30 to +30 trophies
     const trophies = Math.max(0, playerData.trophies + variance);
     
-    return { name, trophies };
+    // Generate opponent title based on trophies
+    let titleId: string | null = null;
+    const currentSeason = getCurrentSeasonData();
+    
+    if (trophies >= 701) {
+      // Connect Legend - use current or previous season title
+      const seasonNum = Math.random() > 0.5 ? currentSeason.seasonNumber : Math.max(1, currentSeason.seasonNumber - 1);
+      titleId = `S${seasonNum} CONNECT LEGEND`;
+    } else if (trophies >= 551) {
+      // Grand Champion - use current or previous season title
+      const seasonNum = Math.random() > 0.5 ? currentSeason.seasonNumber : Math.max(1, currentSeason.seasonNumber - 1);
+      titleId = `S${seasonNum} GRAND CHAMPION`;
+    } else if (trophies >= 401) {
+      // Champion - use season or leaderboard title
+      if (Math.random() > 0.5) {
+        const seasonNum = Math.max(1, currentSeason.seasonNumber - Math.floor(Math.random() * 2));
+        titleId = `S${seasonNum} CHAMPION`;
+      } else {
+        const seasonNum = Math.max(1, currentSeason.seasonNumber - Math.floor(Math.random() * 3));
+        const leaderboardTitles = ['TOP 30', 'TOP 10', 'TOP CHAMPION'];
+        titleId = `S${seasonNum} ${leaderboardTitles[Math.floor(Math.random() * leaderboardTitles.length)]}`;
+      }
+    } else if (trophies >= 176) {
+      // Mid-tier ranks - occasional grey or leaderboard title
+      if (Math.random() > 0.7) {
+        const seasonNum = Math.max(1, currentSeason.seasonNumber - Math.floor(Math.random() * 4));
+        titleId = `S${seasonNum} TOP 30`;
+      }
+    }
+    
+    return { name, trophies, titleId };
   };
   
   const [opponent] = useState(generateOpponent());
@@ -240,7 +272,16 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
           <div className="text-4xl font-bold text-gray-500">-</div>
           <div className="text-center">
             <p className="text-sm text-gray-400">{opponent.name}</p>
-            <p className="text-3xl font-bold text-red-400">{match.aiWins}</p>
+            {opponent.titleId && (() => {
+              const title = getTitleFromId(opponent.titleId);
+              return (
+                <p className="text-xs" style={{ color: title.color }}>
+                  {title.name}
+                </p>
+              );
+            })()}
+            <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>
+            <p className="text-3xl font-bold text-red-400 mt-1">{match.aiWins}</p>
           </div>
         </div>
         
@@ -273,15 +314,38 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
                   playerData.winStreak,
                   totalMoves
                 );
+                const oldRank = getRankByTrophies(playerData.trophies);
+                const newTrophies = Math.max(0, playerData.trophies + trophyChange);
+                const newRank = getRankByTrophies(newTrophies);
+                const rankedUp = oldRank.name !== newRank.name && newRank.minTrophies > oldRank.minTrophies;
+                
                 return (
-                  <div className={`text-2xl font-bold ${trophyChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {trophyChange >= 0 ? '+' : ''}{trophyChange} 🏆 Trophies
-                  </div>
+                  <>
+                    <div className={`text-2xl font-bold ${trophyChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {trophyChange >= 0 ? '+' : ''}{trophyChange} 🏆 Trophies
+                    </div>
+                    
+                    {rankedUp ? (
+                      <div className="mt-6 p-6 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg border-2 border-yellow-500/50 animate-pulse">
+                        <p className="text-2xl font-bold text-yellow-400 mb-2">🎊 RANK UP! 🎊</p>
+                        <p className="text-lg text-gray-300">
+                          {oldRank.name} → <span style={{ color: newRank.tier === 'legend' ? '#FFFFFF' : newRank.tier === 'grand_champion' ? '#FF0000' : newRank.tier === 'champion' ? '#FF6B9D' : newRank.tier === 'diamond' ? '#B9F2FF' : newRank.tier === 'platinum' ? '#E5E4E2' : newRank.tier === 'gold' ? '#FFD700' : newRank.tier === 'silver' ? '#C0C0C0' : '#CD7F32' }} className="font-bold">{newRank.name}</span>
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mt-4">
+                        <p className="text-lg text-gray-400">Current Rank</p>
+                        <p className="text-2xl font-bold" style={{ color: newRank.tier === 'legend' ? '#FFFFFF' : newRank.tier === 'grand_champion' ? '#FF0000' : newRank.tier === 'champion' ? '#FF6B9D' : newRank.tier === 'diamond' ? '#B9F2FF' : newRank.tier === 'platinum' ? '#E5E4E2' : newRank.tier === 'gold' ? '#FFD700' : newRank.tier === 'silver' ? '#C0C0C0' : '#CD7F32' }}>
+                          {newRank.name}
+                        </p>
+                      </div>
+                    )}
+                  </>
                 );
               })()}
               <button
                 onClick={handleEndMatch}
-                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors"
+                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors mt-4"
               >
                 Continue
               </button>

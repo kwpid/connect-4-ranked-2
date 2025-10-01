@@ -80,9 +80,9 @@ function App() {
     
     // Generate season title if eligible
     const newTitles = [...playerData.ownedTitles];
-    if (playerData.trophies >= 226) {
-      const rank = playerData.trophies >= 401 ? 'Legend' : 
-                   playerData.trophies >= 301 ? 'Grand Champion' : 'Champion';
+    if (playerData.trophies >= 401) {
+      const rank = playerData.trophies >= 701 ? 'CONNECT LEGEND' : 
+                   playerData.trophies >= 551 ? 'GRAND CHAMPION' : 'CHAMPION';
       const seasonTitle = `S${currentSeason.seasonNumber} ${rank}`;
       newTitles.push(seasonTitle);
     }
@@ -137,18 +137,18 @@ function App() {
     const newTitles = [...playerData.ownedTitles];
     const currentSeason = getCurrentSeasonData();
     
-    if (won && newTrophies >= 301) {
-      // Connect Legend title (401+)
-      if (newTrophies >= 401) {
-        const legendTitle = `S${currentSeason.seasonNumber} Connect Legend`;
+    if (won && newTrophies >= 551) {
+      // Connect Legend title (701+)
+      if (newTrophies >= 701) {
+        const legendTitle = `S${currentSeason.seasonNumber} CONNECT LEGEND`;
         if (!newTitles.includes(legendTitle)) {
           newTitles.push(legendTitle);
         }
       }
       
-      // Grand Champion title (301+) - always add if in range, even if they already have Legend
-      if (newTrophies >= 301) {
-        const gcTitle = `S${currentSeason.seasonNumber} Grand Champion`;
+      // Grand Champion title (551+) - always add if in range, even if they already have Legend
+      if (newTrophies >= 551) {
+        const gcTitle = `S${currentSeason.seasonNumber} GRAND CHAMPION`;
         if (!newTitles.includes(gcTitle)) {
           newTitles.push(gcTitle);
         }

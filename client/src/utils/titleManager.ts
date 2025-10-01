@@ -14,14 +14,17 @@ export function getTitleFromId(titleId: string): Title {
     };
   }
   
-  // Rank-based titles (S# Grand Champion, S# Connect Legend)
-  const rankBasedMatch = titleId.match(/^S(\d+)\s+(Grand Champion|Connect Legend)$/);
+  // Rank-based titles (S# CHAMPION, S# GRAND CHAMPION, S# CONNECT LEGEND)
+  const rankBasedMatch = titleId.match(/^S(\d+)\s+(CHAMPION|GRAND CHAMPION|CONNECT LEGEND)$/);
   if (rankBasedMatch) {
     const [, seasonNum, rank] = rankBasedMatch;
-    let color = '#FF0000'; // Red for Grand Champion
-    let glow = '#FF0000';
+    let color = '#FF6B9D'; // Pink for Champion
+    let glow = 'none';
     
-    if (rank === 'Connect Legend') {
+    if (rank === 'GRAND CHAMPION') {
+      color = '#FF0000'; // Red for Grand Champion
+      glow = '#FF0000';
+    } else if (rank === 'CONNECT LEGEND') {
       color = '#FFFFFF'; // White for Connect Legend
       glow = '#FFFFFF';
     }
