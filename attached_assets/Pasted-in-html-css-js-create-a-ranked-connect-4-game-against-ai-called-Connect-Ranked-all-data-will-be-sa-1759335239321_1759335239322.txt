@@ -1,0 +1,102 @@
+in html/css/js create a ranked connect 4 game (against ai) called Connect Ranked
+all data will be saved locally
+
+
+menu screen:
+- menu screen shows players user at the top
+- players equipped title underneath, as well as a button to change title (defualt = no title equipped)
+- queue button 
+- view leaderboard button
+- smaller buttons for settings, stats
+
+leaderboard page:
+- shows top 100 in trophies, as well as their current rewards (for when season ends)
+top left has a button to view ranks, trophies needed for it, rewards, etc
+
+ranked:
+ranked will use a trophy system, 5 trophys are needed per rank
+
+Bronze I → 0–5 trophies
+
+Bronze II → 6–10 trophies
+
+Bronze III → 11–15 trophies
+
+Silver I → 16–25 trophies
+
+Silver II → 26–35 trophies
+
+Silver III → 36–45 trophies
+
+Gold I → 46–60 trophies
+
+Gold II → 61–75 trophies
+
+Gold III → 76–90 trophies
+
+Platinum (Skilled Tier)
+
+Platinum I → 91–110 trophies
+
+Platinum II → 111–130 trophies
+
+Platinum III → 131–150 trophies
+
+Diamond I → 151–175 trophies
+
+Diamond II → 176–200 trophies
+
+Diamond III → 201–225 trophies
+
+
+Champion I → 226–250 trophies
+
+Champion II → 251–275 trophies
+
+Champion III → 276–300 trophies
+
+
+Grand Champion I → 301–325 trophies
+
+Grand Champion II → 326–350 trophies
+
+Grand Champion III → 351–375 trophies
+
+Grand Champion IV → 376–400 trophies
+
+Clicker Legend 
+
+401+ trophies
+
+win = +1 trophy, loss = -1 trophy, +1 extra per completed 5-win block (so 5 wins = +1 extra for that match, 10 wins = +2 extra for that match)
+
+seasons last 2 weeks, starting from today (monday sep 29) resetting on wesendays, 12 pm (est). 
+in this time, theres a top 100 leaderboard (with ai, play can be on this leaderboard) for most trophies. AI will grind, some ai will grind hard, some iwll not
+
+
+level xp and coins:
+- level system with xp, and coins
+- coins can be used to purchase titles frmo the item shop (shop rotates items every 12 hours at 12 pm/am est)
+
+additional titles
+- some "grey" titles can be earned through xp and item shop, these titles are simply a grey color with no special glow
+end of season:
+- when a new season starts incremenet season #, and reset everyone to their minium trophies for rank, so if im Champion any division, i get reset to 226 trophies
+clicker legend gets reset to 401
+rewards:
+- players get coins based off their rank at the end of the season, specific amount of coins per rank, and top 100 get extra rewarsd (shows on the leaderboard)
+- players also get a rank title: "S# [Rank]", grand champion being  ared glow, clicker legend being a white glow
+- top 100 players also get a leaderboard title, "S# TOP CHAMPION" for #1, "S# TOP 10" for top 10, etc
+- all top 100 players must have a minium of 400 trophies, and no titles will shjow up on this leaderboard
+game:
+- connect 4, higher trophies = smarter ai, all ai react to your move properly (lower rank ai will plan out moves less), and eahc ai will have a realisti chuman reaction time and choice time
+- player and ai will have 15s to choose a move per turn,
+- games are best of 3 (for ranked)
+queue:
+- queue time is based off time of day, and player trophies, higher = less players, low time of day = longe rqueue, etc
+- shos estimated (sometimes accurate, can change during queue sometimes)
+- shows the players rank / trophies during queue, as well as anotificaiton when a game is found
+
+site theme
+- dark, clean layout and theme
+
