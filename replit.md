@@ -29,6 +29,24 @@ Preferred communication style: Simple, everyday language.
   - Time remaining in current season
   - Player's current rank and trophy count
   - Player's leaderboard position (if in top 30)
+- Updated button symbols:
+  - Removed emoji from "Find Match" button
+  - Changed Settings symbol to "⋮"
+  - Kept trophy emoji only on Leaderboard button
+- Implemented rank-based titles:
+  - "S# Grand Champion" (red) - earned with 1 win at Grand Champion rank (301+ trophies)
+  - "S# Connect Legend" (white) - earned with 1 win at Connect Legend rank (401+ trophies)
+  - Winning at Legend rank grants both titles if Grand Champion wasn't earned previously
+- Overhauled trophy reward system with rank-based calculations:
+  - Base rewards: 2 trophies for lower-ranked opponent, 3 for equal rank, 4 for slightly higher, 5 for much higher
+  - Win streak bonus: +1 trophy for 3+ win streak
+  - Fast win bonus: +1 trophy for wins in under 20 moves
+  - Loss penalties: -2 for equal/higher rank, -3 for lower rank, -4 for much lower rank
+- Trophy changes now displayed at match end screen
+- Queue screen improvements:
+  - Removed progress bar for more realistic appearance
+  - Added animated "Searching for opponent..." message with cycling dots
+  - Shows elapsed time instead of estimated time
 
 ## System Architecture
 
@@ -121,9 +139,13 @@ All game data is persisted to browser localStorage with the following keys:
 **Match System:**
 - Best-of-3 format
 - 15-second turn timer with random move on timeout
-- Win/loss affects trophy count (+2 for win, -1 for loss in most ranks)
+- Dynamic trophy system based on opponent rank comparison:
+  - Wins: 2-7 trophies (base 2-5 plus bonuses for win streaks and fast wins)
+  - Losses: -2 to -4 trophies (higher penalty for losing to lower-ranked opponents)
+- Opponents generated with similar trophy counts (±30 trophies variance)
 - XP and level progression
 - Coin rewards for match completion
+- Rank-based titles automatically awarded when winning at Grand Champion or Connect Legend ranks
 
 ### External Dependencies
 
