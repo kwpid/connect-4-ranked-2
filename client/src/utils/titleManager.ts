@@ -14,17 +14,36 @@ export function getTitleFromId(titleId: string): Title {
     };
   }
   
-  // Season rank titles (S# [Rank])
-  const seasonRankMatch = titleId.match(/^S(\d+)\s+(Legend|Grand Champion|Champion)$/);
+  // Rank-based titles (S# Grand Champion, S# Connect Legend)
+  const rankBasedMatch = titleId.match(/^S(\d+)\s+(Grand Champion|Connect Legend)$/);
+  if (rankBasedMatch) {
+    const [, seasonNum, rank] = rankBasedMatch;
+    let color = '#FF0000'; // Red for Grand Champion
+    let glow = '#FF0000';
+    
+    if (rank === 'Connect Legend') {
+      color = '#FFFFFF'; // White for Connect Legend
+      glow = '#FFFFFF';
+    }
+    
+    return {
+      id: titleId,
+      name: titleId,
+      type: 'season',
+      color,
+      glow,
+      season: parseInt(seasonNum)
+    };
+  }
+  
+  // Season rank titles (S# [Rank]) - for backwards compatibility
+  const seasonRankMatch = titleId.match(/^S(\d+)\s+(Legend|Champion)$/);
   if (seasonRankMatch) {
     const [, seasonNum, rank] = seasonRankMatch;
     let color = '#FF6B9D'; // Champion pink
     let glow = 'none';
     
-    if (rank === 'Grand Champion') {
-      color = '#FF0000'; // Red
-      glow = '#FF0000'; // Red glow
-    } else if (rank === 'Legend') {
+    if (rank === 'Legend') {
       color = '#FFFFFF'; // White
       glow = '#FFFFFF'; // White glow
     }

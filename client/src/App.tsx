@@ -133,6 +133,28 @@ function App() {
     const leveledUp = newLevel > playerData.level;
     const levelUpCoins = leveledUp ? (newLevel - playerData.level) * 100 : 0;
     
+    // Award rank-based titles if player won and is in Grand Champion or Legend rank
+    const newTitles = [...playerData.ownedTitles];
+    const currentSeason = getCurrentSeasonData();
+    
+    if (won && newTrophies >= 301) {
+      // Connect Legend title (401+)
+      if (newTrophies >= 401) {
+        const legendTitle = `S${currentSeason.seasonNumber} Connect Legend`;
+        if (!newTitles.includes(legendTitle)) {
+          newTitles.push(legendTitle);
+        }
+      }
+      
+      // Grand Champion title (301+) - always add if in range, even if they already have Legend
+      if (newTrophies >= 301) {
+        const gcTitle = `S${currentSeason.seasonNumber} Grand Champion`;
+        if (!newTitles.includes(gcTitle)) {
+          newTitles.push(gcTitle);
+        }
+      }
+    }
+    
     const updatedPlayer: PlayerData = {
       ...playerData,
       trophies: newTrophies,
@@ -144,7 +166,8 @@ function App() {
       bestWinStreak: Math.max(playerData.bestWinStreak, newWinStreak),
       xp: newXP,
       level: newLevel,
-      coins: playerData.coins + coinsGain + levelUpCoins
+      coins: playerData.coins + coinsGain + levelUpCoins,
+      ownedTitles: newTitles
     };
     
     setPlayerData(updatedPlayer);
