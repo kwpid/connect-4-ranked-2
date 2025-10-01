@@ -10,7 +10,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-**October 1, 2025:**
+**October 1, 2025 (Latest Update):**
+- **Expanded rank system from 3 to 5 divisions per rank:**
+  - All ranks now have 5 divisions (I, II, III, IV, V) except Connect Legend
+  - Bronze: I-V (0-50 trophies, 10 per division)
+  - Silver: I-V (51-100 trophies, 10 per division)
+  - Gold: I-V (101-175 trophies, 15 per division)
+  - Platinum: I-V (176-275 trophies, 20 per division)
+  - Diamond: I-V (276-400 trophies, 25 per division)
+  - Champion: I-V (401-550 trophies, 30 per division)
+  - Grand Champion: I-V (551-700 trophies, 30 per division)
+  - Connect Legend: 701+ trophies (max rank)
+- **Updated season title format to ALL CAPS:**
+  - Season titles now display as "S# CONNECT LEGEND", "S# GRAND CHAMPION", "S# CHAMPION"
+  - Title requirements updated: Grand Champion at 551+ trophies, Connect Legend at 701+ trophies
+- **Enhanced game display with opponent information:**
+  - Opponent trophies now shown during matches
+  - Opponent titles displayed based on their rank (higher ranks show season/leaderboard titles)
+  - Titles color-coded by tier for visual distinction
+- **Added rank display and rank-up animation to end screen:**
+  - Player's current rank shown at bottom of match end screen
+  - Animated rank-up celebration when player advances to a new rank
+  - Rank displayed in tier-appropriate colors
+
+**October 1, 2025 (Earlier):**
 - Changed leaderboard system from top 100 to top 30 players
 - Updated seasonal reward titles to reflect top 30 instead of top 100
 - Removed AI opponent references from settings screen
@@ -33,10 +56,6 @@ Preferred communication style: Simple, everyday language.
   - Removed emoji from "Find Match" button
   - Changed Settings symbol to "⋮"
   - Kept trophy emoji only on Leaderboard button
-- Implemented rank-based titles:
-  - "S# Grand Champion" (red) - earned with 1 win at Grand Champion rank (301+ trophies)
-  - "S# Connect Legend" (white) - earned with 1 win at Connect Legend rank (401+ trophies)
-  - Winning at Legend rank grants both titles if Grand Champion wasn't earned previously
 - Overhauled trophy reward system with rank-based calculations:
   - Base rewards: 2 trophies for lower-ranked opponent, 3 for equal rank, 4 for slightly higher, 5 for much higher
   - Win streak bonus: +1 trophy for 3+ win streak
