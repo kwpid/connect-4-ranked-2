@@ -15,7 +15,7 @@ import {
 import { 
   shouldResetSeason, 
   updateAICompetitors, 
-  getTop100Leaderboard,
+  getTop30Leaderboard,
   getCurrentSeasonData 
 } from './utils/seasonManager';
 import { getSeasonResetTrophies, getSeasonRewardCoins } from './utils/rankSystem';
@@ -87,13 +87,13 @@ function App() {
     }
     
     // Check leaderboard position
-    const leaderboard = getTop100Leaderboard(playerData, aiCompetitors);
+    const leaderboard = getTop30Leaderboard(playerData, aiCompetitors);
     const playerEntry = leaderboard.find(e => e.isPlayer);
     if (playerEntry) {
       let lbTitle = '';
       if (playerEntry.rank === 1) lbTitle = `S${currentSeason.seasonNumber} TOP CHAMPION`;
       else if (playerEntry.rank && playerEntry.rank <= 10) lbTitle = `S${currentSeason.seasonNumber} TOP 10`;
-      else if (playerEntry.rank && playerEntry.rank <= 100) lbTitle = `S${currentSeason.seasonNumber} TOP 100`;
+      else if (playerEntry.rank && playerEntry.rank <= 30) lbTitle = `S${currentSeason.seasonNumber} TOP 30`;
       
       if (lbTitle) newTitles.push(lbTitle);
     }
@@ -171,7 +171,7 @@ function App() {
     savePlayerData(updatedPlayer);
   };
   
-  const leaderboard = getTop100Leaderboard(playerData, aiCompetitors);
+  const leaderboard = getTop30Leaderboard(playerData, aiCompetitors);
   
   return (
     <>

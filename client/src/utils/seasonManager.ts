@@ -111,7 +111,7 @@ export function updateAICompetitors(competitors: AICompetitor[]): AICompetitor[]
   });
 }
 
-export function getTop100Leaderboard(playerData: any, aiCompetitors: AICompetitor[]): LeaderboardEntry[] {
+export function getTop30Leaderboard(playerData: any, aiCompetitors: AICompetitor[]): LeaderboardEntry[] {
   const entries: LeaderboardEntry[] = [
     {
       username: playerData.username,
@@ -125,10 +125,10 @@ export function getTop100Leaderboard(playerData: any, aiCompetitors: AICompetito
     }))
   ];
   
-  // Sort by trophies and get top 100 (no minimum trophy requirement)
+  // Sort by trophies and get top 30 (no minimum trophy requirement)
   const sorted = entries
     .sort((a, b) => b.trophies - a.trophies)
-    .slice(0, 100)
+    .slice(0, 30)
     .map((entry, index) => ({
       ...entry,
       rank: index + 1

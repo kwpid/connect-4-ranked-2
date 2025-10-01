@@ -11,7 +11,7 @@ interface LeaderboardScreenProps {
 }
 
 export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo }: LeaderboardScreenProps) {
-  const playerInTop100 = leaderboard.find(e => e.isPlayer);
+  const playerInTop30 = leaderboard.find(e => e.isPlayer);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
@@ -23,7 +23,7 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
           >
             ← Back
           </button>
-          <h2 className="text-3xl font-bold">Top 100 Leaderboard</h2>
+          <h2 className="text-3xl font-bold">Top 30 Leaderboard</h2>
           <button
             onClick={onRankInfo}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
@@ -33,10 +33,10 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
         </div>
         
         {/* Player Status */}
-        {playerInTop100 ? (
+        {playerInTop30 ? (
           <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-800/20 backdrop-blur rounded-xl p-4 mb-6 border border-yellow-600/50">
             <p className="text-center text-yellow-400 font-semibold">
-              🏆 You're #{playerInTop100.rank} with {playerInTop100.trophies} trophies!
+              🏆 You're #{playerInTop30.rank} with {playerInTop30.trophies} trophies!
             </p>
             <p className="text-center text-gray-300 text-sm mt-1">
               Season Reward: {getSeasonRewardCoins(playerData.trophies)} coins
@@ -74,7 +74,7 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
                   let rewardText = '';
                   if (entry.rank === 1) rewardText = '👑 TOP CHAMPION';
                   else if (entry.rank && entry.rank <= 10) rewardText = '🏅 TOP 10';
-                  else if (entry.rank && entry.rank <= 100) rewardText = '⭐ TOP 100';
+                  else if (entry.rank && entry.rank <= 30) rewardText = '⭐ TOP 30';
                   
                   return (
                     <tr
