@@ -86,48 +86,57 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
   };
   
   const handleMove = (column: number, player: 'player' | 'ai') => {
-    const newBoard = dropPiece(match.board, column, player);
-    if (!newBoard) return;
-    
-    const winner = checkWinner(newBoard);
-    setTimeLeft(15);
-    
-    if (winner) {
-      // Game over
-      const newPlayerWins = match.playerWins + (winner === 'player' ? 1 : 0);
-      const newAiWins = match.aiWins + (winner === 'ai' ? 1 : 0);
+    setMatch(prevMatch => {
+      const newBoard = dropPiece(prevMatch.board, column, player);
+      if (!newBoard) return prevMatch;
       
-      // Check if match is over (best of 3)
-      if (newPlayerWins === 2 || newAiWins === 2) {
-        setMatch({
-          ...match,
-          board: newBoard,
-          winner,
-          playerWins: newPlayerWins,
-          aiWins: newAiWins,
-          matchWinner: newPlayerWins === 2 ? 'player' : 'ai'
-        });
-      } else {
-        // Next game
-        setTimeout(() => {
-          setMatch({
-            ...match,
-            currentGame: match.currentGame + 1,
-            board: createEmptyBoard(),
-            currentPlayer: 'player',
-            winner: null,
+      const winner = checkWinner(newBoard);
+      setTimeLeft(15);
+      
+      if (winner) {
+        // Game over
+        const newPlayerWins = prevMatch.playerWins + (winner === 'player' ? 1 : 0);
+        const newAiWins = prevMatch.aiWins + (winner === 'ai' ? 1 : 0);
+        
+        // Check if match is over (best of 3)
+        if (newPlayerWins === 2 || newAiWins === 2) {
+          return {
+            ...prevMatch,
+            board: newBoard,
+            winner,
+            playerWins: newPlayerWins,
+            aiWins: newAiWins,
+            matchWinner: newPlayerWins === 2 ? 'player' : 'ai'
+          };
+        } else {
+          // Next game
+          setTimeout(() => {
+            setMatch(prev => ({
+              ...prev,
+              currentGame: prev.currentGame + 1,
+              board: createEmptyBoard(),
+              currentPlayer: 'player',
+              winner: null,
+              playerWins: newPlayerWins,
+              aiWins: newAiWins
+            }));
+          }, 2000);
+          return {
+            ...prevMatch,
+            board: newBoard,
+            winner,
             playerWins: newPlayerWins,
             aiWins: newAiWins
-          });
-        }, 2000);
+          };
+        }
+      } else {
+        return {
+          ...prevMatch,
+          board: newBoard,
+          currentPlayer: player === 'player' ? 'ai' : 'player'
+        };
       }
-    } else {
-      setMatch({
-        ...match,
-        board: newBoard,
-        currentPlayer: player === 'player' ? 'ai' : 'player'
-      });
-    }
+    });
   };
   
   const handleColumnClick = (column: number) => {
