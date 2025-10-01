@@ -12,36 +12,35 @@ interface QueueScreenProps {
 export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenProps) {
   const [queueTime, setQueueTime] = useState(calculateQueueTime(playerData.trophies));
   const [elapsed, setElapsed] = useState(0);
-  const [estimatedTime, setEstimatedTime] = useState(queueTime);
+  const [dots, setDots] = useState('.');
   
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
   
   useEffect(() => {
     const timer = setInterval(() => {
-      setElapsed(prev => {
-        const newElapsed = prev + 1;
-        
-        // Occasionally update estimated time
-        if (newElapsed % 3 === 0 && Math.random() > 0.5) {
-          const variance = Math.floor(Math.random() * 3) - 1;
-          setEstimatedTime(Math.max(1, queueTime + variance));
-        }
-        
-        return newElapsed;
-      });
+      setElapsed(prev => prev + 1);
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [queueTime]);
+  }, []);
+  
+  useEffect(() => {
+    const dotsTimer = setInterval(() => {
+      setDots(prev => {
+        if (prev === '...') return '.';
+        return prev + '.';
+      });
+    }, 500);
+    
+    return () => clearInterval(dotsTimer);
+  }, []);
   
   useEffect(() => {
     if (elapsed >= queueTime) {
       onMatchFound();
     }
   }, [elapsed, queueTime, onMatchFound]);
-  
-  const progress = Math.min((elapsed / queueTime) * 100, 100);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8 flex items-center justify-center">
@@ -52,21 +51,10 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
             <div className="inline-block animate-pulse">
               <div className="text-6xl mb-4">🎮</div>
             </div>
-            <h2 className="text-3xl font-bold mb-2">Finding Match...</h2>
-            <p className="text-gray-400">Please wait</p>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="mb-6">
-            <div className="bg-gray-700 rounded-full h-3 overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-full transition-all duration-1000"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <p className="text-center mt-2 text-sm text-gray-400">
-              Estimated: {estimatedTime}s
-            </p>
+            <h2 className="text-3xl font-bold mb-2">
+              Searching for opponent{dots}
+            </h2>
+            <p className="text-gray-400">{elapsed}s elapsed</p>
           </div>
           
           {/* Player Info */}
