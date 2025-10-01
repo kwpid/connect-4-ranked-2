@@ -12,8 +12,8 @@ interface GameScreenProps {
 }
 
 export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) {
-  // Generate opponent username based on player's trophy range
-  const generateOpponentName = () => {
+  // Generate opponent username and trophies based on player's trophy range
+  const generateOpponent = () => {
     const names = [
       'ProGamer', 'ChessMaster', 'ConnectKing', 'StrategyPro', 'TrophyHunter',
       'RankClimber', 'ElitePlayer', 'SkillMaster', 'TopTier', 'Challenger',
@@ -23,10 +23,16 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
       'Shadow', 'Ghost', 'Phantom', 'Ninja', 'Samurai', 'Warrior', 'Knight'
     ];
     const baseName = names[Math.floor(Math.random() * names.length)];
-    return `${baseName}${Math.floor(Math.random() * 9999)}`;
+    const name = `${baseName}${Math.floor(Math.random() * 9999)}`;
+    
+    // Generate opponent trophies around player's level
+    const variance = Math.floor(Math.random() * 60) - 30; // -30 to +30 trophies
+    const trophies = Math.max(0, playerData.trophies + variance);
+    
+    return { name, trophies };
   };
   
-  const [opponentName] = useState(generateOpponentName());
+  const [opponent] = useState(generateOpponent());
   const [match, setMatch] = useState<MatchState>({
     currentGame: 1,
     playerWins: 0,
@@ -37,8 +43,9 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
     matchWinner: null
   });
   const [timeLeft, setTimeLeft] = useState(15);
-  const [aiPlayer] = useState(new AIPlayer(playerData.trophies));
+  const [aiPlayer] = useState(new AIPlayer(opponent.trophies));
   const [isAiThinking, setIsAiThinking] = useState(false);
+  const [totalMoves, setTotalMoves] = useState(0);
   
   // Timer
   useEffect(() => {
@@ -86,6 +93,7 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
   };
   
   const handleMove = (column: number, player: 'player' | 'ai') => {
+    setTotalMoves(prev => prev + 1);
     setMatch(prevMatch => {
       const newBoard = dropPiece(prevMatch.board, column, player);
       if (!newBoard) return prevMatch;
@@ -109,8 +117,9 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
             matchWinner: newPlayerWins === 2 ? 'player' : 'ai'
           };
         } else {
-          // Next game
+          // Next game - reset move counter
           setTimeout(() => {
+            setTotalMoves(0);
             setMatch(prev => ({
               ...prev,
               currentGame: prev.currentGame + 1,
@@ -148,8 +157,57 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
   const handleEndMatch = () => {
     if (match.matchWinner) {
       const won = match.matchWinner === 'player';
-      const trophyChange = calculateTrophyChange(won, playerData.winStreak);
+      const trophyChange = calculateNewTrophyChange(
+        won, 
+        playerData.trophies, 
+        opponent.trophies, 
+        playerData.winStreak,
+        totalMoves
+      );
       onMatchEnd(won, trophyChange);
+    }
+  };
+  
+  // New trophy calculation system
+  const calculateNewTrophyChange = (
+    won: boolean, 
+    playerTrophies: number, 
+    opponentTrophies: number, 
+    winStreak: number,
+    moves: number
+  ): number => {
+    if (won) {
+      // Base trophy reward based on opponent comparison
+      let baseTrophies = 2; // Default for lower-ranked opponent
+      
+      const trophyDiff = opponentTrophies - playerTrophies;
+      
+      if (trophyDiff >= 30) {
+        baseTrophies = 5; // Much higher rank (underdog victory)
+      } else if (trophyDiff >= 10) {
+        baseTrophies = 4; // Slightly higher rank
+      } else if (trophyDiff >= -10) {
+        baseTrophies = 3; // Equal rank
+      }
+      
+      // Win streak bonus: +1 if 3+ wins in a row
+      const streakBonus = winStreak >= 3 ? 1 : 0;
+      
+      // Fast win bonus: +1 if won in under 20 moves
+      const fastWinBonus = moves < 20 ? 1 : 0;
+      
+      return baseTrophies + streakBonus + fastWinBonus;
+    } else {
+      // Loss penalties based on opponent rank
+      const trophyDiff = opponentTrophies - playerTrophies;
+      
+      if (trophyDiff <= -30) {
+        return -4; // Lost to much lower rank (hurts more)
+      } else if (trophyDiff <= -10) {
+        return -3; // Lost to lower rank
+      } else {
+        return -2; // Lost to equal or higher rank
+      }
     }
   };
   
@@ -181,7 +239,7 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
           </div>
           <div className="text-4xl font-bold text-gray-500">-</div>
           <div className="text-center">
-            <p className="text-sm text-gray-400">{opponentName}</p>
+            <p className="text-sm text-gray-400">{opponent.name}</p>
             <p className="text-3xl font-bold text-red-400">{match.aiWins}</p>
           </div>
         </div>
@@ -216,12 +274,12 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
           ) : match.winner ? (
             <p className="text-2xl">
               {match.winner === 'player' ? '🎉 You won this game!' : 
-               match.winner === 'ai' ? `😞 ${opponentName} won this game` : 
+               match.winner === 'ai' ? `😞 ${opponent.name} won this game` : 
                '🤝 Draw!'}
             </p>
           ) : (
             <p className="text-xl">
-              {match.currentPlayer === 'player' ? '🔵 Your turn' : `🔴 ${opponentName} is making a move...`}
+              {match.currentPlayer === 'player' ? '🔵 Your turn' : `🔴 ${opponent.name} is making a move...`}
             </p>
           )}
         </div>
