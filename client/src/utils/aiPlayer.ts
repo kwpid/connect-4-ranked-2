@@ -32,12 +32,27 @@ export class AIPlayer {
       }
     }
     
-    // Check for blocking move
-    if (this.difficulty >= 2) {
-      for (const col of availableColumns) {
-        const testBoard = dropPiece(board, col, 'player');
-        if (testBoard && checkWinner(testBoard) === 'player') {
-          return col;
+    // Check for blocking move with rank-based probability
+    if (this.difficulty >= 1) {
+      // Calculate blocking probability based on rank
+      let blockingChance = 0;
+      if (this.difficulty <= 3) {
+        blockingChance = 0.67; // Lower ranks: 67% chance, 33% miss
+      } else if (this.difficulty <= 6) {
+        blockingChance = 0.80; // Mid ranks: 80% chance
+      } else if (this.difficulty <= 8) {
+        blockingChance = 0.90; // High ranks: 90% chance
+      } else {
+        blockingChance = 0.98; // Top ranks: 98% chance
+      }
+      
+      // Only attempt to block if random roll succeeds
+      if (Math.random() < blockingChance) {
+        for (const col of availableColumns) {
+          const testBoard = dropPiece(board, col, 'player');
+          if (testBoard && checkWinner(testBoard) === 'player') {
+            return col;
+          }
         }
       }
     }
