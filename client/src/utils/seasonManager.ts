@@ -100,15 +100,84 @@ export function generateAICompetitors(count: number = 150): AICompetitor[] {
 export function updateAICompetitors(competitors: AICompetitor[]): AICompetitor[] {
   const now = Date.now();
   return competitors.map(ai => {
-    const hoursSinceUpdate = (now - ai.lastUpdate) / (1000 * 60 * 60);
-    const trophyGain = Math.floor(hoursSinceUpdate * ai.grindRate * (Math.random() * 0.5 + 0.75));
+    const minutesSinceUpdate = (now - ai.lastUpdate) / (1000 * 60);
+    
+    // Simulate games played based on activity rate
+    // More active players play more games per hour
+    const gamesPerHour = ai.grindRate / 2; // Convert grind rate to games per hour
+    const gamesProbablyPlayed = Math.floor((minutesSinceUpdate / 60) * gamesPerHour);
+    
+    let currentTrophies = ai.trophies;
+    let winStreak = 0;
+    
+    // Simulate each game
+    for (let i = 0; i < gamesProbablyPlayed; i++) {
+      // Win rate varies by trophy count - higher trophy players are better
+      let winRate = 0.5; // Base 50%
+      if (currentTrophies > 300) winRate = 0.65;
+      else if (currentTrophies > 200) winRate = 0.60;
+      else if (currentTrophies > 100) winRate = 0.55;
+      else if (currentTrophies < 50) winRate = 0.45;
+      
+      const won = Math.random() < winRate;
+      
+      if (won) {
+        winStreak++;
+        const streakBonus = Math.floor(winStreak / 5);
+        currentTrophies += (1 + streakBonus);
+      } else {
+        winStreak = 0;
+        currentTrophies = Math.max(0, currentTrophies - 1);
+      }
+    }
     
     return {
       ...ai,
-      trophies: Math.max(0, ai.trophies + trophyGain),
+      trophies: currentTrophies,
       lastUpdate: now
     };
   });
+}
+
+// Reset AI competitors for new season
+export function resetAICompetitorsForSeason(competitors: AICompetitor[]): AICompetitor[] {
+  return competitors.map(ai => {
+    // Reset to minimum trophy for their rank (same as player logic)
+    const resetTrophies = getSeasonResetTrophiesForAI(ai.trophies);
+    
+    return {
+      ...ai,
+      trophies: resetTrophies,
+      lastUpdate: Date.now()
+    };
+  });
+}
+
+function getSeasonResetTrophiesForAI(currentTrophies: number): number {
+  // Use similar logic to player season reset
+  if (currentTrophies >= 401) return 401; // Legend
+  if (currentTrophies >= 376) return 376; // Grand Champion IV
+  if (currentTrophies >= 351) return 351; // Grand Champion III
+  if (currentTrophies >= 326) return 326; // Grand Champion II
+  if (currentTrophies >= 301) return 301; // Grand Champion I
+  if (currentTrophies >= 276) return 276; // Champion III
+  if (currentTrophies >= 251) return 251; // Champion II
+  if (currentTrophies >= 226) return 226; // Champion I
+  if (currentTrophies >= 201) return 201; // Diamond III
+  if (currentTrophies >= 176) return 176; // Diamond II
+  if (currentTrophies >= 151) return 151; // Diamond I
+  if (currentTrophies >= 131) return 131; // Platinum III
+  if (currentTrophies >= 111) return 111; // Platinum II
+  if (currentTrophies >= 91) return 91; // Platinum I
+  if (currentTrophies >= 76) return 76; // Gold III
+  if (currentTrophies >= 61) return 61; // Gold II
+  if (currentTrophies >= 46) return 46; // Gold I
+  if (currentTrophies >= 36) return 36; // Silver III
+  if (currentTrophies >= 26) return 26; // Silver II
+  if (currentTrophies >= 16) return 16; // Silver I
+  if (currentTrophies >= 11) return 11; // Bronze III
+  if (currentTrophies >= 6) return 6; // Bronze II
+  return 0; // Bronze I
 }
 
 // Generate random title for AI based on their trophy count
