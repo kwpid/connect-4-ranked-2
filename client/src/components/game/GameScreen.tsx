@@ -264,6 +264,21 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
               <p className="text-xl text-gray-300">
                 Match Score: {match.playerWins} - {match.aiWins}
               </p>
+              {(() => {
+                const won = match.matchWinner === 'player';
+                const trophyChange = calculateNewTrophyChange(
+                  won, 
+                  playerData.trophies, 
+                  opponent.trophies, 
+                  playerData.winStreak,
+                  totalMoves
+                );
+                return (
+                  <div className={`text-2xl font-bold ${trophyChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {trophyChange >= 0 ? '+' : ''}{trophyChange} 🏆 Trophies
+                  </div>
+                );
+              })()}
               <button
                 onClick={handleEndMatch}
                 className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors"
