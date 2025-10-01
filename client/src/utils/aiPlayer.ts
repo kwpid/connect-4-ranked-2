@@ -87,6 +87,12 @@ export class AIPlayer {
       }
     }
     
+    // Advanced threat detection - look for player building threats (3 in a row or 2 in a row)
+    if (this.difficulty >= 5) {
+      const threatMove = this.detectAndBlockThreat(board, availableColumns);
+      if (threatMove !== -1) return threatMove;
+    }
+    
     // Advanced strategy based on difficulty
     if (this.difficulty >= 5) {
       const strategicMove = this.findStrategicMove(board, availableColumns);
@@ -187,6 +193,82 @@ export class AIPlayer {
     return null;
   }
   
+  private detectAndBlockThreat(board: GameBoard, availableColumns: number[]): number {
+    // Detect if player has dangerous threats (3 in a row, or 2 in a row with open ends)
+    const cells = board.cells;
+    const directions = [
+      { dr: 0, dc: 1 },  // horizontal
+      { dr: 1, dc: 0 },  // vertical
+      { dr: 1, dc: 1 },  // diagonal down-right
+      { dr: 1, dc: -1 }  // diagonal down-left
+    ];
+    
+    // Find all player threats and rate them by severity
+    const threats: { column: number; severity: number }[] = [];
+    
+    for (const col of availableColumns) {
+      const testBoard = dropPiece(board, col, 'ai');
+      if (!testBoard) continue;
+      
+      // Check what threats this move would block
+      let maxThreatBlocked = 0;
+      
+      for (let row = 0; row < 6; row++) {
+        for (let c = 0; c < 7; c++) {
+          for (const dir of directions) {
+            const window = this.getWindow(board.cells, row, c, dir.dr, dir.dc);
+            if (window.length !== 4) continue;
+            
+            const playerCount = window.filter(cell => cell === 'player').length;
+            const emptyCount = window.filter(cell => cell === 'empty').length;
+            const aiCount = window.filter(cell => cell === 'ai').length;
+            
+            // Skip if AI already blocks this line
+            if (aiCount > 0) continue;
+            
+            // Check if this move would block this threat
+            const windowAfter = this.getWindow(testBoard.cells, row, c, dir.dr, dir.dc);
+            const aiCountAfter = windowAfter.filter(cell => cell === 'ai').length;
+            
+            if (aiCountAfter > 0) {
+              // This move blocks this line - calculate threat level
+              let threat = 0;
+              if (playerCount === 3 && emptyCount === 1) {
+                threat = 100; // Critical: 3 in a row with 1 empty
+              } else if (playerCount === 2 && emptyCount === 2) {
+                threat = 50; // Dangerous: 2 in a row with 2 empties
+              } else if (playerCount === 1 && emptyCount === 3) {
+                threat = 10; // Minor: 1 in a row with 3 empties
+              }
+              
+              maxThreatBlocked = Math.max(maxThreatBlocked, threat);
+            }
+          }
+        }
+      }
+      
+      if (maxThreatBlocked > 0) {
+        threats.push({ column: col, severity: maxThreatBlocked });
+      }
+    }
+    
+    // Sort by severity and return the most important block
+    if (threats.length > 0) {
+      threats.sort((a, b) => b.severity - a.severity);
+      // For high-level AI (7+), always block threats of 50+
+      // For mid-level AI (5-6), block critical threats (100) always, and 50+ sometimes
+      if (this.difficulty >= 7 && threats[0].severity >= 50) {
+        return threats[0].column;
+      } else if (this.difficulty >= 5 && threats[0].severity >= 100) {
+        return threats[0].column;
+      } else if (this.difficulty >= 5 && threats[0].severity >= 50 && Math.random() > 0.3) {
+        return threats[0].column;
+      }
+    }
+    
+    return -1;
+  }
+
   private findStrategicMove(board: GameBoard, availableColumns: number[]): number {
     // Look for moves that create multiple threats
     let bestScore = -1;

@@ -11,6 +11,14 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 **October 1, 2025 (Latest Update):**
+- **Improved AI threat detection for high-trophy opponents:**
+  - AI now detects and blocks horizontal, vertical, and diagonal threats before they become critical
+  - High-difficulty AI (Platinum+) can now see when player has 2-3 pieces in a row and prioritizes blocking
+  - Fixes exploit where players could build winning lines by placing pieces in columns 3, 4, 5, 6
+  - AI evaluates threat severity: 3-in-a-row (critical), 2-in-a-row (dangerous), 1-in-a-row (minor)
+  - Advanced blocking kicks in at difficulty level 5+ (Platinum rank and above in ranked, Good/Professional in practice)
+
+**October 1, 2025 (Earlier):**
 - **Expanded rank system from 3 to 5 divisions per rank:**
   - All ranks now have 5 divisions (I, II, III, IV, V) except Connect Legend
   - Bronze: I-V (0-50 trophies, 10 per division)
