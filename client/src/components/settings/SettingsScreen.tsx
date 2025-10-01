@@ -71,7 +71,6 @@ export function SettingsScreen({ playerData, onUsernameChange, onBack }: Setting
             <p>• Trophy-based ranking system</p>
             <p>• 2-week seasonal competitions</p>
             <p>• Earn titles and rewards</p>
-            <p>• Compete against skilled AI opponents</p>
           </div>
         </div>
         
