@@ -8,6 +8,28 @@ Connect Ranked is a competitive Connect 4 game built as a single-player experien
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+**October 1, 2025:**
+- Changed leaderboard system from top 100 to top 30 players
+- Updated seasonal reward titles to reflect top 30 instead of top 100
+- Removed AI opponent references from settings screen
+- Implemented rank-based AI blocking probability:
+  - Lower ranks (Bronze-Gold): 67% chance to block winning moves
+  - Mid ranks (Platinum): 80% chance to block
+  - High ranks (Diamond-Champion): 90% chance to block
+  - Top ranks (Grand Champion-Legend): 98% chance to block
+- Added title display system on leaderboard:
+  - Players' equipped titles show under their usernames
+  - AI opponents receive random titles based on their trophy count
+  - Lower rank AIs get grey titles or no title
+  - Higher rank AIs get prestigious season/leaderboard titles
+- Enhanced leaderboard page with season information panel:
+  - Current season number display
+  - Time remaining in current season
+  - Player's current rank and trophy count
+  - Player's leaderboard position (if in top 30)
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -23,8 +45,14 @@ Preferred communication style: Simple, everyday language.
 The application follows a screen-based architecture with distinct views:
 - **Menu System**: Main menu, title selector, settings
 - **Game Flow**: Queue screen, game board, match system
-- **Progression**: Leaderboard, rank info, statistics, shop
+- **Progression**: Top 30 leaderboard with season info, rank info, statistics, shop
 - **UI Components**: Reusable shadcn/ui components built on Radix UI
+
+**Title System:**
+- Cosmetic titles that appear under player usernames
+- Three types: grey (shop-purchased), season (rank-based rewards), leaderboard (placement rewards)
+- Players can equip one title at a time
+- AI opponents on leaderboard display random titles based on their trophy tier
 
 **State Management:**
 - Local component state using React hooks (useState, useEffect)
@@ -72,10 +100,11 @@ All game data is persisted to browser localStorage with the following keys:
 ### Game Logic Architecture
 
 **AI System:**
-- Difficulty-based AI that scales with player trophy count
+- Difficulty-based AI that scales with player trophy count (1-10 difficulty levels)
 - Implements minimax-like strategy for move selection
 - AI "thinks" with variable delays to simulate human behavior
-- Checks for winning moves, blocking moves, and strategic positioning
+- Rank-based blocking probability: lower ranks have 67% chance to block winning moves, increasing to 98% for top ranks
+- Strategic positioning and center-column preference for higher difficulties
 
 **Ranking System:**
 - 23 distinct ranks from Bronze I to Connect Legend
