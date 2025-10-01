@@ -1,12 +1,17 @@
 import React from 'react';
 import { Title } from '../../types/game';
+import { getTitleFromId } from '../../utils/titleManager';
 
 interface TitleDisplayProps {
-  title: Title | null;
+  title?: Title | null;
+  titleId?: string | null;
 }
 
-export function TitleDisplay({ title }: TitleDisplayProps) {
-  if (!title) {
+export function TitleDisplay({ title, titleId }: TitleDisplayProps) {
+  // If titleId is provided, parse it to get the full title object
+  const displayTitle = titleId ? getTitleFromId(titleId) : title;
+  
+  if (!displayTitle) {
     return (
       <div className="text-center">
         <p className="text-gray-500 italic">No title equipped</p>
@@ -15,10 +20,10 @@ export function TitleDisplay({ title }: TitleDisplayProps) {
   }
   
   const getGlowStyle = () => {
-    if (title.glow === 'none') return {};
+    if (displayTitle.glow === 'none' || !displayTitle.glow) return {};
     
     return {
-      textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}, 0 0 30px ${title.glow}`
+      textShadow: `0 0 10px ${displayTitle.glow}, 0 0 20px ${displayTitle.glow}, 0 0 30px ${displayTitle.glow}`
     };
   };
   
@@ -27,11 +32,11 @@ export function TitleDisplay({ title }: TitleDisplayProps) {
       <p
         className="text-lg font-bold"
         style={{
-          color: title.color,
+          color: displayTitle.color,
           ...getGlowStyle()
         }}
       >
-        {title.name}
+        {displayTitle.name}
       </p>
     </div>
   );

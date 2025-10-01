@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { PlayerData, Title } from '../../types/game';
+import { PlayerData } from '../../types/game';
 import { TitleDisplay } from '../common/TitleDisplay';
+import { getTitleFromId } from '../../utils/titleManager';
 
 interface TitleSelectorProps {
   playerData: PlayerData;
@@ -12,13 +13,7 @@ export function TitleSelector({ playerData, onEquip, onBack }: TitleSelectorProp
   const [selectedTitle, setSelectedTitle] = useState<string | null>(playerData.equippedTitle);
   
   // Get owned titles
-  const ownedTitles: Title[] = playerData.ownedTitles.map(titleId => ({
-    id: titleId,
-    name: titleId.replace(/_/g, ' ').replace(/^./, str => str.toUpperCase()),
-    type: 'grey',
-    color: '#9CA3AF',
-    glow: 'none'
-  }));
+  const ownedTitles = playerData.ownedTitles.map(titleId => getTitleFromId(titleId));
   
   const handleEquip = () => {
     onEquip(selectedTitle);
@@ -42,13 +37,7 @@ export function TitleSelector({ playerData, onEquip, onBack }: TitleSelectorProp
         <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-8 border border-gray-700">
           <p className="text-gray-400 text-sm mb-2">Currently Equipped</p>
           <TitleDisplay 
-            title={playerData.equippedTitle ? {
-              id: playerData.equippedTitle,
-              name: playerData.equippedTitle,
-              type: 'grey',
-              color: '#9CA3AF',
-              glow: 'none'
-            } : null}
+            titleId={playerData.equippedTitle}
           />
         </div>
         

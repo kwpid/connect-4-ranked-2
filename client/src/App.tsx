@@ -180,6 +180,7 @@ function App() {
           playerData={playerData}
           onQueue={() => setScreen('queue')}
           onLeaderboard={() => setScreen('leaderboard')}
+          onShop={() => setScreen('shop')}
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
           onTitleSelector={() => setScreen('titleSelector')}

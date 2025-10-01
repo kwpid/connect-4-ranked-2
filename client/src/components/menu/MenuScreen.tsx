@@ -7,6 +7,7 @@ interface MenuScreenProps {
   playerData: PlayerData;
   onQueue: () => void;
   onLeaderboard: () => void;
+  onShop: () => void;
   onStats: () => void;
   onSettings: () => void;
   onTitleSelector: () => void;
@@ -16,6 +17,7 @@ export function MenuScreen({
   playerData,
   onQueue,
   onLeaderboard,
+  onShop,
   onStats,
   onSettings,
   onTitleSelector
@@ -39,13 +41,7 @@ export function MenuScreen({
           <div className="text-center mb-4">
             <h2 className="text-3xl font-bold mb-2">{playerData.username}</h2>
             <TitleDisplay 
-              title={playerData.equippedTitle ? {
-                id: playerData.equippedTitle,
-                name: playerData.equippedTitle,
-                type: 'grey',
-                color: '#9CA3AF',
-                glow: 'none'
-              } : null}
+              titleId={playerData.equippedTitle}
             />
           </div>
           
@@ -94,7 +90,13 @@ export function MenuScreen({
         </div>
         
         {/* Secondary Actions */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
+          <button
+            onClick={onShop}
+            className="py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg transition-colors font-semibold"
+          >
+            🛒 Shop
+          </button>
           <button
             onClick={onStats}
             className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
