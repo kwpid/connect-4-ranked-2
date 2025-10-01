@@ -15,6 +15,7 @@ import {
 import { 
   shouldResetSeason, 
   updateAICompetitors, 
+  resetAICompetitorsForSeason,
   getTop30Leaderboard,
   getCurrentSeasonData 
 } from './utils/seasonManager';
@@ -109,6 +110,11 @@ function App() {
     
     setPlayerData(updatedPlayer);
     savePlayerData(updatedPlayer);
+    
+    // Reset AI competitors for new season
+    const resetAI = resetAICompetitorsForSeason(aiCompetitors);
+    setAiCompetitors(resetAI);
+    saveAICompetitors(resetAI);
     
     // Update season data
     setSeasonData(currentSeason);
