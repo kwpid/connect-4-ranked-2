@@ -2,6 +2,7 @@ import React from 'react';
 import { LeaderboardEntry, PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { getSeasonRewardCoins } from '../../utils/rankSystem';
+import { getTitleFromId } from '../../utils/titleManager';
 
 interface LeaderboardScreenProps {
   leaderboard: LeaderboardEntry[];
@@ -87,9 +88,21 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
                         <span className="font-bold">#{entry.rank}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={isPlayer ? 'font-bold text-blue-400' : ''}>
-                          {entry.username} {isPlayer && '(You)'}
-                        </span>
+                        <div>
+                          <span className={isPlayer ? 'font-bold text-blue-400' : ''}>
+                            {entry.username} {isPlayer && '(You)'}
+                          </span>
+                          {entry.titleId && (
+                            <div className="text-xs mt-0.5" style={{ 
+                              color: getTitleFromId(entry.titleId).color,
+                              textShadow: getTitleFromId(entry.titleId).glow !== 'none' 
+                                ? `0 0 8px ${getTitleFromId(entry.titleId).glow}`
+                                : 'none'
+                            }}>
+                              {getTitleFromId(entry.titleId).name}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <span className="font-semibold" style={{ color: tierColor }}>

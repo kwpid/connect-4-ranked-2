@@ -39,8 +39,8 @@ export function getTitleFromId(titleId: string): Title {
     };
   }
   
-  // Leaderboard titles (S# TOP CHAMPION, S# TOP 10, S# TOP 100)
-  const leaderboardMatch = titleId.match(/^S(\d+)\s+TOP\s+(CHAMPION|10|100)$/);
+  // Leaderboard titles (S# TOP CHAMPION, S# TOP 10, S# TOP 30, S# TOP 100)
+  const leaderboardMatch = titleId.match(/^S(\d+)\s+TOP\s+(CHAMPION|10|30|100)$/);
   if (leaderboardMatch) {
     const [, seasonNum, placement] = leaderboardMatch;
     let color = '#FFD700'; // Gold

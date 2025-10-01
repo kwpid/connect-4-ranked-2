@@ -61,6 +61,7 @@ export interface LeaderboardEntry {
   trophies: number;
   isPlayer: boolean;
   rank?: number;
+  titleId?: string | null;
 }
 
 export interface ShopItem {

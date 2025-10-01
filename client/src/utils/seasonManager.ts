@@ -111,17 +111,60 @@ export function updateAICompetitors(competitors: AICompetitor[]): AICompetitor[]
   });
 }
 
+// Generate random title for AI based on their trophy count
+function getRandomAITitle(trophies: number): string | null {
+  // Lower ranks (< 150 trophies) - 50% chance of grey title, 50% no title
+  if (trophies < 150) {
+    if (Math.random() < 0.5) return null;
+    
+    const greyTitles = [
+      'grey_the_noob', 'grey_casual_player', 'grey_beginner',
+      'grey_enthusiast', 'grey_rookie', 'grey_apprentice'
+    ];
+    return greyTitles[Math.floor(Math.random() * greyTitles.length)];
+  }
+  
+  // Mid ranks (150-300) - mix of grey and old season titles
+  if (trophies < 300) {
+    const rand = Math.random();
+    if (rand < 0.3) return null;
+    if (rand < 0.6) {
+      const greyTitles = [
+        'grey_veteran', 'grey_skilled', 'grey_tactician',
+        'grey_strategist', 'grey_competitor'
+      ];
+      return greyTitles[Math.floor(Math.random() * greyTitles.length)];
+    }
+    // Old season Champion/Top 30 titles
+    const seasonNum = Math.floor(Math.random() * 3) + 1; // S1-S3
+    return Math.random() < 0.5 
+      ? `S${seasonNum} Champion`
+      : `S${seasonNum} TOP 30`;
+  }
+  
+  // High ranks (300+) - prestigious season titles
+  const seasonNum = Math.floor(Math.random() * 3) + 1;
+  const rand = Math.random();
+  
+  if (rand < 0.3) return `S${seasonNum} Legend`;
+  if (rand < 0.6) return `S${seasonNum} Grand Champion`;
+  if (rand < 0.8) return `S${seasonNum} TOP CHAMPION`;
+  return `S${seasonNum} TOP 10`;
+}
+
 export function getTop30Leaderboard(playerData: any, aiCompetitors: AICompetitor[]): LeaderboardEntry[] {
   const entries: LeaderboardEntry[] = [
     {
       username: playerData.username,
       trophies: playerData.trophies,
-      isPlayer: true
+      isPlayer: true,
+      titleId: playerData.equippedTitle
     },
     ...aiCompetitors.map(ai => ({
       username: ai.username,
       trophies: ai.trophies,
-      isPlayer: false
+      isPlayer: false,
+      titleId: getRandomAITitle(ai.trophies)
     }))
   ];
   
