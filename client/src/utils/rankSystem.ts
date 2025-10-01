@@ -23,7 +23,7 @@ export const RANKS: RankInfo[] = [
   { name: 'Grand Champion II', minTrophies: 326, maxTrophies: 350, tier: 'grand_champion' },
   { name: 'Grand Champion III', minTrophies: 351, maxTrophies: 375, tier: 'grand_champion' },
   { name: 'Grand Champion IV', minTrophies: 376, maxTrophies: 400, tier: 'grand_champion' },
-  { name: 'Clicker Legend', minTrophies: 401, maxTrophies: 999999, tier: 'legend' }
+  { name: 'Connect Legend', minTrophies: 401, maxTrophies: 999999, tier: 'legend' }
 ];
 
 export function getRankByTrophies(trophies: number): RankInfo {
@@ -60,7 +60,7 @@ export function calculateTrophyChange(won: boolean, winStreak: number): number {
 
 export function getSeasonResetTrophies(currentTrophies: number): number {
   const rank = getRankByTrophies(currentTrophies);
-  if (rank.name === 'Clicker Legend') return 401;
+  if (rank.name === 'Connect Legend') return 401;
   return rank.minTrophies;
 }
 

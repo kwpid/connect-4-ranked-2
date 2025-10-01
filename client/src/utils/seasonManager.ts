@@ -62,21 +62,24 @@ export function generateAICompetitors(count: number = 150): AICompetitor[] {
     const baseName = names[Math.floor(Math.random() * names.length)];
     const username = `${baseName}${Math.floor(Math.random() * 9999)}`;
     
-    // Generate varied trophy counts
+    // Generate varied trophy counts - top 30 will have 600+ trophies
     let trophies: number;
     const rand = Math.random();
-    if (rand < 0.4) {
-      // 40% in lower ranks (0-150)
-      trophies = Math.floor(Math.random() * 150);
-    } else if (rand < 0.7) {
-      // 30% in mid ranks (150-300)
-      trophies = 150 + Math.floor(Math.random() * 150);
-    } else if (rand < 0.9) {
-      // 20% in high ranks (300-450)
-      trophies = 300 + Math.floor(Math.random() * 150);
+    if (rand < 0.2) {
+      // 20% in top tier (600-900) - ensures top 30 has 600+
+      trophies = 600 + Math.floor(Math.random() * 300);
+    } else if (rand < 0.4) {
+      // 20% in high tier (400-600)
+      trophies = 400 + Math.floor(Math.random() * 200);
+    } else if (rand < 0.6) {
+      // 20% in mid-high tier (250-400)
+      trophies = 250 + Math.floor(Math.random() * 150);
+    } else if (rand < 0.8) {
+      // 20% in mid tier (100-250)
+      trophies = 100 + Math.floor(Math.random() * 150);
     } else {
-      // 10% in very high ranks (450-600)
-      trophies = 450 + Math.floor(Math.random() * 150);
+      // 20% in lower tier (0-100)
+      trophies = Math.floor(Math.random() * 100);
     }
     
     // Grind rate: how many trophies they gain per hour
@@ -122,9 +125,8 @@ export function getTop100Leaderboard(playerData: any, aiCompetitors: AICompetito
     }))
   ];
   
-  // Sort by trophies and get top 100
+  // Sort by trophies and get top 100 (no minimum trophy requirement)
   const sorted = entries
-    .filter(e => e.trophies >= 400) // Minimum 400 trophies for top 100
     .sort((a, b) => b.trophies - a.trophies)
     .slice(0, 100)
     .map((entry, index) => ({

@@ -28,17 +28,18 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
           setEstimatedTime(Math.max(1, queueTime + variance));
         }
         
-        if (newElapsed >= queueTime) {
-          onMatchFound();
-          return newElapsed;
-        }
-        
         return newElapsed;
       });
     }, 1000);
     
     return () => clearInterval(timer);
   }, [queueTime]);
+  
+  useEffect(() => {
+    if (elapsed >= queueTime) {
+      onMatchFound();
+    }
+  }, [elapsed, queueTime, onMatchFound]);
   
   const progress = Math.min((elapsed / queueTime) * 100, 100);
   

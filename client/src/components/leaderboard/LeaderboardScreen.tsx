@@ -45,7 +45,7 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
         ) : (
           <div className="bg-gray-800/50 backdrop-blur rounded-xl p-4 mb-6 border border-gray-700">
             <p className="text-center text-gray-400">
-              You need 400+ trophies to appear on the leaderboard
+              Keep playing to climb the leaderboard!
             </p>
             <p className="text-center text-gray-500 text-sm mt-1">
               Current: {playerData.trophies} trophies
