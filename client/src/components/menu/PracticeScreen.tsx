@@ -79,7 +79,6 @@ export function PracticeScreen({ onSelectDifficulty, onBack }: PracticeScreenPro
           <ul className="space-y-2 text-gray-300">
             <li>• Green column highlights show suggested moves</li>
             <li>• Pay attention to the coaching tips that appear</li>
-            <li>• Try the console command <code className="bg-gray-900 px-2 py-1 rounded text-yellow-400">test.cheat()</code> to see the best move</li>
             <li>• Practice makes perfect! Use this mode to learn strategies</li>
           </ul>
         </div>
