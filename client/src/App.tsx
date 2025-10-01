@@ -25,6 +25,7 @@ import { shouldRotateShop, getShopRotationSeed } from './utils/shopManager';
 // Screens
 import { MenuScreen } from './components/menu/MenuScreen';
 import { TitleSelector } from './components/menu/TitleSelector';
+import { PracticeScreen } from './components/menu/PracticeScreen';
 import { QueueScreen } from './components/queue/QueueScreen';
 import { GameScreen } from './components/game/GameScreen';
 import { LeaderboardScreen } from './components/leaderboard/LeaderboardScreen';
@@ -32,6 +33,7 @@ import { RankInfo } from './components/leaderboard/RankInfo';
 import { ShopScreen } from './components/shop/ShopScreen';
 import { StatsScreen } from './components/stats/StatsScreen';
 import { SettingsScreen } from './components/settings/SettingsScreen';
+import { AIDifficulty } from './utils/aiPlayer';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('menu');
@@ -39,6 +41,8 @@ function App() {
   const [aiCompetitors, setAiCompetitors] = useState(getAICompetitors());
   const [seasonData, setSeasonData] = useState(getSeasonData());
   const [shopRotationTime, setShopRotationTime] = useState(getShopRotation());
+  const [practiceDifficulty, setPracticeDifficulty] = useState<AIDifficulty>('average');
+  const [isPracticeMode, setIsPracticeMode] = useState(false);
   
   // Check for season reset and shop rotation on load and periodically
   useEffect(() => {
@@ -124,6 +128,7 @@ function App() {
   const handleMatchEnd = (won: boolean, trophyChange: number) => {
     const newTrophies = Math.max(0, playerData.trophies + trophyChange);
     const newWinStreak = won ? playerData.winStreak + 1 : 0;
+    const newLosingStreak = won ? 0 : playerData.losingStreak + 1;
     const xpGain = won ? 25 : 10;
     const newXP = playerData.xp + xpGain;
     const newLevel = Math.floor(newXP / 100) + 1;
@@ -162,6 +167,7 @@ function App() {
       losses: playerData.losses + (won ? 0 : 1),
       totalGames: playerData.totalGames + 1,
       winStreak: newWinStreak,
+      losingStreak: newLosingStreak,
       currentSeasonWins: playerData.currentSeasonWins + (won ? 1 : 0),
       bestWinStreak: Math.max(playerData.bestWinStreak, newWinStreak),
       xp: newXP,
@@ -208,11 +214,23 @@ function App() {
         <MenuScreen
           playerData={playerData}
           onQueue={() => setScreen('queue')}
+          onPractice={() => setScreen('practice')}
           onLeaderboard={() => setScreen('leaderboard')}
           onShop={() => setScreen('shop')}
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
           onTitleSelector={() => setScreen('titleSelector')}
+        />
+      )}
+      
+      {screen === 'practice' && (
+        <PracticeScreen
+          onSelectDifficulty={(difficulty) => {
+            setPracticeDifficulty(difficulty);
+            setIsPracticeMode(true);
+            setScreen('game');
+          }}
+          onBack={() => setScreen('menu')}
         />
       )}
       
@@ -227,7 +245,10 @@ function App() {
       {screen === 'queue' && (
         <QueueScreen
           playerData={playerData}
-          onMatchFound={() => setScreen('game')}
+          onMatchFound={() => {
+            setIsPracticeMode(false);
+            setScreen('game');
+          }}
           onCancel={() => setScreen('menu')}
         />
       )}
@@ -237,6 +258,8 @@ function App() {
           playerData={playerData}
           onMatchEnd={handleMatchEnd}
           onBack={() => setScreen('menu')}
+          isPracticeMode={isPracticeMode}
+          practiceDifficulty={practiceDifficulty}
         />
       )}
       

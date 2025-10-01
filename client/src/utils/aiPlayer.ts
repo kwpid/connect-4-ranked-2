@@ -1,28 +1,58 @@
 import { GameBoard, CellValue } from '../types/game';
 import { dropPiece, checkWinner, getAvailableColumns } from './gameLogic';
 
+export type AIDifficulty = 'noob' | 'average' | 'good' | 'professional';
+
 export class AIPlayer {
-  private difficulty: number; // 0-10, based on trophies
+  private difficulty: number; // 0-10, based on trophies or difficulty setting
   
-  constructor(playerTrophies: number) {
-    // Map trophies to difficulty
-    if (playerTrophies < 16) this.difficulty = 1; // Bronze
-    else if (playerTrophies < 46) this.difficulty = 2; // Silver
-    else if (playerTrophies < 91) this.difficulty = 3; // Gold
-    else if (playerTrophies < 151) this.difficulty = 5; // Platinum
-    else if (playerTrophies < 226) this.difficulty = 7; // Diamond
-    else if (playerTrophies < 301) this.difficulty = 8; // Champion
-    else if (playerTrophies < 401) this.difficulty = 9; // Grand Champion
-    else this.difficulty = 10; // Legend
+  constructor(playerTrophiesOrDifficulty: number | AIDifficulty) {
+    if (typeof playerTrophiesOrDifficulty === 'string') {
+      // Practice mode with explicit difficulty
+      switch (playerTrophiesOrDifficulty) {
+        case 'noob':
+          this.difficulty = 1;
+          break;
+        case 'average':
+          this.difficulty = 4;
+          break;
+        case 'good':
+          this.difficulty = 7;
+          break;
+        case 'professional':
+          this.difficulty = 10;
+          break;
+      }
+    } else {
+      // Ranked mode with trophy-based difficulty
+      const playerTrophies = playerTrophiesOrDifficulty;
+      if (playerTrophies < 16) this.difficulty = 1; // Bronze
+      else if (playerTrophies < 46) this.difficulty = 2; // Silver
+      else if (playerTrophies < 91) this.difficulty = 3; // Gold
+      else if (playerTrophies < 151) this.difficulty = 5; // Platinum
+      else if (playerTrophies < 226) this.difficulty = 7; // Diamond
+      else if (playerTrophies < 301) this.difficulty = 8; // Champion
+      else if (playerTrophies < 401) this.difficulty = 9; // Grand Champion
+      else this.difficulty = 10; // Legend
+    }
   }
   
-  async makeMove(board: GameBoard): Promise<number> {
+  async makeMove(board: GameBoard, isFirstMove: boolean = false): Promise<number> {
     // Simulate thinking time based on difficulty
     const thinkTime = 500 + Math.random() * 1000 + (10 - this.difficulty) * 200;
     await new Promise(resolve => setTimeout(resolve, thinkTime));
     
     const availableColumns = getAvailableColumns(board);
     if (availableColumns.length === 0) return -1;
+    
+    // Opening move strategy: prefer middle column
+    if (isFirstMove && availableColumns.includes(3)) {
+      // Higher difficulty AI prefers center opening more often
+      const centerPreference = this.difficulty >= 3 ? 0.7 : 0.5;
+      if (Math.random() < centerPreference) {
+        return 3; // Middle column
+      }
+    }
     
     // Check for winning move
     for (const col of availableColumns) {
@@ -72,6 +102,89 @@ export class AIPlayer {
     }
     
     return availableColumns[Math.floor(Math.random() * availableColumns.length)];
+  }
+  
+  // Get best move for cheat mode
+  getBestMove(board: GameBoard): number {
+    const availableColumns = getAvailableColumns(board);
+    if (availableColumns.length === 0) return -1;
+    
+    // Check for winning move
+    for (const col of availableColumns) {
+      const testBoard = dropPiece(board, col, 'player');
+      if (testBoard && checkWinner(testBoard) === 'player') {
+        return col;
+      }
+    }
+    
+    // Check for blocking move
+    for (const col of availableColumns) {
+      const testBoard = dropPiece(board, col, 'ai');
+      if (testBoard && checkWinner(testBoard) === 'ai') {
+        return col;
+      }
+    }
+    
+    // Return strategic move
+    const strategicMove = this.findStrategicMove(board, availableColumns);
+    if (strategicMove !== -1) return strategicMove;
+    
+    // Prefer center columns
+    const centerColumns = availableColumns.filter(col => col >= 2 && col <= 4);
+    if (centerColumns.length > 0) {
+      return centerColumns[Math.floor(Math.random() * centerColumns.length)];
+    }
+    
+    return availableColumns[Math.floor(Math.random() * availableColumns.length)];
+  }
+  
+  // Get coaching hints for practice mode
+  getCoachingHint(board: GameBoard): { column: number; reason: string } | null {
+    const availableColumns = getAvailableColumns(board);
+    if (availableColumns.length === 0) return null;
+    
+    // Check for winning move
+    for (const col of availableColumns) {
+      const testBoard = dropPiece(board, col, 'player');
+      if (testBoard && checkWinner(testBoard) === 'player') {
+        return { column: col, reason: 'This move wins the game!' };
+      }
+    }
+    
+    // Check for blocking move
+    for (const col of availableColumns) {
+      const testBoard = dropPiece(board, col, 'ai');
+      if (testBoard && checkWinner(testBoard) === 'ai') {
+        return { column: col, reason: 'Block the opponent from winning!' };
+      }
+    }
+    
+    // Look for setup moves (creating threats)
+    let bestScore = -1;
+    let bestMove = -1;
+    
+    for (const col of availableColumns) {
+      const testBoard = dropPiece(board, col, 'player');
+      if (!testBoard) continue;
+      
+      const score = this.evaluatePosition(testBoard, 'player');
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = col;
+      }
+    }
+    
+    if (bestMove !== -1 && bestScore > 3) {
+      return { column: bestMove, reason: 'Create a threat!' };
+    }
+    
+    // Prefer center columns
+    const centerColumns = availableColumns.filter(col => col >= 2 && col <= 4);
+    if (centerColumns.length > 0) {
+      return { column: centerColumns[0], reason: 'Center columns give more options' };
+    }
+    
+    return null;
   }
   
   private findStrategicMove(board: GameBoard, availableColumns: number[]): number {

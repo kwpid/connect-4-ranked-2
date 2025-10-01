@@ -6,6 +6,7 @@ import { TitleDisplay } from '../common/TitleDisplay';
 interface MenuScreenProps {
   playerData: PlayerData;
   onQueue: () => void;
+  onPractice: () => void;
   onLeaderboard: () => void;
   onShop: () => void;
   onStats: () => void;
@@ -16,6 +17,7 @@ interface MenuScreenProps {
 export function MenuScreen({
   playerData,
   onQueue,
+  onPractice,
   onLeaderboard,
   onShop,
   onStats,
@@ -79,6 +81,13 @@ export function MenuScreen({
             className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg"
           >
             Find Match
+          </button>
+          
+          <button
+            onClick={onPractice}
+            className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
+          >
+            🎓 Practice
           </button>
           
           <button

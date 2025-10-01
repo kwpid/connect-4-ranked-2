@@ -37,6 +37,7 @@ export interface PlayerData {
   losses: number;
   totalGames: number;
   winStreak: number;
+  losingStreak: number;
   currentSeasonWins: number;
   bestWinStreak: number;
 }
@@ -80,4 +81,4 @@ export interface MatchState {
   matchWinner: 'player' | 'ai' | null;
 }
 
-export type Screen = 'menu' | 'queue' | 'game' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo';
+export type Screen = 'menu' | 'queue' | 'game' | 'practice' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo';

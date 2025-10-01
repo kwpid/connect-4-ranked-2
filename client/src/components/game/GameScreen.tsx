@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MatchState, PlayerData, GameResult } from '../../types/game';
-import { createEmptyBoard, dropPiece, checkWinner } from '../../utils/gameLogic';
-import { AIPlayer } from '../../utils/aiPlayer';
+import { createEmptyBoard, dropPiece, getWinnerWithCells, WinningCells } from '../../utils/gameLogic';
+import { AIPlayer, AIDifficulty } from '../../utils/aiPlayer';
 import { Connect4Board } from './Connect4Board';
 import { calculateTrophyChange, getRankByTrophies } from '../../utils/rankSystem';
 import { getTitleFromId } from '../../utils/titleManager';
@@ -11,9 +11,11 @@ interface GameScreenProps {
   playerData: PlayerData;
   onMatchEnd: (won: boolean, trophyChange: number) => void;
   onBack: () => void;
+  isPracticeMode?: boolean;
+  practiceDifficulty?: AIDifficulty;
 }
 
-export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) {
+export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = false, practiceDifficulty }: GameScreenProps) {
   // Generate opponent username and trophies based on player's trophy range
   const generateOpponent = () => {
     const names = [
@@ -64,20 +66,60 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
     return { name, trophies, titleId };
   };
   
-  const [opponent] = useState(generateOpponent());
+  // 50/50 chance for who goes first
+  const determineFirstPlayer = (): 'player' | 'ai' => {
+    return Math.random() < 0.5 ? 'player' : 'ai';
+  };
+  
+  const [opponent] = useState(isPracticeMode ? { name: `${practiceDifficulty?.toUpperCase()} AI`, trophies: 0, titleId: null } : generateOpponent());
+  const [initialPlayer] = useState(determineFirstPlayer());
   const [match, setMatch] = useState<MatchState>({
     currentGame: 1,
     playerWins: 0,
     aiWins: 0,
     board: createEmptyBoard(),
-    currentPlayer: 'player',
+    currentPlayer: initialPlayer,
     winner: null,
     matchWinner: null
   });
   const [timeLeft, setTimeLeft] = useState(15);
-  const [aiPlayer] = useState(new AIPlayer(opponent.trophies));
+  const [aiPlayer] = useState(isPracticeMode ? new AIPlayer(practiceDifficulty!) : new AIPlayer(opponent.trophies));
   const [isAiThinking, setIsAiThinking] = useState(false);
   const [totalMoves, setTotalMoves] = useState(0);
+  const [winningCells, setWinningCells] = useState<Array<[number, number]>>([]);
+  const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
+  const [coachingHint, setCoachingHint] = useState<{ column: number; reason: string } | null>(null);
+  const [bestMoveColumn, setBestMoveColumn] = useState<number | undefined>(undefined);
+  
+  // Setup cheat mode
+  useEffect(() => {
+    (window as any).test = {
+      cheat: () => {
+        if (match.currentPlayer === 'player' && !match.winner && !match.matchWinner) {
+          const bestMove = aiPlayer.getBestMove(match.board);
+          setBestMoveColumn(bestMove);
+          console.log(`Best move highlighted: Column ${bestMove + 1}`);
+          setTimeout(() => setBestMoveColumn(undefined), 3000);
+        } else {
+          console.log('Cheat mode only works on player turn during active game');
+        }
+      }
+    };
+    
+    return () => {
+      delete (window as any).test;
+    };
+  }, [match, aiPlayer]);
+  
+  // Coaching hint for practice mode
+  useEffect(() => {
+    if (isPracticeMode && match.currentPlayer === 'player' && !match.winner && !match.matchWinner) {
+      const hint = aiPlayer.getCoachingHint(match.board);
+      setCoachingHint(hint);
+    } else {
+      setCoachingHint(null);
+    }
+  }, [match.currentPlayer, match.winner, match.matchWinner, isPracticeMode, aiPlayer, match.board]);
   
   // Timer
   useEffect(() => {
@@ -101,7 +143,9 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
   useEffect(() => {
     if (match.currentPlayer === 'ai' && !match.winner && !match.matchWinner && !isAiThinking) {
       setIsAiThinking(true);
-      aiPlayer.makeMove(match.board).then(column => {
+      // Check if this is AI's first move of the game
+      const isFirstMove = match.board.cells.every(row => row.every(cell => cell === 'empty'));
+      aiPlayer.makeMove(match.board, isFirstMove).then(column => {
         if (column !== -1) {
           handleMove(column, 'ai');
         }
@@ -130,10 +174,16 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
       const newBoard = dropPiece(prevMatch.board, column, player);
       if (!newBoard) return prevMatch;
       
-      const winner = checkWinner(newBoard);
+      const result = getWinnerWithCells(newBoard);
+      const winner = result.winner;
       setTimeLeft(15);
       
       if (winner) {
+        // Set winning cells for highlighting
+        if (result.cells) {
+          setWinningCells(result.cells.positions);
+        }
+        
         // Game over
         const newPlayerWins = prevMatch.playerWins + (winner === 'player' ? 1 : 0);
         const newAiWins = prevMatch.aiWins + (winner === 'ai' ? 1 : 0);
@@ -149,19 +199,21 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
             matchWinner: newPlayerWins === 2 ? 'player' : 'ai'
           };
         } else {
-          // Next game - reset move counter
+          // Next game after 5 second delay to show winning cells
           setTimeout(() => {
             setTotalMoves(0);
+            setWinningCells([]);
+            const nextFirstPlayer = determineFirstPlayer();
             setMatch(prev => ({
               ...prev,
               currentGame: prev.currentGame + 1,
               board: createEmptyBoard(),
-              currentPlayer: 'player',
+              currentPlayer: nextFirstPlayer,
               winner: null,
               playerWins: newPlayerWins,
               aiWins: newAiWins
             }));
-          }, 2000);
+          }, 5000); // 5 second delay
           return {
             ...prevMatch,
             board: newBoard,
@@ -183,6 +235,16 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
   const handleColumnClick = (column: number) => {
     if (match.currentPlayer === 'player' && !match.winner && !match.matchWinner) {
       handleMove(column, 'player');
+    }
+  };
+  
+  const handleForfeit = () => {
+    if (isPracticeMode) {
+      onBack();
+    } else {
+      // Lose trophies and end match
+      const trophyLoss = -5; // Fixed penalty for forfeiting
+      onMatchEnd(false, trophyLoss);
     }
   };
   
@@ -249,14 +311,16 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <button
-            onClick={onBack}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            onClick={() => setShowForfeitConfirm(true)}
+            className="px-4 py-2 bg-red-700 hover:bg-red-600 rounded-lg transition-colors"
           >
-            ← Back
+            {isPracticeMode ? '← Back' : '⚠️ Forfeit'}
           </button>
           <div className="text-center">
-            <h2 className="text-2xl font-bold">Game {match.currentGame} of 3</h2>
-            <p className="text-gray-400">Best of 3</p>
+            <h2 className="text-2xl font-bold">
+              {isPracticeMode ? 'Practice Mode' : `Game ${match.currentGame} of 3`}
+            </h2>
+            <p className="text-gray-400">{isPracticeMode ? practiceDifficulty?.toUpperCase() : 'Best of 3'}</p>
           </div>
           <div className="text-right">
             <p className="text-lg">Time: {timeLeft}s</p>
@@ -266,8 +330,19 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
         {/* Score */}
         <div className="flex justify-center gap-8 mb-8">
           <div className="text-center">
-            <p className="text-sm text-gray-400">{playerData.username}</p>
-            <p className="text-3xl font-bold text-blue-400">{match.playerWins}</p>
+            <p className="text-sm text-gray-400">
+              {playerData.username}
+              {playerData.equippedTitle && (() => {
+                const title = getTitleFromId(playerData.equippedTitle);
+                return (
+                  <span className="block text-xs mt-1" style={{ color: title.color }}>
+                    {title.name}
+                  </span>
+                );
+              })()}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>
+            <p className="text-3xl font-bold text-blue-400 mt-1">{match.playerWins}</p>
           </div>
           <div className="text-4xl font-bold text-gray-500">-</div>
           <div className="text-center">
@@ -275,15 +350,25 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
             {opponent.titleId && (() => {
               const title = getTitleFromId(opponent.titleId);
               return (
-                <p className="text-xs" style={{ color: title.color }}>
+                <p className="text-xs mt-1" style={{ color: title.color }}>
                   {title.name}
                 </p>
               );
             })()}
-            <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>
+            {!isPracticeMode && <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>}
             <p className="text-3xl font-bold text-red-400 mt-1">{match.aiWins}</p>
           </div>
         </div>
+        
+        {/* Coaching Hint */}
+        {isPracticeMode && coachingHint && !match.winner && (
+          <div className="text-center mb-4">
+            <div className="inline-block bg-green-500/20 border border-green-500/50 rounded-lg px-4 py-2">
+              <p className="text-green-400 font-semibold">💡 Coaching Tip</p>
+              <p className="text-sm text-gray-300">{coachingHint.reason}</p>
+            </div>
+          </div>
+        )}
         
         {/* Board */}
         <div className="flex justify-center mb-8">
@@ -292,6 +377,9 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
             onColumnClick={handleColumnClick}
             currentPlayer={match.currentPlayer}
             disabled={match.currentPlayer === 'ai' || !!match.winner || !!match.matchWinner}
+            winningCells={winningCells}
+            bestMoveColumn={bestMoveColumn}
+            hintColumn={isPracticeMode && coachingHint ? coachingHint.column : undefined}
           />
         </div>
         
@@ -305,7 +393,7 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
               <p className="text-xl text-gray-300">
                 Match Score: {match.playerWins} - {match.aiWins}
               </p>
-              {(() => {
+              {!isPracticeMode && (() => {
                 const won = match.matchWinner === 'player';
                 const trophyChange = calculateNewTrophyChange(
                   won, 
@@ -344,7 +432,7 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
                 );
               })()}
               <button
-                onClick={handleEndMatch}
+                onClick={isPracticeMode ? onBack : handleEndMatch}
                 className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors mt-4"
               >
                 Continue
@@ -355,6 +443,8 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
               {match.winner === 'player' ? '🎉 You won this game!' : 
                match.winner === 'ai' ? `😞 ${opponent.name} won this game` : 
                '🤝 Draw!'}
+              <br />
+              <span className="text-sm text-gray-400 mt-2 block">Next game starting in 5 seconds...</span>
             </p>
           ) : (
             <p className="text-xl">
@@ -363,6 +453,36 @@ export function GameScreen({ playerData, onMatchEnd, onBack }: GameScreenProps) 
           )}
         </div>
       </div>
+      
+      {/* Forfeit Confirmation Modal */}
+      {showForfeitConfirm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-8 max-w-md">
+            <h3 className="text-2xl font-bold mb-4">
+              {isPracticeMode ? 'Leave Practice?' : 'Forfeit Match?'}
+            </h3>
+            <p className="text-gray-300 mb-6">
+              {isPracticeMode 
+                ? 'Are you sure you want to leave practice mode?' 
+                : 'Forfeiting will result in a loss and you\'ll lose 5 trophies. Are you sure?'}
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={handleForfeit}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              >
+                {isPracticeMode ? 'Leave' : 'Forfeit'}
+              </button>
+              <button
+                onClick={() => setShowForfeitConfirm(false)}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

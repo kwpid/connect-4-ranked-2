@@ -27,6 +27,7 @@ export function getPlayerData(): PlayerData {
     losses: 0,
     totalGames: 0,
     winStreak: 0,
+    losingStreak: 0,
     currentSeasonWins: 0,
     bestWinStreak: 0
   };

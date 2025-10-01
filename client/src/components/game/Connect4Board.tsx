@@ -6,13 +6,28 @@ interface Connect4BoardProps {
   onColumnClick: (column: number) => void;
   currentPlayer: 'player' | 'ai';
   disabled: boolean;
+  winningCells?: Array<[number, number]>;
+  bestMoveColumn?: number;
+  hintColumn?: number;
 }
 
-export function Connect4Board({ board, onColumnClick, currentPlayer, disabled }: Connect4BoardProps) {
+export function Connect4Board({ board, onColumnClick, currentPlayer, disabled, winningCells = [], bestMoveColumn, hintColumn }: Connect4BoardProps) {
   const getCellColor = (cell: CellValue): string => {
     if (cell === 'player') return '#3B82F6'; // Blue
     if (cell === 'ai') return '#EF4444'; // Red
     return '#1F2937'; // Empty
+  };
+  
+  const isWinningCell = (row: number, col: number): boolean => {
+    return winningCells.some(([r, c]) => r === row && c === col);
+  };
+  
+  const isBestMoveColumn = (col: number): boolean => {
+    return bestMoveColumn === col;
+  };
+  
+  const isHintColumn = (col: number): boolean => {
+    return hintColumn === col;
   };
   
   return (
@@ -22,7 +37,7 @@ export function Connect4Board({ board, onColumnClick, currentPlayer, disabled }:
         {Array.from({ length: 7 }).map((_, colIndex) => (
           <div 
             key={`col-${colIndex}`} 
-            className={`flex flex-col gap-2 ${!disabled && currentPlayer === 'player' ? 'cursor-pointer hover:bg-blue-400/10' : ''} rounded-lg transition-all`}
+            className={`flex flex-col gap-2 ${!disabled && currentPlayer === 'player' ? 'cursor-pointer hover:bg-blue-400/10' : ''} ${isBestMoveColumn(colIndex) ? 'bg-yellow-400/20' : ''} ${isHintColumn(colIndex) ? 'bg-green-400/20' : ''} rounded-lg transition-all`}
             onClick={() => {
               if (!disabled && currentPlayer === 'player') {
                 onColumnClick(colIndex);
@@ -32,13 +47,14 @@ export function Connect4Board({ board, onColumnClick, currentPlayer, disabled }:
             {/* Render cells in this column */}
             {board.cells.map((row, rowIndex) => {
               const cell = row[colIndex];
+              const isWinning = isWinningCell(rowIndex, colIndex);
               return (
                 <div
                   key={`${rowIndex}-${colIndex}`}
                   className="w-16 h-16 rounded-full flex items-center justify-center"
                 >
                   <div
-                    className="w-14 h-14 rounded-full shadow-inner transition-all duration-300"
+                    className={`w-14 h-14 rounded-full shadow-inner transition-all duration-300 ${isWinning ? 'animate-pulse ring-4 ring-yellow-400' : ''}`}
                     style={{
                       backgroundColor: getCellColor(cell),
                       boxShadow: cell !== 'empty' 

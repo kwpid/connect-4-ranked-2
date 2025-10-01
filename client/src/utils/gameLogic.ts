@@ -1,5 +1,9 @@
 import { GameBoard, CellValue, GameResult } from '../types/game';
 
+export interface WinningCells {
+  positions: Array<[number, number]>;
+}
+
 export function createEmptyBoard(): GameBoard {
   return {
     cells: Array(6).fill(null).map(() => Array(7).fill('empty'))
@@ -25,6 +29,11 @@ export function dropPiece(board: GameBoard, column: number, player: CellValue): 
 }
 
 export function checkWinner(board: GameBoard): GameResult {
+  const result = getWinnerWithCells(board);
+  return result.winner;
+}
+
+export function getWinnerWithCells(board: GameBoard): { winner: GameResult; cells: WinningCells | null } {
   const cells = board.cells;
   
   // Check horizontal
@@ -35,7 +44,12 @@ export function checkWinner(board: GameBoard): GameResult {
           cell === cells[row][col + 1] && 
           cell === cells[row][col + 2] && 
           cell === cells[row][col + 3]) {
-        return cell as GameResult;
+        return {
+          winner: cell as GameResult,
+          cells: {
+            positions: [[row, col], [row, col + 1], [row, col + 2], [row, col + 3]]
+          }
+        };
       }
     }
   }
@@ -48,7 +62,12 @@ export function checkWinner(board: GameBoard): GameResult {
           cell === cells[row + 1][col] && 
           cell === cells[row + 2][col] && 
           cell === cells[row + 3][col]) {
-        return cell as GameResult;
+        return {
+          winner: cell as GameResult,
+          cells: {
+            positions: [[row, col], [row + 1, col], [row + 2, col], [row + 3, col]]
+          }
+        };
       }
     }
   }
@@ -61,7 +80,12 @@ export function checkWinner(board: GameBoard): GameResult {
           cell === cells[row + 1][col + 1] && 
           cell === cells[row + 2][col + 2] && 
           cell === cells[row + 3][col + 3]) {
-        return cell as GameResult;
+        return {
+          winner: cell as GameResult,
+          cells: {
+            positions: [[row, col], [row + 1, col + 1], [row + 2, col + 2], [row + 3, col + 3]]
+          }
+        };
       }
     }
   }
@@ -74,16 +98,21 @@ export function checkWinner(board: GameBoard): GameResult {
           cell === cells[row + 1][col - 1] && 
           cell === cells[row + 2][col - 2] && 
           cell === cells[row + 3][col - 3]) {
-        return cell as GameResult;
+        return {
+          winner: cell as GameResult,
+          cells: {
+            positions: [[row, col], [row + 1, col - 1], [row + 2, col - 2], [row + 3, col - 3]]
+          }
+        };
       }
     }
   }
   
   // Check for draw
   const isFull = cells[0].every(cell => cell !== 'empty');
-  if (isFull) return 'draw';
+  if (isFull) return { winner: 'draw', cells: null };
   
-  return null;
+  return { winner: null, cells: null };
 }
 
 export function isColumnFull(board: GameBoard, column: number): boolean {
