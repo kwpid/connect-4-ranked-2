@@ -78,7 +78,7 @@ export function MenuScreen({
             onClick={onQueue}
             className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg"
           >
-            ▶ Find Match
+            Find Match
           </button>
           
           <button
@@ -107,7 +107,7 @@ export function MenuScreen({
             onClick={onSettings}
             className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
           >
-            ⚙ Settings
+            ⋮ Settings
           </button>
         </div>
       </div>
