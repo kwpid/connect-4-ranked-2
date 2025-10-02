@@ -38,9 +38,13 @@ The frontend is built with React 18 and Vite. State management relies on local c
 -   **AI System**: Difficulty-based AI (1-10 levels) scales with player trophies, employing minimax-like strategies, pattern recognition, and adaptive counter-play. AI "thinking" includes variable delays and strategic diversity, with rank-based blocking probabilities (67%-98%).
 -   **Ranking System**: Features 23 ranks across Bronze to Connect Legend, based on trophies (0-701+). Seasonal resets occur every two weeks with trophy adjustments and coin rewards based on final rank.
 -   **Tournament System**: Occurs every 10 minutes with a 16-player single-elimination bracket (15 AI, 1 player). Rounds 1-3 are Best of 3, Finals Best of 5. Offers coin prizes and exclusive tournament titles based on rank and number of wins. Opponent matching is strictly within ±150 trophy range.
+    -   **Auto-Registration Fix** (Oct 2, 2025): Fixed bug where players were automatically re-registered for new tournaments. Participants array is now properly cleared when tournaments complete.
+    -   **Tournament Navigation** (Oct 2, 2025): Added back button to tournament screen for improved navigation.
+    -   **AI Match Simulation** (Oct 2, 2025): Tournaments now continue autonomously via AI simulation even after player elimination. Tournament status remains 'in_progress' until finals winner is determined, allowing players to observe the bracket completion.
 -   **Queue System**: Simulated matchmaking with variable queue times (2-15 seconds) and opponent generation with similar trophy counts (±30 variance).
 -   **Match System**: Best-of-3 format with a 15-second turn timer. Dynamic trophy rewards/penalties based on opponent rank, win streaks, and game speed. Includes XP, level progression, and coin rewards.
 -   **Shop System**: Rotates 3 titles and 3 banners every 12 hours for in-game currency purchase.
+    -   **Featured Items** (Oct 2, 2025): Added Featured Items section with time-based exclusivity (hours/days/weeks). Featured items are stored separately with localStorage persistence and automatic expiry. Console helper available: `window.addFeaturedItem(item, expiryHours)`.
 -   **Game Board**: 9x7 dimensions, Connect 4 win condition.
 
 ## External Dependencies
