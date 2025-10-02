@@ -101,20 +101,14 @@ export async function getFeaturedItems(): Promise<FeaturedItem[]> {
   }
 }
 
-export async function addFeaturedItem(item: Omit<FeaturedItem, 'id' | 'expiresAt'>, durationInMs: number): Promise<FeaturedItem> {
-  const newItem: FeaturedItem = {
-    ...item,
-    id: `featured_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    expiresAt: Date.now() + durationInMs
-  };
-  
+export async function addFeaturedItem(itemId: string, duration: string): Promise<FeaturedItem> {
   try {
     const response = await fetch('/api/featured-items', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(newItem),
+      body: JSON.stringify({ itemId, duration }),
     });
     
     if (!response.ok) {
@@ -160,44 +154,19 @@ export function parseDuration(duration: string): number {
 
 // Console helper for adding featured items
 if (typeof window !== 'undefined') {
-  (window as any).addFeaturedShopItem = async (type: 'title' | 'banner', name: string, price: number, duration: string) => {
+  (window as any).addFeaturedShopItem = async (itemId: string, duration: string) => {
     const durationMs = parseDuration(duration);
     if (durationMs === 0) {
       console.error('Invalid duration format. Use format like: 24h, 7d, 2w');
       return;
     }
     
-    let item: Omit<FeaturedItem, 'id' | 'expiresAt'>;
-    
-    if (type === 'title') {
-      item = {
-        title: {
-          id: `featured_title_${name.toLowerCase()}`,
-          name: name,
-          type: 'grey',
-          color: '#FFD700', // Gold color for featured
-          glow: 'gold'
-        },
-        price,
-        duration
-      };
-    } else {
-      item = {
-        banner: {
-          bannerId: 999, // Special ID for featured banners
-          bannerName: name,
-          imageName: 'default', // You'll need to set this properly
-          price,
-          ranked: false,
-          season: null,
-          rank: null
-        },
-        price,
-        duration
-      };
+    try {
+      const added = await addFeaturedItem(itemId, duration);
+      console.log(`Added featured item: "${itemId}" for ${duration} (expires at ${new Date(added.expiresAt).toLocaleString()})`);
+      return added;
+    } catch (error) {
+      console.error('Failed to add featured item:', error);
     }
-    
-    const added = await addFeaturedItem(item, durationMs);
-    console.log(`Added featured ${type}: "${name}" for ${duration} (expires at ${new Date(added.expiresAt).toLocaleString()})`);
   };
 }

@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": "unique_id_here",
+    "title": {
+      "id": "title_id",
+      "name": "Limited Champion",
+      "type": "grey",
+      "color": "#FFD700",
+      "glow": "gold"
+    },
+    "price": 500,
+    "expiresAt": 1759532258000,
+    "duration": "48h"
+  }
+]

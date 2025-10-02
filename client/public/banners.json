@@ -106,5 +106,14 @@
     "ranked": true,
     "season": 1,
     "rank": "Connect Legend"
-  }
+  },
+  {
+    "bannerId": 13,
+    "bannerName": "Connect League Series",
+    "imageName": "connect_series_banner.png",
+    "price": 1500,
+    "ranked": false,
+    "season": null,
+    "rank": null
+  },
 ]
