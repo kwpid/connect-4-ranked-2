@@ -49,7 +49,7 @@ export function getAICompetitors(): AICompetitor[] {
     return JSON.parse(stored);
   }
   
-  const competitors = generateAICompetitors(2999);
+  const competitors = generateAICompetitors();
   saveAICompetitors(competitors);
   return competitors;
 }

@@ -46,7 +46,7 @@ export function getTimeUntilSeasonEnd(): string {
   return `${minutes}m`;
 }
 
-export function generateAICompetitors(count: number = 2999): AICompetitor[] {
+export function generateAICompetitors(count: number = 3300): AICompetitor[] {
   const competitors: AICompetitor[] = [];
   
   // Mix of short, regular, and long usernames
@@ -78,8 +78,35 @@ export function generateAICompetitors(count: number = 2999): AICompetitor[] {
   const timeElapsed = Date.now() - seasonData.startDate;
   const seasonProgress = Math.min(1, Math.max(0, timeElapsed / seasonDuration));
   
-  // Generate ~3000 players with bell curve distribution
-  for (let i = 0; i < count; i++) {
+  // Pre-calculate deterministic quotas to guarantee minimum counts
+  // Connect Legend must have exactly 50+ (the lowest), all others have more
+  const tierQuotas = {
+    legend: 50,           // Connect Legend (701+)
+    grandChampion: 132,   // Grand Champion (551-700)
+    champion: 264,        // Champion (401-550)
+    diamond: 396,         // Diamond (276-400)
+    platinum: 594,        // Platinum (176-275)
+    gold: 726,            // Gold (101-175)
+    silver: 660,          // Silver (51-100)
+    bronze: 478           // Bronze (0-50)
+  };
+  
+  // Create array of tier assignments
+  const tierAssignments: string[] = [];
+  Object.entries(tierQuotas).forEach(([tier, quota]) => {
+    for (let i = 0; i < quota; i++) {
+      tierAssignments.push(tier);
+    }
+  });
+  
+  // Shuffle to randomize order
+  for (let i = tierAssignments.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tierAssignments[i], tierAssignments[j]] = [tierAssignments[j], tierAssignments[i]];
+  }
+  
+  // Generate players with guaranteed tier distribution
+  for (let i = 0; i < count && i < tierAssignments.length; i++) {
     // Choose name category with distribution: 30% short, 50% regular, 20% long
     let baseName: string;
     const categoryRoll = Math.random();
@@ -102,30 +129,36 @@ export function generateAICompetitors(count: number = 2999): AICompetitor[] {
       username = `${baseName}${Math.floor(Math.random() * 9900) + 100}`; // 100-9999
     }
     
-    // Bell curve distribution - most players in middle ranks
-    // Using Box-Muller transform for normal distribution
-    const u1 = Math.random();
-    const u2 = Math.random();
-    const normalValue = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+    // Assign trophies based on pre-determined tier
+    let trophies: number;
+    const tier = tierAssignments[i];
     
-    // Map normal distribution to trophy range
-    // Mean at 250 trophies (Gold rank), standard deviation of 150
-    let trophies = Math.round(250 + normalValue * 150);
-    
-    // Clamp to reasonable range and adjust for season progress
-    trophies = Math.max(0, Math.min(trophies, 800 + Math.floor(seasonProgress * 200)));
-    
-    // Top rank (700+) should have around 100 or less players
-    // If random value puts them too high, reduce probability
-    if (trophies >= 700) {
-      const topRankChance = 100 / count; // ~3.3% chance
-      if (Math.random() > topRankChance) {
-        // Redistribute to lower ranks
-        trophies = 400 + Math.floor(Math.random() * 300);
-      } else {
-        // Scale with season progress
-        trophies = 700 + Math.floor(Math.random() * (100 + seasonProgress * 200));
-      }
+    switch (tier) {
+      case 'legend':
+        trophies = 701 + Math.floor(Math.random() * (100 + seasonProgress * 200));
+        break;
+      case 'grandChampion':
+        trophies = 551 + Math.floor(Math.random() * 150);
+        break;
+      case 'champion':
+        trophies = 401 + Math.floor(Math.random() * 150);
+        break;
+      case 'diamond':
+        trophies = 276 + Math.floor(Math.random() * 125);
+        break;
+      case 'platinum':
+        trophies = 176 + Math.floor(Math.random() * 100);
+        break;
+      case 'gold':
+        trophies = 101 + Math.floor(Math.random() * 75);
+        break;
+      case 'silver':
+        trophies = 51 + Math.floor(Math.random() * 50);
+        break;
+      case 'bronze':
+      default:
+        trophies = Math.floor(Math.random() * 51);
+        break;
     }
     
     // Grind rate: how many trophies they gain per hour
