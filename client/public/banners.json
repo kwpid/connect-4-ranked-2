@@ -115,5 +115,14 @@
     "ranked": false,
     "season": null,
     "rank": null
+  },
+  {
+    "bannerId": 14,
+    "bannerName": "Starry Night",
+    "imageName": "starry_night.png",
+    "price": 750,
+    "ranked": false,
+    "season": null,
+    "rank": null
   }
 ]
