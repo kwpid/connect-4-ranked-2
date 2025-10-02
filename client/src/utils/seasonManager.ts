@@ -49,19 +49,27 @@ export function getTimeUntilSeasonEnd(): string {
 export function generateAICompetitors(count: number = 2999): AICompetitor[] {
   const competitors: AICompetitor[] = [];
   
-  // Realistic short usernames
-  const names = [
-    '.', '..', '...', 'dragg', 'lru', 'xyz', 'qwe', 'kk', 'zz', 'tt',
-    'ace', 'fox', 'max', 'sam', 'kai', 'leo', 'rex', 'jay', 'sky', 'rio',
-    'ash', 'zen', 'cj', 'tj', 'pk', 'dk', 'mk', 'jk', 'rk', 'sk',
-    'nova', 'luna', 'echo', 'omen', 'apex', 'flux', 'volt', 'nyx', 'zara',
-    'kira', 'mira', 'vex', 'ryn', 'kyx', 'jax', 'dex', 'pix', 'nix',
+  // Mix of short, regular, and long usernames
+  const shortNames = [
     'x', 'v', 'z', 'q', 'k', 'j', 'r', 'n', 'm', 'l',
-    'ax', 'bx', 'cx', 'dx', 'ex', 'fx', 'gx', 'hx', 'ix', 'jx',
-    'a1', 'b2', 'c3', 'd4', 'e5', 'f6', 'g7', 'h8', 'i9', 'j0',
-    'pro', 'gg', 'wp', 'ez', 'nt', 'gl', 'hf', 'gm', 'op', 'og',
-    'ryu', 'ken', 'lux', 'orb', 'gem', 'dot', 'bit', 'hex', 'ray',
-    'ice', 'hot', 'red', 'blu', 'grn', 'yel', 'pur', 'blk', 'wht'
+    '.', '..', '...', 'kk', 'zz', 'tt', 'cj', 'tj', 'pk', 'dk'
+  ];
+  
+  const regularNames = [
+    'ace', 'fox', 'max', 'sam', 'kai', 'leo', 'rex', 'jay', 'sky', 'rio',
+    'ash', 'zen', 'nova', 'luna', 'echo', 'omen', 'apex', 'flux', 'volt', 'nyx',
+    'zara', 'kira', 'mira', 'ryu', 'ken', 'lux', 'orb', 'gem', 'dot', 'bit',
+    'hex', 'ray', 'ice', 'hot', 'red', 'blu', 'grn', 'yel', 'pur', 'blk',
+    'wht', 'vex', 'ryn', 'kyx', 'jax', 'dex', 'pix', 'nix', 'pro', 'gg',
+    'wp', 'ez', 'nt', 'gl', 'hf', 'gm', 'op', 'og', 'dragg', 'lru', 'xyz', 'qwe'
+  ];
+  
+  const longNames = [
+    'shadowhunter', 'nighthawk', 'thunderbolt', 'dragonslayer', 'stargazer',
+    'moonwalker', 'stormbreaker', 'firestorm', 'icebreaker', 'wildcard',
+    'masterchief', 'darkphoenix', 'silverfox', 'goldeneye', 'blackwidow',
+    'ironheart', 'steelwolf', 'crystalclear', 'phantomghost', 'speedster',
+    'champion', 'warrior', 'fighter', 'winner', 'player', 'gamer', 'legend'
   ];
   
   // Calculate season progress (0.0 = start, 1.0 = end)
@@ -72,9 +80,27 @@ export function generateAICompetitors(count: number = 2999): AICompetitor[] {
   
   // Generate ~3000 players with bell curve distribution
   for (let i = 0; i < count; i++) {
-    const baseName = names[Math.floor(Math.random() * names.length)];
-    // Sometimes add numbers, sometimes keep it short
-    const username = Math.random() < 0.6 ? baseName : `${baseName}${Math.floor(Math.random() * 999)}`;
+    // Choose name category with distribution: 30% short, 50% regular, 20% long
+    let baseName: string;
+    const categoryRoll = Math.random();
+    if (categoryRoll < 0.3) {
+      baseName = shortNames[Math.floor(Math.random() * shortNames.length)];
+    } else if (categoryRoll < 0.8) {
+      baseName = regularNames[Math.floor(Math.random() * regularNames.length)];
+    } else {
+      baseName = longNames[Math.floor(Math.random() * longNames.length)];
+    }
+    
+    // Number distribution: 60% no numbers, 30% short numbers (1-99), 10% longer numbers (100-9999)
+    let username: string;
+    const numberRoll = Math.random();
+    if (numberRoll < 0.6) {
+      username = baseName; // No numbers
+    } else if (numberRoll < 0.9) {
+      username = `${baseName}${Math.floor(Math.random() * 99) + 1}`; // 1-99
+    } else {
+      username = `${baseName}${Math.floor(Math.random() * 9900) + 100}`; // 100-9999
+    }
     
     // Bell curve distribution - most players in middle ranks
     // Using Box-Muller transform for normal distribution

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { RANKS, getTierColor, getSeasonRewardCoins, getRankByTrophies } from '../../utils/rankSystem';
 import { PlayerData } from '../../types/game';
+import { getAICompetitors } from '../../utils/storageManager';
 
 interface RankInfoProps {
   onBack: () => void;
@@ -9,6 +10,25 @@ interface RankInfoProps {
 
 export function RankInfo({ onBack, playerData }: RankInfoProps) {
   const currentRank = getRankByTrophies(playerData.trophies);
+  
+  // Calculate player counts for each rank
+  const rankCounts = useMemo(() => {
+    const aiCompetitors = getAICompetitors();
+    const allPlayers = [playerData, ...aiCompetitors];
+    
+    const counts = new Map<string, number>();
+    RANKS.forEach(rank => {
+      const count = allPlayers.filter(p => 
+        p.trophies >= rank.minTrophies && p.trophies <= rank.maxTrophies
+      ).length;
+      counts.set(rank.name, count);
+    });
+    
+    return counts;
+  }, [playerData]);
+  
+  // Reverse RANKS array to show highest rank first
+  const reversedRanks = [...RANKS].reverse();
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
@@ -25,10 +45,11 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
         </div>
         
         <div className="space-y-4">
-          {RANKS.map((rank, index) => {
+          {reversedRanks.map((rank, index) => {
             const tierColor = getTierColor(rank.tier);
             const reward = getSeasonRewardCoins(rank.minTrophies);
             const isCurrentRank = rank.name === currentRank.name;
+            const playerCount = rankCounts.get(rank.name) || 0;
             
             return (
               <div
@@ -40,14 +61,9 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
                 }`}
               >
                 <div className="flex justify-between items-center">
-                  <div>
+                  <div className="flex-1">
                     <h3 className={`text-xl font-bold ${isCurrentRank ? 'text-2xl' : ''}`} style={{ color: tierColor }}>
                       {rank.name}
-                      {isCurrentRank && (
-                        <span className="ml-2 text-sm bg-blue-500 text-white px-2 py-1 rounded-full">
-                          You are here
-                        </span>
-                      )}
                     </h3>
                     <p className="text-gray-400 text-sm">
                       {rank.minTrophies} - {rank.maxTrophies === 999999 ? '∞' : rank.maxTrophies} trophies
@@ -56,6 +72,9 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
                           (Your trophies: {playerData.trophies})
                         </span>
                       )}
+                    </p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {playerCount} {playerCount === 1 ? 'player' : 'players'}
                     </p>
                   </div>
                   <div className="text-right">

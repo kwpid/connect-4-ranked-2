@@ -18,17 +18,50 @@ interface GameScreenProps {
 export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = false, practiceDifficulty }: GameScreenProps) {
   // Generate opponent username and trophies based on player's trophy range
   const generateOpponent = () => {
-    // Realistic short usernames
-    const names = [
-      '.', '..', '...', 'dragg', 'lru', 'xyz', 'qwe', 'kk', 'zz', 'tt',
-      'ace', 'fox', 'max', 'sam', 'kai', 'leo', 'rex', 'jay', 'sky', 'rio',
-      'ash', 'zen', 'cj', 'tj', 'pk', 'dk', 'mk', 'jk', 'rk', 'sk',
-      'nova', 'luna', 'echo', 'omen', 'apex', 'flux', 'volt', 'nyx', 'zara',
+    // Mix of short, regular, and long usernames
+    const shortNames = [
       'x', 'v', 'z', 'q', 'k', 'j', 'r', 'n', 'm', 'l',
-      'pro', 'gg', 'wp', 'ez', 'nt', 'gl', 'hf', 'gm', 'op', 'og'
+      '.', '..', '...', 'kk', 'zz', 'tt', 'cj', 'tj', 'pk', 'dk'
     ];
-    const baseName = names[Math.floor(Math.random() * names.length)];
-    const name = Math.random() < 0.6 ? baseName : `${baseName}${Math.floor(Math.random() * 999)}`;
+    
+    const regularNames = [
+      'ace', 'fox', 'max', 'sam', 'kai', 'leo', 'rex', 'jay', 'sky', 'rio',
+      'ash', 'zen', 'nova', 'luna', 'echo', 'omen', 'apex', 'flux', 'volt', 'nyx',
+      'zara', 'kira', 'mira', 'ryu', 'ken', 'lux', 'orb', 'gem', 'dot', 'bit',
+      'hex', 'ray', 'ice', 'hot', 'red', 'blu', 'grn', 'yel', 'pur', 'blk',
+      'wht', 'vex', 'ryn', 'kyx', 'jax', 'dex', 'pix', 'nix', 'pro', 'gg',
+      'wp', 'ez', 'nt', 'gl', 'hf', 'gm', 'op', 'og', 'dragg', 'lru', 'xyz', 'qwe'
+    ];
+    
+    const longNames = [
+      'shadowhunter', 'nighthawk', 'thunderbolt', 'dragonslayer', 'stargazer',
+      'moonwalker', 'stormbreaker', 'firestorm', 'icebreaker', 'wildcard',
+      'masterchief', 'darkphoenix', 'silverfox', 'goldeneye', 'blackwidow',
+      'ironheart', 'steelwolf', 'crystalclear', 'phantomghost', 'speedster',
+      'champion', 'warrior', 'fighter', 'winner', 'player', 'gamer', 'legend'
+    ];
+    
+    // Choose name category with distribution: 30% short, 50% regular, 20% long
+    let baseName: string;
+    const categoryRoll = Math.random();
+    if (categoryRoll < 0.3) {
+      baseName = shortNames[Math.floor(Math.random() * shortNames.length)];
+    } else if (categoryRoll < 0.8) {
+      baseName = regularNames[Math.floor(Math.random() * regularNames.length)];
+    } else {
+      baseName = longNames[Math.floor(Math.random() * longNames.length)];
+    }
+    
+    // Number distribution: 60% no numbers, 30% short numbers (1-99), 10% longer numbers (100-9999)
+    let name: string;
+    const numberRoll = Math.random();
+    if (numberRoll < 0.6) {
+      name = baseName; // No numbers
+    } else if (numberRoll < 0.9) {
+      name = `${baseName}${Math.floor(Math.random() * 99) + 1}`; // 1-99
+    } else {
+      name = `${baseName}${Math.floor(Math.random() * 9900) + 100}`; // 100-9999
+    }
     
     // Generate opponent trophies around player's level
     const variance = Math.floor(Math.random() * 60) - 30; // -30 to +30 trophies

@@ -31,13 +31,13 @@ export function Connect4Board({ board, onColumnClick, currentPlayer, disabled, w
   };
   
   return (
-    <div className="inline-block bg-gradient-to-b from-blue-600 to-blue-800 p-4 rounded-lg shadow-2xl">
-      <div className="grid grid-cols-7 gap-2">
+    <div className="inline-block bg-gradient-to-b from-blue-600 to-blue-800 p-2 sm:p-4 rounded-lg shadow-2xl">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {/* Render columns for better click handling */}
         {Array.from({ length: 7 }).map((_, colIndex) => (
           <div 
             key={`col-${colIndex}`} 
-            className={`flex flex-col gap-2 ${!disabled && currentPlayer === 'player' ? 'cursor-pointer hover:bg-blue-400/10' : ''} ${isBestMoveColumn(colIndex) ? 'bg-yellow-400/20' : ''} ${isHintColumn(colIndex) ? 'bg-green-400/20' : ''} rounded-lg transition-all`}
+            className={`flex flex-col gap-1 sm:gap-2 ${!disabled && currentPlayer === 'player' ? 'cursor-pointer hover:bg-blue-400/10' : ''} ${isBestMoveColumn(colIndex) ? 'bg-yellow-400/20' : ''} ${isHintColumn(colIndex) ? 'bg-green-400/20' : ''} rounded-lg transition-all`}
             onClick={() => {
               if (!disabled && currentPlayer === 'player') {
                 onColumnClick(colIndex);
@@ -51,10 +51,10 @@ export function Connect4Board({ board, onColumnClick, currentPlayer, disabled, w
               return (
                 <div
                   key={`${rowIndex}-${colIndex}`}
-                  className="w-16 h-16 rounded-full flex items-center justify-center"
+                  className="w-10 h-10 sm:w-16 sm:h-16 rounded-full flex items-center justify-center"
                 >
                   <div
-                    className={`w-14 h-14 rounded-full shadow-inner transition-all duration-300 ${isWinning ? 'animate-pulse ring-4 ring-yellow-400' : ''}`}
+                    className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full shadow-inner transition-all duration-300 ${isWinning ? 'animate-pulse ring-2 sm:ring-4 ring-yellow-400' : ''}`}
                     style={{
                       backgroundColor: getCellColor(cell),
                       boxShadow: cell !== 'empty' 
