@@ -10,6 +10,31 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+**October 2, 2025 (Banner System & Tournament Fixes):**
+- **Complete Banner System Implementation:**
+  - Banners are 150x35 PNG images displayed behind player usernames
+  - Banner infrastructure: JSON configuration, banner manager utility, display components
+  - Inventory screen with tabs: Banners, Chips (coming soon), Titles
+  - Title selection moved from menu to inventory screen
+  - Menu "Change Title" button replaced with "Inventory" button
+  - Banner display in menu screen and game screen
+  - Shop system updated: rotates 3 titles + 3 banners every 12 hours
+  - Ranked season rewards: players receive banner for their final rank + all lower ranks
+  - Shop banners (Classic Red, Ocean Blue, Forest Green) available for purchase
+  - Ranked banners (Bronze through Connect Legend for Season 1) are reward-only
+  - Banner placeholders created - user needs to add actual 150x35 PNG images
+  
+- **Tournament Matching System Fixed:**
+  - Tournament opponents now strictly within ±150 trophy range
+  - No more extreme +500/-500 trophy mismatches
+  - Uses duplicate opponents from valid pool if needed
+  - Prevents unfair brackets with wide skill gaps
+  
+- **Title Sorting System Updated:**
+  - New priority order: Ranked (season) > Tournament > Leaderboard > Grey (shop)
+  - Consistent sorting across all displays (inventory, leaderboard, etc.)
+  - Tournament titles properly categorized with 'tournament' type
+
 **October 2, 2025 (Tournament System Added):**
 - **Comprehensive Tournament System Implementation:**
   - Tournaments occur every 10 minutes with 3-minute registration window
@@ -123,11 +148,18 @@ The application follows a screen-based architecture with distinct views:
 - **Progression**: Top 30 leaderboard with season info, rank info, statistics, shop
 - **UI Components**: Reusable shadcn/ui components built on Radix UI
 
-**Title System:**
-- Cosmetic titles that appear under player usernames
-- Three types: grey (shop-purchased), season (rank-based rewards), leaderboard (placement rewards)
-- Players can equip one title at a time
-- AI opponents on leaderboard display random titles based on their trophy tier
+**Cosmetic Systems:**
+- **Titles**: Text displayed under player usernames
+  - Four types: Ranked (season), Tournament, Leaderboard, Grey (shop)
+  - Players can equip one title at a time
+  - AI opponents display random titles based on trophy tier
+  
+- **Banners**: 150x35 PNG images displayed behind usernames
+  - Shown in menu screen and during matches
+  - Three types: Default, Shop (purchasable), Ranked (season rewards)
+  - Players can equip one banner at a time
+  - Inventory screen manages both titles and banners
+  - Season rewards grant banner for final rank + all lower ranks
 
 **State Management:**
 - Local component state using React hooks (useState, useEffect)
