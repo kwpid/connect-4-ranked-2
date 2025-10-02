@@ -44,32 +44,35 @@ export function generateAIParticipants(
   count: number,
   currentSeasonNumber: number
 ): TournamentParticipant[] {
-  // Find AI with similar trophy range (±100)
+  // Strictly enforce trophy range - only use AI within ±150 trophies
+  const MAX_TROPHY_RANGE = 150;
   const similarAI = aiCompetitors.filter(ai => 
-    Math.abs(ai.trophies - playerTrophies) <= 100
+    Math.abs(ai.trophies - playerTrophies) <= MAX_TROPHY_RANGE
   );
   
+  // If not enough AI in range, use what we have and fill the rest with duplicates
   const participants: TournamentParticipant[] = [];
   const usedIds = new Set<string>();
+  
+  if (similarAI.length === 0) {
+    // No suitable opponents - should not happen with proper AI generation
+    console.warn('No AI opponents within trophy range for tournament');
+    return participants;
+  }
   
   for (let i = 0; i < count; i++) {
     let ai: AICompetitor;
     
-    if (similarAI.length > 0 && Math.random() < 0.7) {
-      // 70% chance to pick from similar trophy range
-      ai = similarAI[Math.floor(Math.random() * similarAI.length)];
+    // Pick from similar trophy range pool only
+    const availableAI = similarAI.filter(a => !usedIds.has(a.id));
+    
+    if (availableAI.length > 0) {
+      ai = availableAI[Math.floor(Math.random() * availableAI.length)];
+      usedIds.add(ai.id);
     } else {
-      // 30% chance to pick any AI
-      ai = aiCompetitors[Math.floor(Math.random() * aiCompetitors.length)];
+      // If we've used all unique AI, allow duplicates from the pool
+      ai = similarAI[Math.floor(Math.random() * similarAI.length)];
     }
-    
-    // Avoid duplicates
-    if (usedIds.has(ai.id)) {
-      i--;
-      continue;
-    }
-    
-    usedIds.add(ai.id);
     
     // Generate appropriate title for AI based on rank and season
     const titleId = generateAITournamentTitle(ai.trophies, currentSeasonNumber);

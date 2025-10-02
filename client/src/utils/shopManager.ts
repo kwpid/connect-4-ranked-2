@@ -1,4 +1,5 @@
-import { Title, ShopItem } from '../types/game';
+import { Title, ShopItem, Banner } from '../types/game';
+import { loadBanners, getShopBanners, generateShopBannerRotation } from './bannerManager';
 
 const GREY_TITLES = [
   'Novice', 'Apprentice', 'Journeyman', 'Expert', 'Master',
@@ -24,7 +25,7 @@ export function shouldRotateShop(lastRotation: number): boolean {
   return now.getDate() !== last.getDate() || currentRotation !== lastRotationPoint;
 }
 
-export function generateShopItems(seed: number): ShopItem[] {
+export async function generateShopItems(seed: number): Promise<ShopItem[]> {
   // Use seed for consistent rotation
   const random = (n: number) => {
     seed = (seed * 9301 + 49297) % 233280;
@@ -34,8 +35,8 @@ export function generateShopItems(seed: number): ShopItem[] {
   const items: ShopItem[] = [];
   const usedTitles = new Set<string>();
   
-  // Generate 6 random grey titles
-  for (let i = 0; i < 6; i++) {
+  // Generate 3 random grey titles
+  for (let i = 0; i < 3; i++) {
     let titleName: string;
     do {
       titleName = GREY_TITLES[Math.floor(random(GREY_TITLES.length))];
@@ -46,7 +47,7 @@ export function generateShopItems(seed: number): ShopItem[] {
     const price = Math.floor(random(400) + 100); // 100-500 coins
     
     items.push({
-      id: `shop_${titleName.toLowerCase()}`,
+      id: `shop_title_${titleName.toLowerCase()}`,
       title: {
         id: `grey_${titleName.toLowerCase()}`,
         name: titleName,
@@ -57,6 +58,21 @@ export function generateShopItems(seed: number): ShopItem[] {
       price
     });
   }
+  
+  // Load and add 3 banners (only shop banners, not ranked ones)
+  const banners = await loadBanners();
+  const shopBanners = generateShopBannerRotation(banners, seed, 3);
+  
+  shopBanners.forEach(banner => {
+    // Only add if it has a valid price (ranked banners have null price)
+    if (banner.price !== null && banner.price > 0) {
+      items.push({
+        id: `shop_banner_${banner.bannerId}`,
+        banner,
+        price: banner.price
+      });
+    }
+  });
   
   return items;
 }

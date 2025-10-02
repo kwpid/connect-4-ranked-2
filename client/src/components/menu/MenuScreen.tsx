@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PlayerData, TournamentData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { TitleDisplay } from '../common/TitleDisplay';
+import { BannerDisplay } from '../common/BannerDisplay';
 import { getTimeUntilTournament } from '../../utils/tournamentManager';
 
 interface MenuScreenProps {
@@ -13,6 +14,7 @@ interface MenuScreenProps {
   onStats: () => void;
   onSettings: () => void;
   onTitleSelector: () => void;
+  onInventory: () => void;
   onTournament: () => void;
   currentTournament: TournamentData | null;
   nextTournamentTime: number;
@@ -28,6 +30,7 @@ export function MenuScreen({
   onStats,
   onSettings,
   onTitleSelector,
+  onInventory,
   onTournament,
   currentTournament,
   nextTournamentTime,
@@ -59,17 +62,22 @@ export function MenuScreen({
         {/* Player Info */}
         <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-8 border border-gray-700">
           <div className="text-center mb-4">
-            <h2 className="text-3xl font-bold mb-2">{playerData.username}</h2>
+            <div className="flex items-center justify-center mb-2">
+              <BannerDisplay 
+                bannerId={playerData.equippedBanner}
+                username={playerData.username}
+              />
+            </div>
             <TitleDisplay 
               titleId={playerData.equippedTitle}
             />
           </div>
           
           <button
-            onClick={onTitleSelector}
-            className="w-full mb-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm"
+            onClick={onInventory}
+            className="w-full mb-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm font-semibold"
           >
-            Change Title
+            📦 Inventory
           </button>
           
           <div className="grid grid-cols-2 gap-4">

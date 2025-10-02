@@ -18,11 +18,21 @@ export interface RankInfo {
 export interface Title {
   id: string;
   name: string;
-  type: 'grey' | 'season' | 'leaderboard';
+  type: 'grey' | 'season' | 'leaderboard' | 'tournament';
   color: string;
   glow: string;
   season?: number;
   price?: number;
+}
+
+export interface Banner {
+  bannerId: number;
+  bannerName: string;
+  imageName: string;
+  price: number | null;
+  ranked: boolean;
+  season: number | null;
+  rank: string | null;
 }
 
 export interface MatchHistoryEntry {
@@ -42,6 +52,8 @@ export interface PlayerData {
   coins: number;
   equippedTitle: string | null;
   ownedTitles: string[];
+  equippedBanner: number | null;
+  ownedBanners: number[];
   wins: number;
   losses: number;
   totalGames: number;
@@ -81,7 +93,8 @@ export interface LeaderboardEntry {
 
 export interface ShopItem {
   id: string;
-  title: Title;
+  title?: Title;
+  banner?: Banner;
   price: number;
 }
 
@@ -137,4 +150,4 @@ export interface PlayerTournamentStats {
   lastTournamentLeft: number | null;
 }
 
-export type Screen = 'menu' | 'queue' | 'game' | 'practice' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo' | 'tournament' | 'tournamentGame';
+export type Screen = 'menu' | 'queue' | 'game' | 'practice' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo' | 'tournament' | 'tournamentGame' | 'inventory';

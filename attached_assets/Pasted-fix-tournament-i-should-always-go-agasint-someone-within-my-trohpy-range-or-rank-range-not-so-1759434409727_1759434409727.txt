@@ -1,0 +1,42 @@
+fix tournament:
+
+i should always go agasint someone within my trohpy range (or rank range), not someone who has +500 my trophies or less,
+extra season rewards / cosmetic items
+
+additional title fix:
+- ensure that tournament titles are sorted similiarly to ranked titles, just below all ranked titles
+So:
+Ranked Titles > Tournament Titles > Normal Titles
+
+have a new button called inventory, which allows players to view their inventory
+different items:
+Banners, Chips (Coming Soon), Titles (move titles from the main screen inside the inventory system)
+Banner: - 150x35 png images, the user can select one to equip (theres a default one thats equipped by default), banners show up behind the players username on the menu screen, as well as in the game (ensure the banner sizes properly)
+banners can be obtained through the shop (rotates w/ titles, so theres 3 titles, 3 banners), or through ranked rewards (each rank gets a banner at the end of the season, depending on where the player ends on the season, they get the banners. they get the banner of the rank they finiished off in, as well as any rank below that, so im diamond, i get diamond + platinum + gold, etc)
+
+ENSURE:
+- titles are moved, so they can only be equipped by going into inventory, titles and there they can equip (so remove Change Title button on menu screen
+- banners can be EASILY added. through a json or something, but i should be able to add a value of "normal" or "ranked" banner, if ranked, i should also need to add what season / rank that banner corresponds to
+anything with a price set to above 0 can be rotated in the item shop
+Example:
+{
+banner_id: 1,
+banner_name: "Default",
+price: 0,
+ranked: false,
+season: null,
+rank:, null,
+}
+{
+banner_Id: 2,
+banner_name: "Bronze Season 1",
+price: null,
+ranked: true,
+season: 1,
+rank: "Bronze",
+}
+
+name corresponds to the image file (so have a file where i can input the banner images)
+Bronze Season 1 will correspond to image file bronze_season_1.png
+Default banner will coreespond to image file default.png
+etc

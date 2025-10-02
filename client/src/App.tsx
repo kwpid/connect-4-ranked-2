@@ -37,6 +37,7 @@ import {
   calculateTournamentReward,
   getTournamentTitle
 } from './utils/tournamentManager';
+import { loadBanners, getRankBannersForPlayer } from './utils/bannerManager';
 
 // Screens
 import { MenuScreen } from './components/menu/MenuScreen';
@@ -50,6 +51,7 @@ import { ShopScreen } from './components/shop/ShopScreen';
 import { StatsScreen } from './components/stats/StatsScreen';
 import { SettingsScreen } from './components/settings/SettingsScreen';
 import { TournamentScreen } from './components/tournament/TournamentScreen';
+import { InventoryScreen } from './components/inventory/InventoryScreen';
 import { AIDifficulty } from './utils/aiPlayer';
 
 function App() {
@@ -148,7 +150,7 @@ function App() {
     return () => clearInterval(interval);
   }, []);
   
-  const handleSeasonReset = () => {
+  const handleSeasonReset = async () => {
     const currentSeason = getCurrentSeasonData();
     
     // Award season rewards
@@ -176,12 +178,43 @@ function App() {
       if (lbTitle) newTitles.push(lbTitle);
     }
     
+    // Award ranked banners
+    const newBanners = [...playerData.ownedBanners];
+    const rank = getRankByTrophies(playerData.trophies);
+    
+    // Map tier to banner rank name
+    const tierToBannerName: Record<string, string> = {
+      'legend': 'Connect Legend',
+      'grand_champion': 'Grand Champion',
+      'champion': 'Champion',
+      'diamond': 'Diamond',
+      'platinum': 'Platinum',
+      'gold': 'Gold',
+      'silver': 'Silver',
+      'bronze': 'Bronze'
+    };
+    
+    const finalRankName = tierToBannerName[rank.tier] || '';
+    
+    if (finalRankName) {
+      const banners = await loadBanners();
+      const earnedBannerIds = getRankBannersForPlayer(banners, finalRankName, currentSeason.seasonNumber);
+      
+      // Add banners that player doesn't already own
+      earnedBannerIds.forEach(bannerId => {
+        if (!newBanners.includes(bannerId)) {
+          newBanners.push(bannerId);
+        }
+      });
+    }
+    
     // Update player
     const updatedPlayer = {
       ...playerData,
       trophies: resetTrophies,
       coins: playerData.coins + coinsReward,
       ownedTitles: newTitles,
+      ownedBanners: newBanners,
       currentSeasonWins: 0
     };
     
@@ -293,6 +326,13 @@ function App() {
     savePlayerData(updatedPlayer);
     setScreen('menu');
   };
+
+  const handleEquipBanner = (bannerId: number | null) => {
+    const updatedPlayer = { ...playerData, equippedBanner: bannerId };
+    setPlayerData(updatedPlayer);
+    savePlayerData(updatedPlayer);
+    setScreen('menu');
+  };
   
   const handlePurchaseTitle = (titleId: string, price: number) => {
     if (playerData.coins >= price && !playerData.ownedTitles.includes(titleId)) {
@@ -300,6 +340,18 @@ function App() {
         ...playerData,
         coins: playerData.coins - price,
         ownedTitles: [...playerData.ownedTitles, titleId]
+      };
+      setPlayerData(updatedPlayer);
+      savePlayerData(updatedPlayer);
+    }
+  };
+
+  const handlePurchaseBanner = (bannerId: number, price: number) => {
+    if (playerData.coins >= price && !playerData.ownedBanners.includes(bannerId)) {
+      const updatedPlayer = {
+        ...playerData,
+        coins: playerData.coins - price,
+        ownedBanners: [...playerData.ownedBanners, bannerId]
       };
       setPlayerData(updatedPlayer);
       savePlayerData(updatedPlayer);
@@ -538,6 +590,7 @@ function App() {
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
           onTitleSelector={() => setScreen('titleSelector')}
+          onInventory={() => setScreen('inventory')}
           onTournament={() => setScreen('tournament')}
           currentTournament={currentTournament}
           nextTournamentTime={nextTournamentTime}
@@ -560,6 +613,15 @@ function App() {
         <TitleSelector
           playerData={playerData}
           onEquip={handleEquipTitle}
+          onBack={() => setScreen('menu')}
+        />
+      )}
+
+      {screen === 'inventory' && (
+        <InventoryScreen
+          playerData={playerData}
+          onEquipTitle={handleEquipTitle}
+          onEquipBanner={handleEquipBanner}
           onBack={() => setScreen('menu')}
         />
       )}
@@ -625,6 +687,7 @@ function App() {
         <ShopScreen
           playerData={playerData}
           onPurchase={handlePurchaseTitle}
+          onPurchaseBanner={handlePurchaseBanner}
           onBack={() => setScreen('menu')}
           lastRotation={shopRotationTime}
         />

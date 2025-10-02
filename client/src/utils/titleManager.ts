@@ -127,7 +127,7 @@ export function getTitleFromId(titleId: string): Title {
     return {
       id: titleId,
       name: displayName,
-      type: 'season',
+      type: 'tournament',
       color,
       glow,
       season: parseInt(seasonNum)

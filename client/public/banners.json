@@ -1,0 +1,110 @@
+[
+  {
+    "bannerId": 1,
+    "bannerName": "Default",
+    "imageName": "default.png",
+    "price": null,
+    "ranked": false,
+    "season": null,
+    "rank": null
+  },
+  {
+    "bannerId": 2,
+    "bannerName": "Classic Red",
+    "imageName": "classic_red.png",
+    "price": 250,
+    "ranked": false,
+    "season": null,
+    "rank": null
+  },
+  {
+    "bannerId": 3,
+    "bannerName": "Ocean Blue",
+    "imageName": "ocean_blue.png",
+    "price": 300,
+    "ranked": false,
+    "season": null,
+    "rank": null
+  },
+  {
+    "bannerId": 4,
+    "bannerName": "Forest Green",
+    "imageName": "forest_green.png",
+    "price": 350,
+    "ranked": false,
+    "season": null,
+    "rank": null
+  },
+  {
+    "bannerId": 5,
+    "bannerName": "Bronze Season 1",
+    "imageName": "bronze_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Bronze"
+  },
+  {
+    "bannerId": 6,
+    "bannerName": "Silver Season 1",
+    "imageName": "silver_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Silver"
+  },
+  {
+    "bannerId": 7,
+    "bannerName": "Gold Season 1",
+    "imageName": "gold_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Gold"
+  },
+  {
+    "bannerId": 8,
+    "bannerName": "Platinum Season 1",
+    "imageName": "platinum_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Platinum"
+  },
+  {
+    "bannerId": 9,
+    "bannerName": "Diamond Season 1",
+    "imageName": "diamond_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Diamond"
+  },
+  {
+    "bannerId": 10,
+    "bannerName": "Champion Season 1",
+    "imageName": "champion_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Champion"
+  },
+  {
+    "bannerId": 11,
+    "bannerName": "Grand Champion Season 1",
+    "imageName": "grand_champion_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Grand Champion"
+  },
+  {
+    "bannerId": 12,
+    "bannerName": "Connect Legend Season 1",
+    "imageName": "connect_legend_season_1.png",
+    "price": null,
+    "ranked": true,
+    "season": 1,
+    "rank": "Connect Legend"
+  }
+]

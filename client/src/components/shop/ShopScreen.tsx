@@ -1,23 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { PlayerData } from '../../types/game';
+import { PlayerData, ShopItem } from '../../types/game';
 import { generateShopItems, shouldRotateShop, getShopRotationSeed } from '../../utils/shopManager';
 import { TitleDisplay } from '../common/TitleDisplay';
+import { getBannerImagePath } from '../../utils/bannerManager';
 
 interface ShopScreenProps {
   playerData: PlayerData;
   onPurchase: (titleId: string, price: number) => void;
+  onPurchaseBanner: (bannerId: number, price: number) => void;
   onBack: () => void;
   lastRotation: number;
 }
 
-export function ShopScreen({ playerData, onPurchase, onBack, lastRotation }: ShopScreenProps) {
-  const [items, setItems] = useState(() => generateShopItems(getShopRotationSeed()));
+export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, lastRotation }: ShopScreenProps) {
+  const [items, setItems] = useState<ShopItem[]>([]);
   const [timeUntilRotation, setTimeUntilRotation] = useState('');
   
   useEffect(() => {
-    const updateRotation = () => {
+    const loadItems = async () => {
+      const shopItems = await generateShopItems(getShopRotationSeed());
+      setItems(shopItems);
+    };
+    loadItems();
+  }, []);
+  
+  useEffect(() => {
+    const updateRotation = async () => {
       if (shouldRotateShop(lastRotation)) {
-        setItems(generateShopItems(getShopRotationSeed()));
+        const shopItems = await generateShopItems(getShopRotationSeed());
+        setItems(shopItems);
       }
       
       // Calculate time until next rotation
@@ -42,7 +53,8 @@ export function ShopScreen({ playerData, onPurchase, onBack, lastRotation }: Sho
   }, [lastRotation]);
   
   const canAfford = (price: number) => playerData.coins >= price;
-  const alreadyOwned = (titleId: string) => playerData.ownedTitles.includes(titleId);
+  const titleAlreadyOwned = (titleId: string) => playerData.ownedTitles.includes(titleId);
+  const bannerAlreadyOwned = (bannerId: number) => playerData.ownedBanners.includes(bannerId);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
@@ -54,7 +66,7 @@ export function ShopScreen({ playerData, onPurchase, onBack, lastRotation }: Sho
           >
             ← Back
           </button>
-          <h2 className="text-3xl font-bold">Title Shop</h2>
+          <h2 className="text-3xl font-bold">Shop</h2>
           <div className="text-right">
             <p className="text-yellow-400 font-semibold">💰 {playerData.coins}</p>
           </div>
@@ -70,7 +82,10 @@ export function ShopScreen({ playerData, onPurchase, onBack, lastRotation }: Sho
         {/* Shop Items */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {items.map(item => {
-            const owned = alreadyOwned(item.title.id);
+            const isBanner = !!item.banner;
+            const owned = isBanner 
+              ? bannerAlreadyOwned(item.banner!.bannerId)
+              : titleAlreadyOwned(item.title!.id);
             const affordable = canAfford(item.price);
             
             return (
@@ -78,9 +93,23 @@ export function ShopScreen({ playerData, onPurchase, onBack, lastRotation }: Sho
                 key={item.id}
                 className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700"
               >
-                <div className="mb-4">
-                  <TitleDisplay title={item.title} />
-                </div>
+                {isBanner ? (
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-400 mb-2">{item.banner!.bannerName}</p>
+                    <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-3">
+                      <img
+                        src={getBannerImagePath(item.banner!.imageName)}
+                        alt={item.banner!.bannerName}
+                        className="h-[35px]"
+                        style={{ imageRendering: 'crisp-edges' }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <TitleDisplay title={item.title!} />
+                  </div>
+                )}
                 
                 <div className="flex justify-between items-center">
                   <div className="text-yellow-400 font-bold text-xl">
@@ -96,7 +125,13 @@ export function ShopScreen({ playerData, onPurchase, onBack, lastRotation }: Sho
                     </button>
                   ) : (
                     <button
-                      onClick={() => onPurchase(item.title.id, item.price)}
+                      onClick={() => {
+                        if (isBanner) {
+                          onPurchaseBanner(item.banner!.bannerId, item.price);
+                        } else {
+                          onPurchase(item.title!.id, item.price);
+                        }
+                      }}
                       disabled={!affordable}
                       className={`px-4 py-2 rounded-lg transition-colors ${
                         affordable

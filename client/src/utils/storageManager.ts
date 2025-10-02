@@ -14,7 +14,16 @@ const STORAGE_KEYS = {
 export function getPlayerData(): PlayerData {
   const stored = localStorage.getItem(STORAGE_KEYS.PLAYER);
   if (stored) {
-    return JSON.parse(stored);
+    const player = JSON.parse(stored);
+    
+    // Migrate existing players to have banner fields
+    if (player.equippedBanner === undefined) {
+      player.equippedBanner = 1; // Default banner
+      player.ownedBanners = [1]; // Default banner
+      savePlayerData(player);
+    }
+    
+    return player;
   }
   
   const defaultPlayer: PlayerData = {
@@ -25,6 +34,8 @@ export function getPlayerData(): PlayerData {
     coins: 500,
     equippedTitle: null,
     ownedTitles: [],
+    equippedBanner: 1,
+    ownedBanners: [1],
     wins: 0,
     losses: 0,
     totalGames: 0,

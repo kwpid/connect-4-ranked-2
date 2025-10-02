@@ -6,6 +6,7 @@ import { Connect4Board } from './Connect4Board';
 import { calculateTrophyChange, getRankByTrophies } from '../../utils/rankSystem';
 import { getTitleFromId } from '../../utils/titleManager';
 import { getCurrentSeasonData } from '../../utils/seasonManager';
+import { BannerDisplay } from '../common/BannerDisplay';
 
 interface GameScreenProps {
   playerData: PlayerData;
@@ -419,20 +420,24 @@ export function GameScreen({
         {/* Score */}
         <div className="flex justify-center gap-8 mb-8">
           <div className="text-center">
-            <p className="text-sm text-gray-400">
-              {playerData.username}
-              {playerData.equippedTitle && (() => {
-                const title = getTitleFromId(playerData.equippedTitle);
-                const glowStyle = title.glow && title.glow !== 'none' 
-                  ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
-                  : {};
-                return (
-                  <span className="block text-xs mt-1 font-semibold" style={{ color: title.color, ...glowStyle }}>
-                    {title.name}
-                  </span>
-                );
-              })()}
-            </p>
+            <div className="flex items-center justify-center mb-1">
+              <BannerDisplay 
+                bannerId={playerData.equippedBanner}
+                username={playerData.username}
+                className="scale-90"
+              />
+            </div>
+            {playerData.equippedTitle && (() => {
+              const title = getTitleFromId(playerData.equippedTitle);
+              const glowStyle = title.glow && title.glow !== 'none' 
+                ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
+                : {};
+              return (
+                <p className="text-xs mt-1 font-semibold" style={{ color: title.color, ...glowStyle }}>
+                  {title.name}
+                </p>
+              );
+            })()}
             <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>
             <p className="text-3xl font-bold text-blue-400 mt-1">{match.playerWins}</p>
           </div>

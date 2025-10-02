@@ -12,18 +12,19 @@ interface TitleSelectorProps {
 export function TitleSelector({ playerData, onEquip, onBack }: TitleSelectorProps) {
   const [selectedTitle, setSelectedTitle] = useState<string | null>(playerData.equippedTitle);
   
-  // Get owned titles and sort them (seasonal/leaderboard first, then grey)
+  // Get owned titles and sort them (ranked > tournament > leaderboard > grey)
   const ownedTitles = playerData.ownedTitles
     .map(titleId => getTitleFromId(titleId))
     .sort((a, b) => {
-      // Priority: leaderboard > season > grey
+      // Priority: season (ranked) > tournament > leaderboard > grey
       const priorityMap: Record<string, number> = {
-        'leaderboard': 1,
-        'season': 2,
-        'grey': 3
+        'season': 1,
+        'tournament': 2,
+        'leaderboard': 3,
+        'grey': 4
       };
-      const priorityA = priorityMap[a.type] || 4;
-      const priorityB = priorityMap[b.type] || 4;
+      const priorityA = priorityMap[a.type] || 5;
+      const priorityB = priorityMap[b.type] || 5;
       
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
