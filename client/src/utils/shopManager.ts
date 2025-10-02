@@ -87,47 +87,60 @@ export function getShopRotationSeed(): number {
 }
 
 // Featured Items Management
-export function getFeaturedItems(): FeaturedItem[] {
-  const stored = localStorage.getItem(FEATURED_ITEMS_KEY);
-  if (!stored) return [];
-  
-  const items: FeaturedItem[] = JSON.parse(stored);
-  const now = Date.now();
-  
-  // Filter out expired items
-  const activeItems = items.filter(item => item.expiresAt > now);
-  
-  // Save back if any items were removed
-  if (activeItems.length !== items.length) {
-    saveFeaturedItems(activeItems);
+export async function getFeaturedItems(): Promise<FeaturedItem[]> {
+  try {
+    const response = await fetch('/api/featured-items');
+    if (!response.ok) {
+      console.error('Failed to fetch featured items');
+      return [];
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching featured items:', error);
+    return [];
   }
-  
-  return activeItems;
 }
 
-export function saveFeaturedItems(items: FeaturedItem[]): void {
-  localStorage.setItem(FEATURED_ITEMS_KEY, JSON.stringify(items));
-}
-
-export function addFeaturedItem(item: Omit<FeaturedItem, 'id' | 'expiresAt'>, durationInMs: number): FeaturedItem {
-  const featuredItems = getFeaturedItems();
-  
+export async function addFeaturedItem(item: Omit<FeaturedItem, 'id' | 'expiresAt'>, durationInMs: number): Promise<FeaturedItem> {
   const newItem: FeaturedItem = {
     ...item,
     id: `featured_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     expiresAt: Date.now() + durationInMs
   };
   
-  featuredItems.push(newItem);
-  saveFeaturedItems(featuredItems);
-  
-  return newItem;
+  try {
+    const response = await fetch('/api/featured-items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newItem),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to add featured item');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding featured item:', error);
+    throw error;
+  }
 }
 
-export function removeFeaturedItem(id: string): void {
-  const featuredItems = getFeaturedItems();
-  const filtered = featuredItems.filter(item => item.id !== id);
-  saveFeaturedItems(filtered);
+export async function removeFeaturedItem(id: string): Promise<void> {
+  try {
+    const response = await fetch(`/api/featured-items/${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to remove featured item');
+    }
+  } catch (error) {
+    console.error('Error removing featured item:', error);
+    throw error;
+  }
 }
 
 export function parseDuration(duration: string): number {
@@ -147,7 +160,7 @@ export function parseDuration(duration: string): number {
 
 // Console helper for adding featured items
 if (typeof window !== 'undefined') {
-  (window as any).addFeaturedShopItem = (type: 'title' | 'banner', name: string, price: number, duration: string) => {
+  (window as any).addFeaturedShopItem = async (type: 'title' | 'banner', name: string, price: number, duration: string) => {
     const durationMs = parseDuration(duration);
     if (durationMs === 0) {
       console.error('Invalid duration format. Use format like: 24h, 7d, 2w');
@@ -184,7 +197,7 @@ if (typeof window !== 'undefined') {
       };
     }
     
-    const added = addFeaturedItem(item, durationMs);
+    const added = await addFeaturedItem(item, durationMs);
     console.log(`Added featured ${type}: "${name}" for ${duration} (expires at ${new Date(added.expiresAt).toLocaleString()})`);
   };
 }

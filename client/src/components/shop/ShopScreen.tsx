@@ -23,7 +23,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
       setItems(shopItems);
       
       // Load featured items
-      const featured = getFeaturedItems();
+      const featured = await getFeaturedItems();
       setFeaturedItems(featured);
     };
     loadItems();
@@ -37,7 +37,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
       }
       
       // Refresh featured items (auto-removes expired ones)
-      const featured = getFeaturedItems();
+      const featured = await getFeaturedItems();
       setFeaturedItems(featured);
       
       // Calculate time until next rotation
