@@ -11,9 +11,10 @@ This project has been successfully imported and configured for the Replit enviro
 - **Build System**: Vite for frontend, esbuild for backend bundling
 - **Development Server**: Express.js serving Vite dev server on port 5000
 - **Host Configuration**: Configured with `allowedHosts: true` in vite middleware to work with Replit's proxy
-- **Data Persistence**: Uses localStorage exclusively; no database required for operation
+- **Database**: PostgreSQL database provisioned and schema pushed successfully (users table configured)
+- **Data Persistence**: Currently uses localStorage; database available for future backend features
 - **Dependencies**: All npm packages installed successfully
-- **Workflow**: "Start Game" workflow configured to run `npm run dev` on port 5000
+- **Workflow**: "Start Game" workflow configured to run `npm run dev` on port 5000 with webview output
 - **Deployment**: Configured for autoscale deployment with build and start scripts
 
 ## User Preferences
