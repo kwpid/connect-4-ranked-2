@@ -34,7 +34,7 @@ export function BannerDisplay({ bannerId, username, className = '' }: BannerDisp
         <img
           src={bannerUrl}
           alt="Banner"
-          className="h-[35px] w-auto"
+          className="h-[50px] w-auto"
           style={{ imageRendering: 'crisp-edges' }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -50,7 +50,7 @@ export function BannerDisplay({ bannerId, username, className = '' }: BannerDisp
     <img
       src={bannerUrl}
       alt="Banner"
-      className={`h-[35px] w-auto ${className}`}
+      className={`h-[50px] w-auto ${className}`}
       style={{ imageRendering: 'crisp-edges' }}
     />
   );

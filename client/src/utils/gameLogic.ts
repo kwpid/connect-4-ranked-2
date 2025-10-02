@@ -6,19 +6,19 @@ export interface WinningCells {
 
 export function createEmptyBoard(): GameBoard {
   return {
-    cells: Array(6).fill(null).map(() => Array(7).fill('empty'))
+    cells: Array(7).fill(null).map(() => Array(9).fill('empty'))
   };
 }
 
 export function dropPiece(board: GameBoard, column: number, player: CellValue): GameBoard | null {
-  if (column < 0 || column >= 7) return null;
+  if (column < 0 || column >= 9) return null;
   
   const newBoard = {
     cells: board.cells.map(row => [...row])
   };
   
   // Find the lowest empty cell in the column
-  for (let row = 5; row >= 0; row--) {
+  for (let row = 6; row >= 0; row--) {
     if (newBoard.cells[row][column] === 'empty') {
       newBoard.cells[row][column] = player;
       return newBoard;
@@ -37,8 +37,8 @@ export function getWinnerWithCells(board: GameBoard): { winner: GameResult; cell
   const cells = board.cells;
   
   // Check horizontal
-  for (let row = 0; row < 6; row++) {
-    for (let col = 0; col < 4; col++) {
+  for (let row = 0; row < 7; row++) {
+    for (let col = 0; col < 6; col++) {
       const cell = cells[row][col];
       if (cell !== 'empty' && 
           cell === cells[row][col + 1] && 
@@ -55,8 +55,8 @@ export function getWinnerWithCells(board: GameBoard): { winner: GameResult; cell
   }
   
   // Check vertical
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 7; col++) {
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 9; col++) {
       const cell = cells[row][col];
       if (cell !== 'empty' && 
           cell === cells[row + 1][col] && 
@@ -73,8 +73,8 @@ export function getWinnerWithCells(board: GameBoard): { winner: GameResult; cell
   }
   
   // Check diagonal (down-right)
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 4; col++) {
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 6; col++) {
       const cell = cells[row][col];
       if (cell !== 'empty' && 
           cell === cells[row + 1][col + 1] && 
@@ -91,8 +91,8 @@ export function getWinnerWithCells(board: GameBoard): { winner: GameResult; cell
   }
   
   // Check diagonal (down-left)
-  for (let row = 0; row < 3; row++) {
-    for (let col = 3; col < 7; col++) {
+  for (let row = 0; row < 4; row++) {
+    for (let col = 3; col < 9; col++) {
       const cell = cells[row][col];
       if (cell !== 'empty' && 
           cell === cells[row + 1][col - 1] && 
@@ -121,7 +121,7 @@ export function isColumnFull(board: GameBoard, column: number): boolean {
 
 export function getAvailableColumns(board: GameBoard): number[] {
   const available: number[] = [];
-  for (let col = 0; col < 7; col++) {
+  for (let col = 0; col < 9; col++) {
     if (!isColumnFull(board, col)) {
       available.push(col);
     }

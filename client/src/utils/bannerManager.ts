@@ -122,3 +122,68 @@ export function generateShopBannerRotation(
   
   return selected;
 }
+
+export function getAIBanner(
+  banners: Banner[],
+  aiTrophies: number,
+  currentSeason: number
+): number | null {
+  const rankOrder = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Champion', 'Grand Champion', 'Connect Legend'];
+  
+  const getRankTierFromTrophies = (trophies: number): string | null => {
+    if (trophies >= 701) return 'Connect Legend';
+    if (trophies >= 551) return 'Grand Champion';
+    if (trophies >= 401) return 'Champion';
+    if (trophies >= 276) return 'Diamond';
+    if (trophies >= 176) return 'Platinum';
+    if (trophies >= 101) return 'Gold';
+    if (trophies >= 51) return 'Silver';
+    if (trophies >= 0) return 'Bronze';
+    return null;
+  };
+
+  const aiRankTier = getRankTierFromTrophies(aiTrophies);
+  if (!aiRankTier) return null;
+
+  const shopBannerIds = [2, 3, 4];
+  
+  const availableRankedBanners: Banner[] = [];
+  for (let season = 1; season < currentSeason; season++) {
+    const banner = banners.find(
+      b => b.ranked && b.season === season && b.rank === aiRankTier
+    );
+    if (banner) {
+      availableRankedBanners.push(banner);
+    }
+  }
+
+  const possibleBanners: number[] = [];
+  
+  if (aiTrophies < 176) {
+    possibleBanners.push(...shopBannerIds);
+    if (availableRankedBanners.length > 0) {
+      possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
+    }
+    possibleBanners.push(null as any);
+  } else if (aiTrophies < 401) {
+    if (availableRankedBanners.length > 0) {
+      possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
+      possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
+    }
+    possibleBanners.push(...shopBannerIds);
+  } else {
+    if (availableRankedBanners.length > 0) {
+      possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
+      possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
+      possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
+    }
+    possibleBanners.push(...shopBannerIds);
+  }
+
+  if (possibleBanners.length === 0) {
+    return null;
+  }
+
+  const randomIndex = Math.floor(Math.random() * possibleBanners.length);
+  return possibleBanners[randomIndex] || null;
+}

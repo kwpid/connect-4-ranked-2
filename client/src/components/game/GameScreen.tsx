@@ -7,6 +7,7 @@ import { calculateTrophyChange, getRankByTrophies } from '../../utils/rankSystem
 import { getTitleFromId } from '../../utils/titleManager';
 import { getCurrentSeasonData } from '../../utils/seasonManager';
 import { BannerDisplay } from '../common/BannerDisplay';
+import { loadBanners, getAIBanner } from '../../utils/bannerManager';
 
 interface GameScreenProps {
   playerData: PlayerData;
@@ -146,13 +147,27 @@ export function GameScreen({
       return { 
         name: opponentData.username, 
         trophies: opponentData.trophies, 
-        titleId: opponentData.titleId || null 
+        titleId: opponentData.titleId || null
       };
     }
     return isPracticeMode ? 
       { name: `${practiceDifficulty?.toUpperCase()} AI`, trophies: 0, titleId: null } : 
       generateOpponent();
   });
+  
+  const [opponentBannerId, setOpponentBannerId] = useState<number | null>(null);
+  
+  useEffect(() => {
+    const loadOpponentBanner = async () => {
+      if (!isPracticeMode && !isTournamentMode) {
+        const banners = await loadBanners();
+        const currentSeason = getCurrentSeasonData();
+        const aiBannerId = getAIBanner(banners, opponent.trophies, currentSeason.seasonNumber);
+        setOpponentBannerId(aiBannerId);
+      }
+    };
+    loadOpponentBanner();
+  }, []);
   const [initialPlayer] = useState(determineFirstPlayer());
   const [match, setMatch] = useState<MatchState>({
     currentGame: 1,
@@ -443,7 +458,13 @@ export function GameScreen({
           </div>
           <div className="text-4xl font-bold text-gray-500">-</div>
           <div className="text-center">
-            <p className="text-sm text-gray-400">{opponent.name}</p>
+            <div className="flex items-center justify-center mb-1">
+              <BannerDisplay 
+                bannerId={opponentBannerId}
+                username={opponent.name}
+                className="scale-90"
+              />
+            </div>
             {opponent.titleId && (() => {
               const title = getTitleFromId(opponent.titleId);
               const glowStyle = title.glow && title.glow !== 'none' 

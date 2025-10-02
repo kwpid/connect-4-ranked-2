@@ -32,9 +32,9 @@ export function Connect4Board({ board, onColumnClick, currentPlayer, disabled, w
   
   return (
     <div className="inline-block bg-gradient-to-b from-blue-600 to-blue-800 p-2 sm:p-4 rounded-lg shadow-2xl">
-      <div className="grid grid-cols-7 gap-1 sm:gap-2">
+      <div className="grid grid-cols-9 gap-1 sm:gap-2">
         {/* Render columns for better click handling */}
-        {Array.from({ length: 7 }).map((_, colIndex) => (
+        {Array.from({ length: 9 }).map((_, colIndex) => (
           <div 
             key={`col-${colIndex}`} 
             className={`flex flex-col gap-1 sm:gap-2 ${!disabled && currentPlayer === 'player' ? 'cursor-pointer hover:bg-blue-400/10' : ''} ${isBestMoveColumn(colIndex) ? 'bg-yellow-400/20' : ''} ${isHintColumn(colIndex) ? 'bg-green-400/20' : ''} rounded-lg transition-all`}

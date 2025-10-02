@@ -100,7 +100,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
                       <img
                         src={getBannerImagePath(item.banner!.imageName)}
                         alt={item.banner!.bannerName}
-                        className="h-[35px]"
+                        className="h-[50px]"
                         style={{ imageRendering: 'crisp-edges' }}
                       />
                     </div>

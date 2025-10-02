@@ -117,7 +117,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
                   <img
                     src={getBannerImagePath(getBannerById(playerData.equippedBanner, banners)!.imageName)}
                     alt={getBannerById(playerData.equippedBanner, banners)!.bannerName}
-                    className="h-[35px]"
+                    className="h-[50px]"
                     style={{ imageRendering: 'crisp-edges' }}
                   />
                 </div>
@@ -163,7 +163,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
                       <img
                         src={getBannerImagePath(banner.imageName)}
                         alt={banner.bannerName}
-                        className="h-[35px]"
+                        className="h-[50px]"
                         style={{ imageRendering: 'crisp-edges' }}
                       />
                     </div>

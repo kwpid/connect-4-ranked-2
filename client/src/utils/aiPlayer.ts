@@ -5,8 +5,12 @@ export type AIDifficulty = 'noob' | 'average' | 'good' | 'professional';
 
 export class AIPlayer {
   private difficulty: number; // 0-10, based on trophies or difficulty setting
+  private playerMoveHistory: number[] = [];
+  private playStyle: 'aggressive' | 'defensive' | 'balanced' | 'opportunistic';
   
   constructor(playerTrophiesOrDifficulty: number | AIDifficulty) {
+    const styleOptions: ('aggressive' | 'defensive' | 'balanced' | 'opportunistic')[] = ['aggressive', 'defensive', 'balanced', 'opportunistic'];
+    this.playStyle = styleOptions[Math.floor(Math.random() * styleOptions.length)];
     if (typeof playerTrophiesOrDifficulty === 'string') {
       // Practice mode with explicit difficulty
       switch (playerTrophiesOrDifficulty) {
@@ -37,21 +41,26 @@ export class AIPlayer {
     }
   }
   
-  async makeMove(board: GameBoard, isFirstMove: boolean = false): Promise<number> {
-    // Simulate thinking time based on difficulty
-    const thinkTime = 500 + Math.random() * 1000 + (10 - this.difficulty) * 200;
+  async makeMove(board: GameBoard, isFirstMove: boolean = false, lastPlayerMove?: number): Promise<number> {
+    // Track player move patterns for higher difficulty AI
+    if (lastPlayerMove !== undefined && this.difficulty >= 6) {
+      this.playerMoveHistory.push(lastPlayerMove);
+    }
+    
+    // Simulate thinking time based on difficulty (more variable for human-like behavior)
+    const baseThink = 500 + Math.random() * 1000;
+    const difficultyDelay = (10 - this.difficulty) * 200;
+    const humanVariation = Math.random() > 0.7 ? Math.random() * 500 : 0;
+    const thinkTime = baseThink + difficultyDelay + humanVariation;
     await new Promise(resolve => setTimeout(resolve, thinkTime));
     
     const availableColumns = getAvailableColumns(board);
     if (availableColumns.length === 0) return -1;
     
-    // Opening move strategy: prefer middle column
-    if (isFirstMove && availableColumns.includes(3)) {
-      // Higher difficulty AI prefers center opening more often
-      const centerPreference = this.difficulty >= 3 ? 0.7 : 0.5;
-      if (Math.random() < centerPreference) {
-        return 3; // Middle column
-      }
+    // Opening move strategy: vary based on play style
+    if (isFirstMove && this.difficulty >= 3) {
+      const openingMove = this.getOpeningMove(availableColumns);
+      if (openingMove !== -1) return openingMove;
     }
     
     // Check for winning move
@@ -95,13 +104,45 @@ export class AIPlayer {
     
     // Advanced strategy based on difficulty
     if (this.difficulty >= 5) {
+      // Use player pattern analysis for high-level AI
+      if (this.difficulty >= 7 && this.playerMoveHistory.length >= 4) {
+        const pattern = this.analyzePlayerPattern();
+        // Counter player's favored columns by controlling nearby spaces
+        if (pattern.favoredColumns.length > 0) {
+          const counterMoves = pattern.favoredColumns
+            .flatMap(col => [col - 1, col, col + 1])
+            .filter(col => col >= 0 && col < 9 && availableColumns.includes(col));
+          
+          if (counterMoves.length > 0) {
+            // Sometimes (30% chance) play to counter the pattern
+            if (Math.random() > 0.7) {
+              const bestCounter = counterMoves[Math.floor(Math.random() * counterMoves.length)];
+              const testBoard = dropPiece(board, bestCounter, 'ai');
+              if (testBoard && this.evaluatePosition(testBoard, 'ai') > 2) {
+                return bestCounter;
+              }
+            }
+          }
+        }
+      }
+      
       const strategicMove = this.findStrategicMove(board, availableColumns);
-      if (strategicMove !== -1) return strategicMove;
+      if (strategicMove !== -1) {
+        // Add slight randomness even for strategic moves to feel human
+        if (this.difficulty < 10 && Math.random() < 0.15) {
+          // 15% chance to pick a different good move instead of the best
+          const altMoves = availableColumns.filter(c => c !== strategicMove).slice(0, 3);
+          if (altMoves.length > 0 && Math.random() > 0.5) {
+            return altMoves[Math.floor(Math.random() * altMoves.length)];
+          }
+        }
+        return strategicMove;
+      }
     }
     
     // Random move with preference for center columns at higher difficulties
     if (this.difficulty >= 3) {
-      const centerColumns = availableColumns.filter(col => col >= 2 && col <= 4);
+      const centerColumns = availableColumns.filter(col => col >= 3 && col <= 5);
       if (centerColumns.length > 0 && Math.random() > 0.3) {
         return centerColumns[Math.floor(Math.random() * centerColumns.length)];
       }
@@ -136,7 +177,7 @@ export class AIPlayer {
     if (strategicMove !== -1) return strategicMove;
     
     // Prefer center columns
-    const centerColumns = availableColumns.filter(col => col >= 2 && col <= 4);
+    const centerColumns = availableColumns.filter(col => col >= 3 && col <= 5);
     if (centerColumns.length > 0) {
       return centerColumns[Math.floor(Math.random() * centerColumns.length)];
     }
@@ -185,12 +226,81 @@ export class AIPlayer {
     }
     
     // Prefer center columns
-    const centerColumns = availableColumns.filter(col => col >= 2 && col <= 4);
+    const centerColumns = availableColumns.filter(col => col >= 3 && col <= 5);
     if (centerColumns.length > 0) {
       return { column: centerColumns[0], reason: 'Center columns give more options' };
     }
     
     return null;
+  }
+  
+  private getOpeningMove(availableColumns: number[]): number {
+    // Vary opening strategy based on play style
+    switch (this.playStyle) {
+      case 'aggressive':
+        // Prefer center for control
+        if (availableColumns.includes(4)) return 4;
+        const nearCenter = [3, 5].filter(c => availableColumns.includes(c));
+        if (nearCenter.length > 0) return nearCenter[Math.floor(Math.random() * nearCenter.length)];
+        break;
+        
+      case 'defensive':
+        // Prefer sides to build defensive positions
+        const sides = [0, 1, 7, 8].filter(c => availableColumns.includes(c));
+        if (sides.length > 0 && Math.random() > 0.4) {
+          return sides[Math.floor(Math.random() * sides.length)];
+        }
+        break;
+        
+      case 'balanced':
+        // Mix of center and off-center
+        if (Math.random() > 0.5 && availableColumns.includes(4)) return 4;
+        const balanced = [3, 4, 5].filter(c => availableColumns.includes(c));
+        if (balanced.length > 0) return balanced[Math.floor(Math.random() * balanced.length)];
+        break;
+        
+      case 'opportunistic':
+        // Vary the opening each time
+        if (Math.random() > 0.6) {
+          return availableColumns[Math.floor(Math.random() * availableColumns.length)];
+        }
+        break;
+    }
+    
+    // Default: prefer center
+    if (availableColumns.includes(4) && Math.random() > 0.3) {
+      return 4;
+    }
+    
+    return -1;
+  }
+  
+  private analyzePlayerPattern(): { favoredColumns: number[]; predictedNext: number | null } {
+    if (this.playerMoveHistory.length < 3) {
+      return { favoredColumns: [], predictedNext: null };
+    }
+    
+    // Count column frequency
+    const columnCounts: { [key: number]: number } = {};
+    this.playerMoveHistory.forEach(col => {
+      columnCounts[col] = (columnCounts[col] || 0) + 1;
+    });
+    
+    // Find most used columns
+    const sorted = Object.entries(columnCounts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([col]) => parseInt(col));
+    
+    // Check for patterns (e.g., alternating, sequential)
+    const recentMoves = this.playerMoveHistory.slice(-3);
+    let predictedNext = null;
+    
+    // Simple pattern detection: if player favors certain columns, predict they'll use them
+    if (sorted.length > 0 && columnCounts[sorted[0]] >= 3) {
+      predictedNext = sorted[0];
+    }
+    
+    return { favoredColumns: sorted.slice(0, 3), predictedNext };
   }
   
   private detectAndBlockThreat(board: GameBoard, availableColumns: number[]): number {
@@ -213,8 +323,8 @@ export class AIPlayer {
       // Check what threats this move would block
       let maxThreatBlocked = 0;
       
-      for (let row = 0; row < 6; row++) {
-        for (let c = 0; c < 7; c++) {
+      for (let row = 0; row < 7; row++) {
+        for (let c = 0; c < 9; c++) {
           for (const dir of directions) {
             const window = this.getWindow(board.cells, row, c, dir.dr, dir.dc);
             if (window.length !== 4) continue;
@@ -300,8 +410,8 @@ export class AIPlayer {
       { dr: 1, dc: -1 }  // diagonal down-left
     ];
     
-    for (let row = 0; row < 6; row++) {
-      for (let col = 0; col < 7; col++) {
+    for (let row = 0; row < 7; row++) {
+      for (let col = 0; col < 9; col++) {
         for (const dir of directions) {
           const window = this.getWindow(cells, row, col, dir.dr, dir.dc);
           if (window.length === 4) {
@@ -319,7 +429,7 @@ export class AIPlayer {
     for (let i = 0; i < 4; i++) {
       const r = row + i * dr;
       const c = col + i * dc;
-      if (r >= 0 && r < 6 && c >= 0 && c < 7) {
+      if (r >= 0 && r < 7 && c >= 0 && c < 9) {
         window.push(cells[r][c]);
       }
     }
