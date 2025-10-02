@@ -12,8 +12,29 @@ interface TitleSelectorProps {
 export function TitleSelector({ playerData, onEquip, onBack }: TitleSelectorProps) {
   const [selectedTitle, setSelectedTitle] = useState<string | null>(playerData.equippedTitle);
   
-  // Get owned titles
-  const ownedTitles = playerData.ownedTitles.map(titleId => getTitleFromId(titleId));
+  // Get owned titles and sort them (seasonal/leaderboard first, then grey)
+  const ownedTitles = playerData.ownedTitles
+    .map(titleId => getTitleFromId(titleId))
+    .sort((a, b) => {
+      // Priority: leaderboard > season > grey
+      const priorityMap: Record<string, number> = {
+        'leaderboard': 1,
+        'season': 2,
+        'grey': 3
+      };
+      const priorityA = priorityMap[a.type] || 4;
+      const priorityB = priorityMap[b.type] || 4;
+      
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      // Within same type, sort by season number (newest first) or alphabetically
+      if (a.season && b.season) {
+        return b.season - a.season;
+      }
+      return a.name.localeCompare(b.name);
+    });
   
   const handleEquip = () => {
     onEquip(selectedTitle);
@@ -21,7 +42,7 @@ export function TitleSelector({ playerData, onEquip, onBack }: TitleSelectorProp
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto h-screen flex flex-col">
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={onBack}
@@ -34,53 +55,55 @@ export function TitleSelector({ playerData, onEquip, onBack }: TitleSelectorProp
         </div>
         
         {/* Current Title */}
-        <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-8 border border-gray-700">
+        <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-6 border border-gray-700 flex-shrink-0">
           <p className="text-gray-400 text-sm mb-2">Currently Equipped</p>
           <TitleDisplay 
             titleId={playerData.equippedTitle}
           />
         </div>
         
-        {/* Title List */}
-        <div className="space-y-3 mb-8">
-          {/* No Title Option */}
-          <div
-            onClick={() => setSelectedTitle(null)}
-            className={`p-4 rounded-lg cursor-pointer transition-all ${
-              selectedTitle === null
-                ? 'bg-blue-600 border-2 border-blue-400'
-                : 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
-            }`}
-          >
-            <p className="text-gray-400">No Title Equipped</p>
-          </div>
-          
-          {ownedTitles.map(title => (
+        {/* Title List - Scrollable Container */}
+        <div className="flex-1 overflow-y-auto mb-6 pr-2">
+          <div className="space-y-3">
+            {/* No Title Option */}
             <div
-              key={title.id}
-              onClick={() => setSelectedTitle(title.id)}
+              onClick={() => setSelectedTitle(null)}
               className={`p-4 rounded-lg cursor-pointer transition-all ${
-                selectedTitle === title.id
+                selectedTitle === null
                   ? 'bg-blue-600 border-2 border-blue-400'
                   : 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
               }`}
             >
-              <TitleDisplay title={title} />
+              <p className="text-gray-400">No Title Equipped</p>
             </div>
-          ))}
-          
-          {ownedTitles.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-400 text-lg">No titles owned yet</p>
-              <p className="text-gray-500 mt-2">Purchase titles from the shop or earn them through seasons</p>
-            </div>
-          )}
+            
+            {ownedTitles.map(title => (
+              <div
+                key={title.id}
+                onClick={() => setSelectedTitle(title.id)}
+                className={`p-4 rounded-lg cursor-pointer transition-all ${
+                  selectedTitle === title.id
+                    ? 'bg-blue-600 border-2 border-blue-400'
+                    : 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                <TitleDisplay title={title} />
+              </div>
+            ))}
+            
+            {ownedTitles.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-400 text-lg">No titles owned yet</p>
+                <p className="text-gray-500 mt-2">Purchase titles from the shop or earn them through seasons</p>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Equip Button */}
         <button
           onClick={handleEquip}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors flex-shrink-0"
         >
           Equip Selected
         </button>

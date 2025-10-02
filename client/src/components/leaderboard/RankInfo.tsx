@@ -73,9 +73,6 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
                         </span>
                       )}
                     </p>
-                    <p className="text-gray-500 text-xs mt-1">
-                      {playerCount} {playerCount === 1 ? 'player' : 'players'}
-                    </p>
                   </div>
                   <div className="text-right">
                     <p className="text-yellow-400 font-semibold">
@@ -92,12 +89,12 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
         <div className="mt-8 bg-blue-600/20 backdrop-blur rounded-xl p-6 border border-blue-600/50">
           <h3 className="text-xl font-bold mb-3">Trophy System</h3>
           <ul className="space-y-2 text-gray-300">
-            <li>• Win: +3 to +10 trophies (based on opponent rank)</li>
+            <li>• Win: +3 to +7 trophies (based on opponent rank)</li>
             <li>• Loss: -2 to -4 trophies (based on opponent rank)</li>
             <li>• Higher opponent rank = more trophies on win</li>
             <li>• Win Streak Bonus: +1 for 3+ wins, +2 for 10+ wins</li>
             <li>• Fast Win Bonus: +1 for wins in under 20 moves</li>
-            <li>• Maximum reward: 10 trophies per match</li>
+            <li>• Maximum reward: 7 trophies per match</li>
           </ul>
         </div>
       </div>

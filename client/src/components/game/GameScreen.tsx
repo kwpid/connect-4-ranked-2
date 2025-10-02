@@ -9,7 +9,7 @@ import { getCurrentSeasonData } from '../../utils/seasonManager';
 
 interface GameScreenProps {
   playerData: PlayerData;
-  onMatchEnd: (won: boolean, trophyChange: number) => void;
+  onMatchEnd: (won: boolean, trophyChange: number, opponentName?: string, opponentTrophies?: number, matchScore?: string) => void;
   onBack: () => void;
   isPracticeMode?: boolean;
   practiceDifficulty?: AIDifficulty;
@@ -316,11 +316,12 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
         playerData.winStreak,
         totalMoves
       );
-      onMatchEnd(won, trophyChange);
+      const matchScore = `${match.playerWins}-${match.aiWins}`;
+      onMatchEnd(won, trophyChange, opponent.name, opponent.trophies, matchScore);
     }
   };
   
-  // New trophy calculation system (up to 10 trophies)
+  // New trophy calculation system (up to 7 trophies, like elo systems)
   const calculateNewTrophyChange = (
     won: boolean, 
     playerTrophies: number, 
@@ -335,13 +336,13 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
       const trophyDiff = opponentTrophies - playerTrophies;
       
       if (trophyDiff >= 50) {
-        baseTrophies = 8; // Much much higher rank (huge underdog victory)
+        baseTrophies = 5; // Much higher rank (underdog victory)
       } else if (trophyDiff >= 30) {
-        baseTrophies = 7; // Much higher rank (underdog victory)
+        baseTrophies = 5; // Much higher rank (underdog victory)
       } else if (trophyDiff >= 10) {
-        baseTrophies = 5; // Slightly higher rank
+        baseTrophies = 4; // Slightly higher rank
       } else if (trophyDiff >= -10) {
-        baseTrophies = 4; // Equal rank
+        baseTrophies = 3; // Equal rank
       }
       
       // Win streak bonus: +1 if 3+ wins in a row, +2 if 10+ wins
@@ -355,8 +356,8 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
       // Fast win bonus: +1 if won in under 20 moves
       const fastWinBonus = moves < 20 ? 1 : 0;
       
-      // Total can be up to 10 trophies (8 base + 1 streak + 1 fast win)
-      return Math.min(10, baseTrophies + streakBonus + fastWinBonus);
+      // Total can be up to 7 trophies (5 base + 2 streak + 1 fast win, capped at 7)
+      return Math.min(7, baseTrophies + streakBonus + fastWinBonus);
     } else {
       // Loss penalties based on opponent rank
       const trophyDiff = opponentTrophies - playerTrophies;

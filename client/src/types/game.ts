@@ -25,6 +25,15 @@ export interface Title {
   price?: number;
 }
 
+export interface MatchHistoryEntry {
+  result: 'win' | 'loss';
+  score: string;
+  trophyChange: number;
+  opponentName: string;
+  opponentTrophies: number;
+  timestamp: number;
+}
+
 export interface PlayerData {
   username: string;
   trophies: number;
@@ -43,6 +52,7 @@ export interface PlayerData {
   peakTrophies?: number;
   peakRank?: string;
   peakSeason?: number;
+  matchHistory?: MatchHistoryEntry[];
 }
 
 export interface AICompetitor {

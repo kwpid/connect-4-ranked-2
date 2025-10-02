@@ -38,9 +38,23 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
   
   useEffect(() => {
     if (elapsed >= queueTime) {
+      // Send notification if user is not viewing the tab
+      if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('Connect Ranked', {
+          body: 'Match found! Your game is ready.',
+          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏆</text></svg>'
+        });
+      }
       onMatchFound();
     }
   }, [elapsed, queueTime, onMatchFound]);
+  
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8 flex items-center justify-center">
@@ -48,9 +62,6 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
         <div className="bg-gray-800/50 backdrop-blur rounded-xl p-8 border border-gray-700">
           {/* Searching Animation */}
           <div className="text-center mb-8">
-            <div className="inline-block animate-pulse">
-              <div className="text-6xl mb-4">🎮</div>
-            </div>
             <h2 className="text-3xl font-bold mb-2">
               Searching for opponent{dots}
             </h2>
@@ -69,7 +80,7 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
               <div className="text-center">
                 <p className="text-gray-400 text-sm">Trophies</p>
                 <p className="font-bold text-lg text-yellow-400">
-                  🏆 {playerData.trophies}
+                  {playerData.trophies}
                 </p>
               </div>
             </div>
@@ -77,7 +88,7 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
           
           {elapsed >= queueTime - 1 && (
             <div className="text-center mb-4 text-green-400 font-semibold animate-pulse">
-              ✓ Match Found!
+              Match Found!
             </div>
           )}
           

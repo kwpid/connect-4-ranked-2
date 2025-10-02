@@ -14,6 +14,12 @@ export function StatsScreen({ playerData, onBack }: StatsScreenProps) {
     ? ((playerData.wins / playerData.totalGames) * 100).toFixed(1)
     : '0.0';
   
+  const peakRank = playerData.peakRank ? getRankByTrophies(parseInt(playerData.peakRank)) : rank;
+  const peakTierColor = getTierColor(peakRank.tier);
+  
+  const matchHistory = playerData.matchHistory || [];
+  const recentMatches = matchHistory.slice(0, 5);
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
@@ -92,7 +98,7 @@ export function StatsScreen({ playerData, onBack }: StatsScreenProps) {
         </div>
         
         {/* Streak Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
             <h3 className="text-gray-400 text-sm mb-2">Current Win Streak</h3>
             <p className="text-3xl font-bold text-orange-400">
@@ -113,6 +119,78 @@ export function StatsScreen({ playerData, onBack }: StatsScreenProps) {
               💧 {playerData.losingStreak}
             </p>
           </div>
+        </div>
+        
+        {/* Peak Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
+            <h3 className="text-gray-400 text-sm mb-2">Peak Rank</h3>
+            <p className="text-2xl font-bold" style={{ color: peakTierColor }}>
+              {peakRank.name}
+            </p>
+            {playerData.peakSeason && (
+              <p className="text-sm text-gray-400 mt-1">
+                Season {playerData.peakSeason}
+              </p>
+            )}
+          </div>
+          
+          <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
+            <h3 className="text-gray-400 text-sm mb-2">Peak Trophies</h3>
+            <p className="text-2xl font-bold text-yellow-400">
+              🏆 {playerData.peakTrophies || playerData.trophies}
+            </p>
+            {playerData.peakSeason && (
+              <p className="text-sm text-gray-400 mt-1">
+                Season {playerData.peakSeason}
+              </p>
+            )}
+          </div>
+        </div>
+        
+        {/* Match History */}
+        <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
+          <h3 className="text-xl font-bold mb-4">Recent Match History</h3>
+          {recentMatches.length === 0 ? (
+            <p className="text-gray-400 text-center py-4">No matches played yet</p>
+          ) : (
+            <div className="space-y-3">
+              {recentMatches.map((match, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border-2 ${
+                    match.result === 'win'
+                      ? 'bg-green-900/20 border-green-500/30'
+                      : 'bg-red-900/20 border-red-500/30'
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className={`font-bold text-lg ${
+                        match.result === 'win' ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        {match.result === 'win' ? 'Victory' : 'Defeat'}
+                      </p>
+                      <p className="text-gray-400 text-sm">
+                        vs {match.opponentName} ({match.opponentTrophies} 🏆)
+                      </p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {new Date(match.timestamp).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-gray-400 text-sm">Score: {match.score}</p>
+                      <p className={`text-xl font-bold ${
+                        match.trophyChange >= 0 ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        {match.trophyChange >= 0 ? '+' : ''}{match.trophyChange} 🏆
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

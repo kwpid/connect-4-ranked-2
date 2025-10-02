@@ -125,7 +125,7 @@ function App() {
     saveSeasonData(currentSeason);
   };
   
-  const handleMatchEnd = (won: boolean, trophyChange: number) => {
+  const handleMatchEnd = (won: boolean, trophyChange: number, opponentName?: string, opponentTrophies?: number, matchScore?: string) => {
     const newTrophies = Math.max(0, playerData.trophies + trophyChange);
     const newWinStreak = won ? playerData.winStreak + 1 : 0;
     const newLosingStreak = won ? 0 : playerData.losingStreak + 1;
@@ -161,15 +161,32 @@ function App() {
     }
     
     // Track peak rank and trophies
-    let newPeakTrophies = playerData.peakTrophies || 0;
-    let newPeakRank = playerData.peakRank || '';
-    let newPeakSeason = playerData.peakSeason || 0;
+    let newPeakTrophies = playerData.peakTrophies || playerData.trophies;
+    let newPeakRank = playerData.peakRank || getRankByTrophies(playerData.trophies).minTrophies.toString();
+    let newPeakSeason = playerData.peakSeason || currentSeason.seasonNumber;
     
     if (newTrophies > newPeakTrophies) {
       newPeakTrophies = newTrophies;
       const currentRank = getRankByTrophies(newTrophies);
-      newPeakRank = currentRank.name;
+      newPeakRank = newTrophies.toString();
       newPeakSeason = currentSeason.seasonNumber;
+    }
+    
+    // Add match to history (only if opponent info provided)
+    const newMatchHistory = [...(playerData.matchHistory || [])];
+    if (opponentName && opponentTrophies !== undefined && matchScore) {
+      newMatchHistory.unshift({
+        result: won ? 'win' : 'loss',
+        score: matchScore,
+        trophyChange,
+        opponentName,
+        opponentTrophies,
+        timestamp: Date.now()
+      });
+      // Keep only last 20 matches
+      if (newMatchHistory.length > 20) {
+        newMatchHistory.pop();
+      }
     }
     
     const updatedPlayer: PlayerData = {
@@ -188,7 +205,8 @@ function App() {
       ownedTitles: newTitles,
       peakTrophies: newPeakTrophies,
       peakRank: newPeakRank,
-      peakSeason: newPeakSeason
+      peakSeason: newPeakSeason,
+      matchHistory: newMatchHistory
     };
     
     setPlayerData(updatedPlayer);
