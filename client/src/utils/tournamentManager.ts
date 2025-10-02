@@ -144,29 +144,25 @@ export function startTournament(
   playerData: PlayerData,
   currentSeasonNumber: number
 ): TournamentData {
-  // Generate 15 AI participants
+  // Check if player registered
+  const isPlayerRegistered = tournament.participants.some(p => p.isPlayer);
+  
+  // Generate AI participants - 15 if player registered, 16 if not
+  const aiCount = isPlayerRegistered ? 15 : 16;
   const aiParticipants = generateAIParticipants(
     aiCompetitors,
     playerData.trophies,
-    15,
+    aiCount,
     currentSeasonNumber
   );
   
-  // Combine with player (if registered)
-  let allParticipants = [...tournament.participants, ...aiParticipants];
-  
-  // If player didn't register, add them anyway with one AI slot
-  if (!allParticipants.some(p => p.isPlayer)) {
-    allParticipants = [
-      {
-        id: 'player',
-        username: playerData.username,
-        trophies: playerData.trophies,
-        isPlayer: true,
-        titleId: playerData.equippedTitle
-      },
-      ...aiParticipants.slice(0, 15)
-    ];
+  // Combine with player only if they registered
+  let allParticipants: TournamentParticipant[];
+  if (isPlayerRegistered) {
+    allParticipants = [...tournament.participants, ...aiParticipants];
+  } else {
+    // Player didn't register, tournament proceeds with only AI
+    allParticipants = aiParticipants;
   }
   
   // Shuffle participants for random seeding

@@ -127,7 +127,7 @@ export function getAIBanner(
   banners: Banner[],
   aiTrophies: number,
   currentSeason: number
-): number | null {
+): number {
   const rankOrder = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Champion', 'Grand Champion', 'Connect Legend'];
   
   const getRankTierFromTrophies = (trophies: number): string | null => {
@@ -143,9 +143,10 @@ export function getAIBanner(
   };
 
   const aiRankTier = getRankTierFromTrophies(aiTrophies);
-  if (!aiRankTier) return null;
+  if (!aiRankTier) return 1; // Default banner
 
   const shopBannerIds = [2, 3, 4];
+  const defaultBannerId = 1;
   
   const availableRankedBanners: Banner[] = [];
   for (let season = 1; season < currentSeason; season++) {
@@ -164,13 +165,14 @@ export function getAIBanner(
     if (availableRankedBanners.length > 0) {
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
     }
-    possibleBanners.push(null as any);
+    possibleBanners.push(defaultBannerId);
   } else if (aiTrophies < 401) {
     if (availableRankedBanners.length > 0) {
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
     }
     possibleBanners.push(...shopBannerIds);
+    possibleBanners.push(defaultBannerId);
   } else {
     if (availableRankedBanners.length > 0) {
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
@@ -178,12 +180,13 @@ export function getAIBanner(
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
     }
     possibleBanners.push(...shopBannerIds);
+    possibleBanners.push(defaultBannerId);
   }
 
   if (possibleBanners.length === 0) {
-    return null;
+    return defaultBannerId;
   }
 
   const randomIndex = Math.floor(Math.random() * possibleBanners.length);
-  return possibleBanners[randomIndex] || null;
+  return possibleBanners[randomIndex] || defaultBannerId;
 }

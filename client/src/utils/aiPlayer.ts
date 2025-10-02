@@ -129,8 +129,10 @@ export class AIPlayer {
       const strategicMove = this.findStrategicMove(board, availableColumns);
       if (strategicMove !== -1) {
         // Add slight randomness even for strategic moves to feel human
-        if (this.difficulty < 10 && Math.random() < 0.15) {
-          // 15% chance to pick a different good move instead of the best
+        // Even top-level AI (difficulty 10) should sometimes make mistakes (5% chance)
+        const mistakeChance = this.difficulty === 10 ? 0.05 : 0.15;
+        if (Math.random() < mistakeChance) {
+          // Chance to pick a different good move instead of the best
           const altMoves = availableColumns.filter(c => c !== strategicMove).slice(0, 3);
           if (altMoves.length > 0 && Math.random() > 0.5) {
             return altMoves[Math.floor(Math.random() * altMoves.length)];

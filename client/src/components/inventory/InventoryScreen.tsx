@@ -16,7 +16,7 @@ type InventoryTab = 'banners' | 'chips' | 'titles';
 export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBack }: InventoryScreenProps) {
   const [activeTab, setActiveTab] = useState<InventoryTab>('banners');
   const [selectedTitle, setSelectedTitle] = useState<string | null>(playerData.equippedTitle);
-  const [selectedBanner, setSelectedBanner] = useState<number | null>(playerData.equippedBanner);
+  const [selectedBanner, setSelectedBanner] = useState<number | null>(playerData.equippedBanner || 1);
   const [banners, setBanners] = useState<Banner[]>([]);
 
   useEffect(() => {
@@ -46,9 +46,15 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
       return a.name.localeCompare(b.name);
     });
 
+  // Sort banners with default banner (ID 1) first
   const ownedBanners = (playerData.ownedBanners || [])
     .map(bannerId => getBannerById(bannerId, banners))
-    .filter((b): b is Banner => b !== undefined);
+    .filter((b): b is Banner => b !== undefined)
+    .sort((a, b) => {
+      if (a.bannerId === 1) return -1;
+      if (b.bannerId === 1) return 1;
+      return a.bannerId - b.bannerId;
+    });
 
   const handleEquipTitle = () => {
     onEquipTitle(selectedTitle);
@@ -129,18 +135,6 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
             {/* Banner List */}
             <div className="flex-1 overflow-y-auto mb-6 pr-2">
               <div className="space-y-3">
-                {/* No Banner Option */}
-                <div
-                  onClick={() => setSelectedBanner(null)}
-                  className={`p-4 rounded-lg cursor-pointer transition-all ${
-                    selectedBanner === null
-                      ? 'bg-blue-600 border-2 border-blue-400'
-                      : 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
-                  }`}
-                >
-                  <p className="text-gray-400 text-center">No Banner Equipped</p>
-                </div>
-
                 {ownedBanners.map(banner => (
                   <div
                     key={banner.bannerId}

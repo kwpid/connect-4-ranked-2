@@ -17,7 +17,7 @@ export function getPlayerData(): PlayerData {
     const player = JSON.parse(stored);
     
     // Migrate existing players to have banner fields
-    if (player.equippedBanner === undefined) {
+    if (player.equippedBanner === undefined || player.equippedBanner === null) {
       player.equippedBanner = 1; // Default banner
       player.ownedBanners = [1]; // Default banner
       savePlayerData(player);
