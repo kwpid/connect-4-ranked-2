@@ -30,7 +30,7 @@ export function TitleDisplay({ title, titleId }: TitleDisplayProps) {
   return (
     <div className="text-center">
       <p
-        className="text-lg font-bold"
+        className="text-lg font-bold uppercase"
         style={{
           color: displayTitle.color,
           ...getGlowStyle()
