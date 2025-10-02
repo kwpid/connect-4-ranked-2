@@ -45,25 +45,26 @@ The frontend is built with React 18 and Vite. State management relies on local c
 -   **Queue System**: Simulated matchmaking with variable queue times (2-15 seconds) and opponent generation with similar trophy counts (±30 variance).
 -   **Match System**: Best-of-3 format with a 15-second turn timer. Dynamic trophy rewards/penalties based on opponent rank, win streaks, and game speed. Includes XP, level progression, and coin rewards.
 -   **Shop System**: Rotates 3 titles and 3 banners every 12 hours for in-game currency purchase.
-    -   **Featured Items** (Oct 2, 2025): Featured Items section with time-based exclusivity (hours/days/weeks). Featured items are stored in `server/data/featured-items.json` for persistence across all sessions. Items automatically expire based on their `expiresAt` timestamp. Console helper available: `await window.addFeaturedShopItem(type, name, price, duration)`.
-    -   **Editing Featured Items**: To add featured items that persist across all sessions, edit `server/data/featured-items.json` directly. Each item requires: `id`, `title` or `banner` object, `price`, `expiresAt` (timestamp in milliseconds), and `duration` (e.g., "24h", "7d", "2w"). Example:
+    -   **Featured Items** (Oct 2, 2025): Featured Items section with time-based exclusivity. Items are stored in `server/data/featured-items.json` for persistence across all sessions. The system automatically looks up item details and calculates expiry times. Console helper: `await window.addFeaturedShopItem(itemId, duration)`.
+    -   **Editing Featured Items**: Simply specify the item ID and duration in `server/data/featured-items.json`. The server automatically looks up all item details. Examples:
         ```json
         [
           {
-            "id": "featured_weekend_special",
-            "title": {
-              "id": "featured_title_champion",
-              "name": "Weekend Champion",
-              "type": "grey",
-              "color": "#FFD700",
-              "glow": "gold"
-            },
-            "price": 300,
-            "expiresAt": 1759532258000,
-            "duration": "48h"
+            "itemId": "13",
+            "duration": "48h",
+            "addedAt": 1759448581279
+          },
+          {
+            "itemId": "grey_veteran",
+            "duration": "24h",
+            "addedAt": 1759448590387
           }
         ]
         ```
+        - For banners: use banner ID (e.g., "13" or "banner_13")
+        - For titles: use title ID (e.g., "grey_veteran", "grey_champion")
+        - Duration format: "24h" (hours), "7d" (days), "2w" (weeks)
+        - `addedAt`: timestamp when added (use `Date.now()` in JavaScript)
 -   **Game Board**: 9x7 dimensions, Connect 4 win condition.
 
 ## External Dependencies
