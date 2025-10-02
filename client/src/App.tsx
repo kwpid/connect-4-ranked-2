@@ -19,7 +19,7 @@ import {
   getTop30Leaderboard,
   getCurrentSeasonData 
 } from './utils/seasonManager';
-import { getSeasonResetTrophies, getSeasonRewardCoins } from './utils/rankSystem';
+import { getSeasonResetTrophies, getSeasonRewardCoins, getRankByTrophies } from './utils/rankSystem';
 import { shouldRotateShop, getShopRotationSeed } from './utils/shopManager';
 
 // Screens
@@ -160,6 +160,18 @@ function App() {
       }
     }
     
+    // Track peak rank and trophies
+    let newPeakTrophies = playerData.peakTrophies || 0;
+    let newPeakRank = playerData.peakRank || '';
+    let newPeakSeason = playerData.peakSeason || 0;
+    
+    if (newTrophies > newPeakTrophies) {
+      newPeakTrophies = newTrophies;
+      const currentRank = getRankByTrophies(newTrophies);
+      newPeakRank = currentRank.name;
+      newPeakSeason = currentSeason.seasonNumber;
+    }
+    
     const updatedPlayer: PlayerData = {
       ...playerData,
       trophies: newTrophies,
@@ -173,7 +185,10 @@ function App() {
       xp: newXP,
       level: newLevel,
       coins: playerData.coins + coinsGain + levelUpCoins,
-      ownedTitles: newTitles
+      ownedTitles: newTitles,
+      peakTrophies: newPeakTrophies,
+      peakRank: newPeakRank,
+      peakSeason: newPeakSeason
     };
     
     setPlayerData(updatedPlayer);
@@ -273,7 +288,7 @@ function App() {
       )}
       
       {screen === 'rankInfo' && (
-        <RankInfo onBack={() => setScreen('leaderboard')} />
+        <RankInfo onBack={() => setScreen('leaderboard')} playerData={playerData} />
       )}
       
       {screen === 'shop' && (

@@ -29,7 +29,10 @@ export function getPlayerData(): PlayerData {
     winStreak: 0,
     losingStreak: 0,
     currentSeasonWins: 0,
-    bestWinStreak: 0
+    bestWinStreak: 0,
+    peakTrophies: 0,
+    peakRank: 'Bronze I',
+    peakSeason: 1
   };
   
   savePlayerData(defaultPlayer);
