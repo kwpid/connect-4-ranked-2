@@ -18,48 +18,73 @@ interface GameScreenProps {
 export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = false, practiceDifficulty }: GameScreenProps) {
   // Generate opponent username and trophies based on player's trophy range
   const generateOpponent = () => {
+    // Realistic short usernames
     const names = [
-      'ProGamer', 'ChessMaster', 'ConnectKing', 'StrategyPro', 'TrophyHunter',
-      'RankClimber', 'ElitePlayer', 'SkillMaster', 'TopTier', 'Challenger',
-      'Dominator', 'Victory', 'Champion', 'Legend', 'Immortal', 'Divine',
-      'Mythic', 'Supreme', 'Ultimate', 'Omega', 'Alpha', 'Sigma', 'Delta',
-      'Phoenix', 'Dragon', 'Tiger', 'Eagle', 'Wolf', 'Bear', 'Lion',
-      'Shadow', 'Ghost', 'Phantom', 'Ninja', 'Samurai', 'Warrior', 'Knight'
+      '.', '..', '...', 'dragg', 'lru', 'xyz', 'qwe', 'kk', 'zz', 'tt',
+      'ace', 'fox', 'max', 'sam', 'kai', 'leo', 'rex', 'jay', 'sky', 'rio',
+      'ash', 'zen', 'cj', 'tj', 'pk', 'dk', 'mk', 'jk', 'rk', 'sk',
+      'nova', 'luna', 'echo', 'omen', 'apex', 'flux', 'volt', 'nyx', 'zara',
+      'x', 'v', 'z', 'q', 'k', 'j', 'r', 'n', 'm', 'l',
+      'pro', 'gg', 'wp', 'ez', 'nt', 'gl', 'hf', 'gm', 'op', 'og'
     ];
     const baseName = names[Math.floor(Math.random() * names.length)];
-    const name = `${baseName}${Math.floor(Math.random() * 9999)}`;
+    const name = Math.random() < 0.6 ? baseName : `${baseName}${Math.floor(Math.random() * 999)}`;
     
     // Generate opponent trophies around player's level
     const variance = Math.floor(Math.random() * 60) - 30; // -30 to +30 trophies
     const trophies = Math.max(0, playerData.trophies + variance);
     
-    // Generate opponent title based on trophies
+    // Generate opponent title based on trophies (fixed to not use non-existent titles)
     let titleId: string | null = null;
     const currentSeason = getCurrentSeasonData();
+    const getValidSeasonNum = () => Math.max(1, currentSeason.seasonNumber - Math.floor(Math.random() * 3));
     
     if (trophies >= 701) {
-      // Connect Legend - use current or previous season title
-      const seasonNum = Math.random() > 0.5 ? currentSeason.seasonNumber : Math.max(1, currentSeason.seasonNumber - 1);
-      titleId = `S${seasonNum} CONNECT LEGEND`;
-    } else if (trophies >= 551) {
-      // Grand Champion - use current or previous season title
-      const seasonNum = Math.random() > 0.5 ? currentSeason.seasonNumber : Math.max(1, currentSeason.seasonNumber - 1);
-      titleId = `S${seasonNum} GRAND CHAMPION`;
-    } else if (trophies >= 401) {
-      // Champion - use season or leaderboard title
-      if (Math.random() > 0.5) {
-        const seasonNum = Math.max(1, currentSeason.seasonNumber - Math.floor(Math.random() * 2));
-        titleId = `S${seasonNum} CHAMPION`;
+      // Connect Legend - only CONNECT LEGEND titles
+      const rand = Math.random();
+      if (rand < 0.15) {
+        titleId = 'grey_immortal';
       } else {
-        const seasonNum = Math.max(1, currentSeason.seasonNumber - Math.floor(Math.random() * 3));
+        titleId = `S${getValidSeasonNum()} CONNECT LEGEND`;
+      }
+    } else if (trophies >= 551) {
+      // Grand Champion - only GRAND CHAMPION titles (NO leaderboard titles)
+      const rand = Math.random();
+      if (rand < 0.2) {
+        titleId = Math.random() < 0.5 ? 'grey_legend' : 'grey_grandmaster';
+      } else {
+        titleId = `S${getValidSeasonNum()} GRAND CHAMPION`;
+      }
+    } else if (trophies >= 401) {
+      // Champion - can use CHAMPION or leaderboard titles
+      const rand = Math.random();
+      if (rand < 0.3) {
+        const greyTitles = ['grey_master', 'grey_expert', 'grey_pro', 'grey_elite'];
+        titleId = greyTitles[Math.floor(Math.random() * greyTitles.length)];
+      } else if (rand < 0.7) {
+        titleId = `S${getValidSeasonNum()} CHAMPION`;
+      } else {
         const leaderboardTitles = ['TOP 30', 'TOP 10', 'TOP CHAMPION'];
-        titleId = `S${seasonNum} ${leaderboardTitles[Math.floor(Math.random() * leaderboardTitles.length)]}`;
+        titleId = `S${getValidSeasonNum()} ${leaderboardTitles[Math.floor(Math.random() * leaderboardTitles.length)]}`;
       }
     } else if (trophies >= 176) {
-      // Mid-tier ranks - occasional grey or leaderboard title
-      if (Math.random() > 0.7) {
-        const seasonNum = Math.max(1, currentSeason.seasonNumber - Math.floor(Math.random() * 4));
-        titleId = `S${seasonNum} TOP 30`;
+      // Mid-tier ranks - mix of grey and leaderboard titles
+      const rand = Math.random();
+      if (rand < 0.3) {
+        titleId = null;
+      } else if (rand < 0.6) {
+        const greyTitles = ['grey_veteran', 'grey_skilled', 'grey_tactician', 'grey_strategist', 'grey_competitor'];
+        titleId = greyTitles[Math.floor(Math.random() * greyTitles.length)];
+      } else {
+        titleId = `S${getValidSeasonNum()} TOP 30`;
+      }
+    } else {
+      // Lower ranks - grey titles or no title
+      if (Math.random() < 0.5) {
+        titleId = null;
+      } else {
+        const greyTitles = ['grey_the_noob', 'grey_casual_player', 'grey_beginner', 'grey_enthusiast', 'grey_rookie'];
+        titleId = greyTitles[Math.floor(Math.random() * greyTitles.length)];
       }
     }
     
@@ -262,7 +287,7 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
     }
   };
   
-  // New trophy calculation system
+  // New trophy calculation system (up to 10 trophies)
   const calculateNewTrophyChange = (
     won: boolean, 
     playerTrophies: number, 
@@ -272,25 +297,33 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
   ): number => {
     if (won) {
       // Base trophy reward based on opponent comparison
-      let baseTrophies = 2; // Default for lower-ranked opponent
+      let baseTrophies = 3; // Default for lower-ranked opponent
       
       const trophyDiff = opponentTrophies - playerTrophies;
       
-      if (trophyDiff >= 30) {
-        baseTrophies = 5; // Much higher rank (underdog victory)
+      if (trophyDiff >= 50) {
+        baseTrophies = 8; // Much much higher rank (huge underdog victory)
+      } else if (trophyDiff >= 30) {
+        baseTrophies = 7; // Much higher rank (underdog victory)
       } else if (trophyDiff >= 10) {
-        baseTrophies = 4; // Slightly higher rank
+        baseTrophies = 5; // Slightly higher rank
       } else if (trophyDiff >= -10) {
-        baseTrophies = 3; // Equal rank
+        baseTrophies = 4; // Equal rank
       }
       
-      // Win streak bonus: +1 if 3+ wins in a row
-      const streakBonus = winStreak >= 3 ? 1 : 0;
+      // Win streak bonus: +1 if 3+ wins in a row, +2 if 10+ wins
+      let streakBonus = 0;
+      if (winStreak >= 10) {
+        streakBonus = 2;
+      } else if (winStreak >= 3) {
+        streakBonus = 1;
+      }
       
       // Fast win bonus: +1 if won in under 20 moves
       const fastWinBonus = moves < 20 ? 1 : 0;
       
-      return baseTrophies + streakBonus + fastWinBonus;
+      // Total can be up to 10 trophies (8 base + 1 streak + 1 fast win)
+      return Math.min(10, baseTrophies + streakBonus + fastWinBonus);
     } else {
       // Loss penalties based on opponent rank
       const trophyDiff = opponentTrophies - playerTrophies;
@@ -334,8 +367,11 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
               {playerData.username}
               {playerData.equippedTitle && (() => {
                 const title = getTitleFromId(playerData.equippedTitle);
+                const glowStyle = title.glow && title.glow !== 'none' 
+                  ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
+                  : {};
                 return (
-                  <span className="block text-xs mt-1" style={{ color: title.color }}>
+                  <span className="block text-xs mt-1 font-semibold" style={{ color: title.color, ...glowStyle }}>
                     {title.name}
                   </span>
                 );
@@ -349,8 +385,11 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
             <p className="text-sm text-gray-400">{opponent.name}</p>
             {opponent.titleId && (() => {
               const title = getTitleFromId(opponent.titleId);
+              const glowStyle = title.glow && title.glow !== 'none' 
+                ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
+                : {};
               return (
-                <p className="text-xs mt-1" style={{ color: title.color }}>
+                <p className="text-xs mt-1 font-semibold" style={{ color: title.color, ...glowStyle }}>
                   {title.name}
                 </p>
               );

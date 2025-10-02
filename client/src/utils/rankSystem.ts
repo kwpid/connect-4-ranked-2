@@ -91,3 +91,20 @@ export function getSeasonRewardCoins(trophies: number): number {
   };
   return rewards[rank.tier] || 0;
 }
+
+export function countPlayersInRank(allPlayers: { trophies: number }[], rank: RankInfo): number {
+  return allPlayers.filter(p => 
+    p.trophies >= rank.minTrophies && p.trophies <= rank.maxTrophies
+  ).length;
+}
+
+export function getPlayerCountsByRank(allPlayers: { trophies: number }[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  
+  for (const rank of RANKS) {
+    const count = countPlayersInRank(allPlayers, rank);
+    counts.set(rank.name, count);
+  }
+  
+  return counts;
+}

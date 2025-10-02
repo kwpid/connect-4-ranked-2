@@ -40,6 +40,9 @@ export interface PlayerData {
   losingStreak: number;
   currentSeasonWins: number;
   bestWinStreak: number;
+  peakTrophies?: number;
+  peakRank?: string;
+  peakSeason?: number;
 }
 
 export interface AICompetitor {

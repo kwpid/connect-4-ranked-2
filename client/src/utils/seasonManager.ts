@@ -46,16 +46,22 @@ export function getTimeUntilSeasonEnd(): string {
   return `${minutes}m`;
 }
 
-export function generateAICompetitors(count: number = 150): AICompetitor[] {
+export function generateAICompetitors(count: number = 2999): AICompetitor[] {
   const competitors: AICompetitor[] = [];
+  
+  // Realistic short usernames
   const names = [
-    'ProGamer', 'ChessMaster', 'ConnectKing', 'StrategyPro', 'TrophyHunter',
-    'RankClimber', 'ElitePlayer', 'SkillMaster', 'TopTier', 'Challenger',
-    'Dominator', 'Victory', 'Champion', 'Legend', 'Immortal', 'Divine',
-    'Mythic', 'Supreme', 'Ultimate', 'Omega', 'Alpha', 'Sigma', 'Delta',
-    'Phoenix', 'Dragon', 'Tiger', 'Eagle', 'Wolf', 'Bear', 'Lion',
-    'Shadow', 'Ghost', 'Phantom', 'Ninja', 'Samurai', 'Warrior', 'Knight',
-    'Mage', 'Wizard', 'Sorcerer', 'Warlock', 'Sage', 'Oracle', 'Prophet'
+    '.', '..', '...', 'dragg', 'lru', 'xyz', 'qwe', 'kk', 'zz', 'tt',
+    'ace', 'fox', 'max', 'sam', 'kai', 'leo', 'rex', 'jay', 'sky', 'rio',
+    'ash', 'zen', 'cj', 'tj', 'pk', 'dk', 'mk', 'jk', 'rk', 'sk',
+    'nova', 'luna', 'echo', 'omen', 'apex', 'flux', 'volt', 'nyx', 'zara',
+    'kira', 'mira', 'vex', 'ryn', 'kyx', 'jax', 'dex', 'pix', 'nix',
+    'x', 'v', 'z', 'q', 'k', 'j', 'r', 'n', 'm', 'l',
+    'ax', 'bx', 'cx', 'dx', 'ex', 'fx', 'gx', 'hx', 'ix', 'jx',
+    'a1', 'b2', 'c3', 'd4', 'e5', 'f6', 'g7', 'h8', 'i9', 'j0',
+    'pro', 'gg', 'wp', 'ez', 'nt', 'gl', 'hf', 'gm', 'op', 'og',
+    'ryu', 'ken', 'lux', 'orb', 'gem', 'dot', 'bit', 'hex', 'ray',
+    'ice', 'hot', 'red', 'blu', 'grn', 'yel', 'pur', 'blk', 'wht'
   ];
   
   // Calculate season progress (0.0 = start, 1.0 = end)
@@ -64,37 +70,36 @@ export function generateAICompetitors(count: number = 150): AICompetitor[] {
   const timeElapsed = Date.now() - seasonData.startDate;
   const seasonProgress = Math.min(1, Math.max(0, timeElapsed / seasonDuration));
   
+  // Generate ~3000 players with bell curve distribution
   for (let i = 0; i < count; i++) {
     const baseName = names[Math.floor(Math.random() * names.length)];
-    const username = `${baseName}${Math.floor(Math.random() * 9999)}`;
+    // Sometimes add numbers, sometimes keep it short
+    const username = Math.random() < 0.6 ? baseName : `${baseName}${Math.floor(Math.random() * 999)}`;
     
-    // Generate varied trophy counts based on season progress
-    // Early season: 701-800 for top tier
-    // Late season: 900-1000 for top tier (they've been grinding)
-    let trophies: number;
-    const rand = Math.random();
+    // Bell curve distribution - most players in middle ranks
+    // Using Box-Muller transform for normal distribution
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const normalValue = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
     
-    if (rand < 0.2) {
-      // 20% in top tier - scales with season progress
-      const minTrophies = 701 + Math.floor(seasonProgress * 200); // 701 -> 901
-      const maxTrophies = 800 + Math.floor(seasonProgress * 200); // 800 -> 1000
-      trophies = minTrophies + Math.floor(Math.random() * (maxTrophies - minTrophies));
-    } else if (rand < 0.4) {
-      // 20% in high tier
-      const minTrophies = 551 + Math.floor(seasonProgress * 100); // 551 -> 651
-      const maxTrophies = 700 + Math.floor(seasonProgress * 100); // 700 -> 800
-      trophies = minTrophies + Math.floor(Math.random() * (maxTrophies - minTrophies));
-    } else if (rand < 0.6) {
-      // 20% in mid-high tier
-      const minTrophies = 401 + Math.floor(seasonProgress * 80); // 401 -> 481
-      const maxTrophies = 550 + Math.floor(seasonProgress * 80); // 550 -> 630
-      trophies = minTrophies + Math.floor(Math.random() * (maxTrophies - minTrophies));
-    } else if (rand < 0.8) {
-      // 20% in mid tier
-      trophies = 200 + Math.floor(Math.random() * 200);
-    } else {
-      // 20% in lower tier
-      trophies = Math.floor(Math.random() * 200);
+    // Map normal distribution to trophy range
+    // Mean at 250 trophies (Gold rank), standard deviation of 150
+    let trophies = Math.round(250 + normalValue * 150);
+    
+    // Clamp to reasonable range and adjust for season progress
+    trophies = Math.max(0, Math.min(trophies, 800 + Math.floor(seasonProgress * 200)));
+    
+    // Top rank (700+) should have around 100 or less players
+    // If random value puts them too high, reduce probability
+    if (trophies >= 700) {
+      const topRankChance = 100 / count; // ~3.3% chance
+      if (Math.random() > topRankChance) {
+        // Redistribute to lower ranks
+        trophies = 400 + Math.floor(Math.random() * 300);
+      } else {
+        // Scale with season progress
+        trophies = 700 + Math.floor(Math.random() * (100 + seasonProgress * 200));
+      }
     }
     
     // Grind rate: how many trophies they gain per hour
@@ -209,14 +214,18 @@ function getSeasonResetTrophiesForAI(currentTrophies: number): number {
 }
 
 // Generate random title for AI based on their trophy count
-function getRandomAITitle(trophies: number): string | null {
+function getRandomAITitle(trophies: number, currentSeasonNum: number): string | null {
+  // Ensure season numbers are valid (1 to current season, not future seasons)
+  const getValidSeasonNum = () => Math.max(1, currentSeasonNum - Math.floor(Math.random() * 3));
+  
   // Lower ranks (< 176 trophies) - 50% chance of grey title, 50% no title
   if (trophies < 176) {
     if (Math.random() < 0.5) return null;
     
     const greyTitles = [
       'grey_the_noob', 'grey_casual_player', 'grey_beginner',
-      'grey_enthusiast', 'grey_rookie', 'grey_apprentice'
+      'grey_enthusiast', 'grey_rookie', 'grey_apprentice',
+      'grey_novice', 'grey_learner', 'grey_starter'
     ];
     return greyTitles[Math.floor(Math.random() * greyTitles.length)];
   }
@@ -228,36 +237,54 @@ function getRandomAITitle(trophies: number): string | null {
     if (rand < 0.6) {
       const greyTitles = [
         'grey_veteran', 'grey_skilled', 'grey_tactician',
-        'grey_strategist', 'grey_competitor'
+        'grey_strategist', 'grey_competitor', 'grey_player',
+        'grey_fighter', 'grey_warrior'
       ];
       return greyTitles[Math.floor(Math.random() * greyTitles.length)];
     }
-    // Old season TOP 30 titles
-    const seasonNum = Math.floor(Math.random() * 3) + 1; // S1-S3
-    return `S${seasonNum} TOP 30`;
+    // Old season TOP 30 titles only
+    return `S${getValidSeasonNum()} TOP 30`;
   }
   
-  // High ranks (401-700) - CHAMPION titles
-  if (trophies < 701) {
-    const seasonNum = Math.floor(Math.random() * 3) + 1;
+  // Champion ranks (401-550) - Can use CHAMPION or leaderboard titles
+  if (trophies < 551) {
     const rand = Math.random();
-    
-    if (rand < 0.5) return `S${seasonNum} CHAMPION`;
-    if (rand < 0.8) return `S${seasonNum} TOP 10`;
-    return `S${seasonNum} TOP CHAMPION`;
+    if (rand < 0.3) {
+      // Grey titles still possible
+      const greyTitles = ['grey_master', 'grey_expert', 'grey_pro', 'grey_elite'];
+      return greyTitles[Math.floor(Math.random() * greyTitles.length)];
+    } else if (rand < 0.7) {
+      return `S${getValidSeasonNum()} CHAMPION`;
+    } else {
+      // Leaderboard titles
+      const leaderboardTitles = ['TOP 30', 'TOP 10', 'TOP CHAMPION'];
+      return `S${getValidSeasonNum()} ${leaderboardTitles[Math.floor(Math.random() * leaderboardTitles.length)]}`;
+    }
   }
   
-  // Top ranks (701+) - GRAND CHAMPION and CONNECT LEGEND titles
-  const seasonNum = Math.floor(Math.random() * 3) + 1;
-  const rand = Math.random();
+  // Grand Champion ranks (551-700) - GRAND CHAMPION titles only (NO leaderboard titles)
+  if (trophies < 701) {
+    const rand = Math.random();
+    if (rand < 0.2) {
+      // Some grey titles
+      return Math.random() < 0.5 ? 'grey_legend' : 'grey_grandmaster';
+    }
+    // Only GRAND CHAMPION rank title
+    return `S${getValidSeasonNum()} GRAND CHAMPION`;
+  }
   
-  if (rand < 0.4) return `S${seasonNum} CONNECT LEGEND`;
-  if (rand < 0.7) return `S${seasonNum} GRAND CHAMPION`;
-  if (rand < 0.85) return `S${seasonNum} TOP CHAMPION`;
-  return `S${seasonNum} TOP 10`;
+  // Connect Legend ranks (701+) - CONNECT LEGEND titles only
+  const rand = Math.random();
+  if (rand < 0.15) {
+    // Rare grey titles
+    return 'grey_immortal';
+  }
+  // Only CONNECT LEGEND rank title
+  return `S${getValidSeasonNum()} CONNECT LEGEND`;
 }
 
 export function getTop30Leaderboard(playerData: any, aiCompetitors: AICompetitor[]): LeaderboardEntry[] {
+  const currentSeason = getCurrentSeasonData();
   const entries: LeaderboardEntry[] = [
     {
       username: playerData.username,
@@ -269,7 +296,7 @@ export function getTop30Leaderboard(playerData: any, aiCompetitors: AICompetitor
       username: ai.username,
       trophies: ai.trophies,
       isPlayer: false,
-      titleId: getRandomAITitle(ai.trophies)
+      titleId: getRandomAITitle(ai.trophies, currentSeason.seasonNumber)
     }))
   ];
   
