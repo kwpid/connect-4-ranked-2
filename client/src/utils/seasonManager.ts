@@ -46,7 +46,7 @@ export function getTimeUntilSeasonEnd(): string {
   return `${minutes}m`;
 }
 
-export function generateAICompetitors(count: number = 3300): AICompetitor[] {
+export function generateAICompetitors(count: number = 6865): AICompetitor[] {
   const competitors: AICompetitor[] = [];
   
   // Mix of short, regular, and long usernames
@@ -78,35 +78,78 @@ export function generateAICompetitors(count: number = 3300): AICompetitor[] {
   const timeElapsed = Date.now() - seasonData.startDate;
   const seasonProgress = Math.min(1, Math.max(0, timeElapsed / seasonDuration));
   
-  // Pre-calculate deterministic quotas to guarantee minimum counts
-  // Connect Legend must have exactly 50+ (the lowest), all others have more
-  const tierQuotas = {
-    legend: 50,           // Connect Legend (701+)
-    grandChampion: 132,   // Grand Champion (551-700)
-    champion: 264,        // Champion (401-550)
-    diamond: 396,         // Diamond (276-400)
-    platinum: 594,        // Platinum (176-275)
-    gold: 726,            // Gold (101-175)
-    silver: 660,          // Silver (51-100)
-    bronze: 478           // Bronze (0-50)
+  // Per-division quotas: Bronze I highest, bell curve in middle, Connect Legend ~50 (lowest)
+  // Trophy ranges match RANKS array exactly
+  const divisionQuotas: { [key: string]: number } = {
+    // Bronze ranks (0-50): Start very high at Bronze I
+    'bronze_0_10': 400,      // Bronze I - Most players (beginners/inactive)
+    'bronze_11_20': 300,     // Bronze II
+    'bronze_21_30': 250,     // Bronze III
+    'bronze_31_40': 200,     // Bronze IV
+    'bronze_41_50': 180,     // Bronze V
+    
+    // Silver ranks (51-100): Building up
+    'silver_51_60': 160,     // Silver I
+    'silver_61_70': 180,     // Silver II
+    'silver_71_80': 200,     // Silver III
+    'silver_81_90': 220,     // Silver IV
+    'silver_91_100': 240,    // Silver V
+    
+    // Gold ranks (101-175): Approaching peak
+    'gold_101_115': 260,     // Gold I
+    'gold_116_130': 280,     // Gold II
+    'gold_131_145': 300,     // Gold III - Peak starts
+    'gold_146_160': 280,     // Gold IV
+    'gold_161_175': 260,     // Gold V
+    
+    // Platinum ranks (176-275): Peak of bell curve
+    'plat_176_195': 240,     // Platinum I
+    'plat_196_215': 220,     // Platinum II
+    'plat_216_235': 200,     // Platinum III
+    'plat_236_255': 180,     // Platinum IV
+    'plat_256_275': 160,     // Platinum V
+    
+    // Diamond ranks (276-400): Declining
+    'dia_276_300': 150,      // Diamond I
+    'dia_301_325': 140,      // Diamond II
+    'dia_326_350': 130,      // Diamond III
+    'dia_351_375': 120,      // Diamond IV
+    'dia_376_400': 110,      // Diamond V
+    
+    // Champion ranks (401-550): Continuing decline
+    'champ_401_430': 100,    // Champion I
+    'champ_431_460': 90,     // Champion II
+    'champ_461_490': 80,     // Champion III
+    'champ_491_520': 70,     // Champion IV
+    'champ_521_550': 60,     // Champion V
+    
+    // Grand Champion ranks (551-700): Sharp decline
+    'gc_551_580': 300,       // Grand Champion I
+    'gc_581_610': 280,       // Grand Champion II
+    'gc_611_640': 250,       // Grand Champion III
+    'gc_641_670': 150,       // Grand Champion IV
+    'gc_671_700': 75,        // Grand Champion V
+    
+    // Connect Legend (701+): Minimum
+    'legend_701': 50         // Connect Legend - Lowest count
   };
   
-  // Create array of tier assignments
-  const tierAssignments: string[] = [];
-  Object.entries(tierQuotas).forEach(([tier, quota]) => {
+  // Create array of division assignments
+  const divisionAssignments: string[] = [];
+  Object.entries(divisionQuotas).forEach(([division, quota]) => {
     for (let i = 0; i < quota; i++) {
-      tierAssignments.push(tier);
+      divisionAssignments.push(division);
     }
   });
   
   // Shuffle to randomize order
-  for (let i = tierAssignments.length - 1; i > 0; i--) {
+  for (let i = divisionAssignments.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [tierAssignments[i], tierAssignments[j]] = [tierAssignments[j], tierAssignments[i]];
+    [divisionAssignments[i], divisionAssignments[j]] = [divisionAssignments[j], divisionAssignments[i]];
   }
   
-  // Generate players with guaranteed tier distribution
-  for (let i = 0; i < count && i < tierAssignments.length; i++) {
+  // Generate players with guaranteed division distribution
+  for (let i = 0; i < count && i < divisionAssignments.length; i++) {
     // Choose name category with distribution: 30% short, 50% regular, 20% long
     let baseName: string;
     const categoryRoll = Math.random();
@@ -129,37 +172,55 @@ export function generateAICompetitors(count: number = 3300): AICompetitor[] {
       username = `${baseName}${Math.floor(Math.random() * 9900) + 100}`; // 100-9999
     }
     
-    // Assign trophies based on pre-determined tier
+    // Assign trophies based on pre-determined division
     let trophies: number;
-    const tier = tierAssignments[i];
+    const division = divisionAssignments[i];
     
-    switch (tier) {
-      case 'legend':
-        trophies = 701 + Math.floor(Math.random() * (100 + seasonProgress * 200));
-        break;
-      case 'grandChampion':
-        trophies = 551 + Math.floor(Math.random() * 150);
-        break;
-      case 'champion':
-        trophies = 401 + Math.floor(Math.random() * 150);
-        break;
-      case 'diamond':
-        trophies = 276 + Math.floor(Math.random() * 125);
-        break;
-      case 'platinum':
-        trophies = 176 + Math.floor(Math.random() * 100);
-        break;
-      case 'gold':
-        trophies = 101 + Math.floor(Math.random() * 75);
-        break;
-      case 'silver':
-        trophies = 51 + Math.floor(Math.random() * 50);
-        break;
-      case 'bronze':
-      default:
-        trophies = Math.floor(Math.random() * 51);
-        break;
-    }
+    // Map division key to trophy range
+    if (division === 'bronze_0_10') trophies = 0 + Math.floor(Math.random() * 11);
+    else if (division === 'bronze_11_20') trophies = 11 + Math.floor(Math.random() * 10);
+    else if (division === 'bronze_21_30') trophies = 21 + Math.floor(Math.random() * 10);
+    else if (division === 'bronze_31_40') trophies = 31 + Math.floor(Math.random() * 10);
+    else if (division === 'bronze_41_50') trophies = 41 + Math.floor(Math.random() * 10);
+    
+    else if (division === 'silver_51_60') trophies = 51 + Math.floor(Math.random() * 10);
+    else if (division === 'silver_61_70') trophies = 61 + Math.floor(Math.random() * 10);
+    else if (division === 'silver_71_80') trophies = 71 + Math.floor(Math.random() * 10);
+    else if (division === 'silver_81_90') trophies = 81 + Math.floor(Math.random() * 10);
+    else if (division === 'silver_91_100') trophies = 91 + Math.floor(Math.random() * 10);
+    
+    else if (division === 'gold_101_115') trophies = 101 + Math.floor(Math.random() * 15);
+    else if (division === 'gold_116_130') trophies = 116 + Math.floor(Math.random() * 15);
+    else if (division === 'gold_131_145') trophies = 131 + Math.floor(Math.random() * 15);
+    else if (division === 'gold_146_160') trophies = 146 + Math.floor(Math.random() * 15);
+    else if (division === 'gold_161_175') trophies = 161 + Math.floor(Math.random() * 15);
+    
+    else if (division === 'plat_176_195') trophies = 176 + Math.floor(Math.random() * 20);
+    else if (division === 'plat_196_215') trophies = 196 + Math.floor(Math.random() * 20);
+    else if (division === 'plat_216_235') trophies = 216 + Math.floor(Math.random() * 20);
+    else if (division === 'plat_236_255') trophies = 236 + Math.floor(Math.random() * 20);
+    else if (division === 'plat_256_275') trophies = 256 + Math.floor(Math.random() * 20);
+    
+    else if (division === 'dia_276_300') trophies = 276 + Math.floor(Math.random() * 25);
+    else if (division === 'dia_301_325') trophies = 301 + Math.floor(Math.random() * 25);
+    else if (division === 'dia_326_350') trophies = 326 + Math.floor(Math.random() * 25);
+    else if (division === 'dia_351_375') trophies = 351 + Math.floor(Math.random() * 25);
+    else if (division === 'dia_376_400') trophies = 376 + Math.floor(Math.random() * 25);
+    
+    else if (division === 'champ_401_430') trophies = 401 + Math.floor(Math.random() * 30);
+    else if (division === 'champ_431_460') trophies = 431 + Math.floor(Math.random() * 30);
+    else if (division === 'champ_461_490') trophies = 461 + Math.floor(Math.random() * 30);
+    else if (division === 'champ_491_520') trophies = 491 + Math.floor(Math.random() * 30);
+    else if (division === 'champ_521_550') trophies = 521 + Math.floor(Math.random() * 30);
+    
+    else if (division === 'gc_551_580') trophies = 551 + Math.floor(Math.random() * 30);
+    else if (division === 'gc_581_610') trophies = 581 + Math.floor(Math.random() * 30);
+    else if (division === 'gc_611_640') trophies = 611 + Math.floor(Math.random() * 30);
+    else if (division === 'gc_641_670') trophies = 641 + Math.floor(Math.random() * 30);
+    else if (division === 'gc_671_700') trophies = 671 + Math.floor(Math.random() * 30);
+    
+    else if (division === 'legend_701') trophies = 701 + Math.floor(Math.random() * (100 + seasonProgress * 200));
+    else trophies = 0; // Fallback
     
     // Grind rate: how many trophies they gain per hour
     const grindRate = Math.random() * 3 + 0.5; // 0.5 to 3.5 trophies per hour
