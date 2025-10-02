@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Screen, PlayerData } from './types/game';
+import { Screen, PlayerData, TournamentData, TournamentMatch } from './types/game';
 import { 
   getPlayerData, 
   savePlayerData, 
@@ -10,7 +10,11 @@ import {
   getLastSeasonCheck,
   saveLastSeasonCheck,
   getShopRotation,
-  saveShopRotation
+  saveShopRotation,
+  getTournamentData,
+  saveTournamentData,
+  getNextTournamentTime,
+  saveNextTournamentTime
 } from './utils/storageManager';
 import { 
   shouldResetSeason, 
@@ -21,6 +25,18 @@ import {
 } from './utils/seasonManager';
 import { getSeasonResetTrophies, getSeasonRewardCoins, getRankByTrophies } from './utils/rankSystem';
 import { shouldRotateShop, getShopRotationSeed } from './utils/shopManager';
+import {
+  getNextTournamentTime as calcNextTournamentTime,
+  canRegisterForTournament,
+  createNewTournament,
+  registerPlayerForTournament,
+  startTournament,
+  simulateAIMatch,
+  advanceTournamentRound,
+  getPlayerPlacement,
+  calculateTournamentReward,
+  getTournamentTitle
+} from './utils/tournamentManager';
 
 // Screens
 import { MenuScreen } from './components/menu/MenuScreen';
@@ -33,6 +49,7 @@ import { RankInfo } from './components/leaderboard/RankInfo';
 import { ShopScreen } from './components/shop/ShopScreen';
 import { StatsScreen } from './components/stats/StatsScreen';
 import { SettingsScreen } from './components/settings/SettingsScreen';
+import { TournamentScreen } from './components/tournament/TournamentScreen';
 import { AIDifficulty } from './utils/aiPlayer';
 
 function App() {
@@ -43,6 +60,62 @@ function App() {
   const [shopRotationTime, setShopRotationTime] = useState(getShopRotation());
   const [practiceDifficulty, setPracticeDifficulty] = useState<AIDifficulty>('average');
   const [isPracticeMode, setIsPracticeMode] = useState(false);
+  const [isTournamentMode, setIsTournamentMode] = useState(false);
+  const [currentTournament, setCurrentTournament] = useState<TournamentData | null>(getTournamentData());
+  const [nextTournamentTime, setNextTournamentTime] = useState<number>(
+    getNextTournamentTime() || calcNextTournamentTime()
+  );
+  const [tournamentMatch, setTournamentMatch] = useState<TournamentMatch | null>(null);
+  
+  // Tournament timer
+  useEffect(() => {
+    const checkTournament = () => {
+      const now = Date.now();
+      
+      // Check if tournament should start
+      if (now >= nextTournamentTime) {
+        if (currentTournament?.status === 'registration') {
+          // Start the tournament
+          const started = startTournament(currentTournament, aiCompetitors, playerData, seasonData.seasonNumber);
+          setCurrentTournament(started);
+          saveTournamentData(started);
+        } else if (!currentTournament || currentTournament.status === 'completed') {
+          // Create new tournament only if no active tournament or previous is completed
+          const newTournamentTime = calcNextTournamentTime(now + 1000);
+          const newTournament = createNewTournament(newTournamentTime);
+          setNextTournamentTime(newTournamentTime);
+          saveNextTournamentTime(newTournamentTime);
+          setCurrentTournament(newTournament);
+          saveTournamentData(newTournament);
+        }
+      }
+      
+      // Open registration 3 minutes before
+      if (!currentTournament && canRegisterForTournament(now, nextTournamentTime)) {
+        const newTournament = createNewTournament(nextTournamentTime);
+        setCurrentTournament(newTournament);
+        saveTournamentData(newTournament);
+      }
+    };
+    
+    checkTournament();
+    const interval = setInterval(checkTournament, 1000);
+    
+    return () => clearInterval(interval);
+  }, [nextTournamentTime, currentTournament, aiCompetitors, playerData.trophies, seasonData.seasonNumber]);
+  
+  // Console cheat code to start tournament immediately
+  useEffect(() => {
+    (window as any).startTournament = () => {
+      const now = Date.now();
+      const immediateTournament = createNewTournament(now + 5000); // 5 seconds from now
+      setNextTournamentTime(now + 5000);
+      saveNextTournamentTime(now + 5000);
+      setCurrentTournament(immediateTournament);
+      saveTournamentData(immediateTournament);
+      console.log('Tournament will start in 5 seconds! Registration is now open.');
+    };
+  }, []);
   
   // Check for season reset and shop rotation on load and periodically
   useEffect(() => {
@@ -125,7 +198,7 @@ function App() {
     saveSeasonData(currentSeason);
   };
   
-  const handleMatchEnd = (won: boolean, trophyChange: number, opponentName?: string, opponentTrophies?: number, matchScore?: string) => {
+  const handleMatchEnd = (won: boolean, trophyChange: number = 0, opponentName?: string, opponentTrophies?: number, matchScore?: string) => {
     const newTrophies = Math.max(0, playerData.trophies + trophyChange);
     const newWinStreak = won ? playerData.winStreak + 1 : 0;
     const newLosingStreak = won ? 0 : playerData.losingStreak + 1;
@@ -239,6 +312,218 @@ function App() {
     savePlayerData(updatedPlayer);
   };
   
+  // Tournament handlers
+  const handleTournamentRegister = () => {
+    if (currentTournament) {
+      const registered = registerPlayerForTournament(currentTournament, playerData);
+      setCurrentTournament(registered);
+      saveTournamentData(registered);
+    }
+  };
+  
+  const handleTournamentUnregister = () => {
+    if (currentTournament) {
+      const unregistered = { ...currentTournament, participants: [] };
+      setCurrentTournament(unregistered);
+      saveTournamentData(unregistered);
+    }
+  };
+  
+  const handleTournamentMatchStart = (match: TournamentMatch) => {
+    setTournamentMatch(match);
+    setIsTournamentMode(true);
+    setScreen('tournamentGame');
+  };
+  
+  const handleTournamentMatchEnd = (won: boolean) => {
+    if (!currentTournament || !tournamentMatch || !currentTournament.bracket) return;
+    
+    // Determine winner
+    const winner = won ? 
+      (tournamentMatch.participant1.isPlayer ? tournamentMatch.participant1 : tournamentMatch.participant2) :
+      (tournamentMatch.participant1.isPlayer ? tournamentMatch.participant2 : tournamentMatch.participant1);
+    
+    // Update match
+    const updatedMatch = { ...tournamentMatch, winner };
+    
+    // Update bracket
+    let updatedBracket = { ...currentTournament.bracket };
+    const round = tournamentMatch.round;
+    
+    if (round === 1) {
+      updatedBracket.round1 = updatedBracket.round1.map(m => 
+        m.id === updatedMatch.id ? updatedMatch : m
+      );
+    } else if (round === 2) {
+      updatedBracket.round2 = updatedBracket.round2.map(m => 
+        m.id === updatedMatch.id ? updatedMatch : m
+      );
+    } else if (round === 3) {
+      updatedBracket.round3 = updatedBracket.round3.map(m => 
+        m.id === updatedMatch.id ? updatedMatch : m
+      );
+    } else if (round === 4) {
+      updatedBracket.finals = updatedBracket.finals.map(m => 
+        m.id === updatedMatch.id ? updatedMatch : m
+      );
+    }
+    
+    // Check if player lost
+    if (!won) {
+      const placement = getPlayerPlacement(updatedBracket, true);
+      const reward = calculateTournamentReward(placement);
+      
+      // Initialize tournament stats if not present
+      const tournamentStats = playerData.tournamentStats || {
+        tournamentsWon: 0,
+        tournamentsPlayed: 0,
+        currentSeasonWins: 0,
+        lastTournamentLeft: null
+      };
+      
+      const updatedPlayer = {
+        ...playerData,
+        coins: playerData.coins + reward,
+        tournamentStats: {
+          ...tournamentStats,
+          tournamentsPlayed: tournamentStats.tournamentsPlayed + 1
+        }
+      };
+      
+      setPlayerData(updatedPlayer);
+      savePlayerData(updatedPlayer);
+      
+      const completedTournament = {
+        ...currentTournament,
+        bracket: updatedBracket,
+        status: 'completed' as const,
+        playerPlacement: placement,
+        playerReward: reward
+      };
+      
+      setCurrentTournament(completedTournament);
+      saveTournamentData(completedTournament);
+      setIsTournamentMode(false);
+      setScreen('tournament');
+      return;
+    }
+    
+    // Simulate other matches in the same round
+    if (round === 1) {
+      updatedBracket.round1 = updatedBracket.round1.map(m => {
+        if (m.id === updatedMatch.id || m.winner) return m;
+        return { ...m, winner: simulateAIMatch(m) };
+      });
+      
+      // Check if round is complete
+      if (updatedBracket.round1.every(m => m.winner)) {
+        updatedBracket = advanceTournamentRound(updatedBracket, 1);
+      }
+    } else if (round === 2) {
+      updatedBracket.round2 = updatedBracket.round2.map(m => {
+        if (m.id === updatedMatch.id || m.winner) return m;
+        return { ...m, winner: simulateAIMatch(m) };
+      });
+      
+      if (updatedBracket.round2.every(m => m.winner)) {
+        updatedBracket = advanceTournamentRound(updatedBracket, 2);
+      }
+    } else if (round === 3) {
+      updatedBracket.round3 = updatedBracket.round3.map(m => {
+        if (m.id === updatedMatch.id || m.winner) return m;
+        return { ...m, winner: simulateAIMatch(m) };
+      });
+      
+      if (updatedBracket.round3.every(m => m.winner)) {
+        updatedBracket = advanceTournamentRound(updatedBracket, 3);
+      }
+    } else if (round === 4) {
+      // Finals - tournament complete
+      const placement = 1;
+      const reward = calculateTournamentReward(placement);
+      
+      // Initialize tournament stats if not present
+      const tournamentStats = playerData.tournamentStats || {
+        tournamentsWon: 0,
+        tournamentsPlayed: 0,
+        currentSeasonWins: 0,
+        lastTournamentLeft: null
+      };
+      
+      const newSeasonWins = tournamentStats.currentSeasonWins + 1;
+      const title = getTournamentTitle(placement, playerData.trophies, seasonData.seasonNumber, newSeasonWins);
+      
+      const newTitles = [...playerData.ownedTitles];
+      if (title && !newTitles.includes(title)) {
+        newTitles.push(title);
+      }
+      
+      const updatedPlayer = {
+        ...playerData,
+        coins: playerData.coins + reward,
+        ownedTitles: newTitles,
+        tournamentStats: {
+          ...tournamentStats,
+          tournamentsWon: tournamentStats.tournamentsWon + 1,
+          tournamentsPlayed: tournamentStats.tournamentsPlayed + 1,
+          currentSeasonWins: newSeasonWins
+        }
+      };
+      
+      setPlayerData(updatedPlayer);
+      savePlayerData(updatedPlayer);
+      
+      const completedTournament = {
+        ...currentTournament,
+        bracket: updatedBracket,
+        status: 'completed' as const,
+        playerPlacement: 1,
+        playerReward: reward
+      };
+      
+      setCurrentTournament(completedTournament);
+      saveTournamentData(completedTournament);
+      setIsTournamentMode(false);
+      setScreen('tournament');
+      return;
+    }
+    
+    const updatedTournament = { ...currentTournament, bracket: updatedBracket };
+    setCurrentTournament(updatedTournament);
+    saveTournamentData(updatedTournament);
+    setIsTournamentMode(false);
+    setScreen('tournament');
+  };
+  
+  const handleTournamentLeave = () => {
+    if (currentTournament?.status === 'in_progress') {
+      // Player left during tournament - no rewards, penalized
+      const tournamentStats = playerData.tournamentStats || {
+        tournamentsWon: 0,
+        tournamentsPlayed: 0,
+        currentSeasonWins: 0,
+        lastTournamentLeft: null
+      };
+      
+      const updatedPlayer = {
+        ...playerData,
+        tournamentStats: {
+          ...tournamentStats,
+          lastTournamentLeft: Date.now()
+        }
+      };
+      
+      setPlayerData(updatedPlayer);
+      savePlayerData(updatedPlayer);
+    }
+    
+    // Clear tournament data
+    setCurrentTournament(null);
+    saveTournamentData(null);
+    setScreen('menu');
+  };
+  
+  const isPlayerRegistered = currentTournament?.participants.some(p => p.isPlayer) || false;
   const leaderboard = getTop30Leaderboard(playerData, aiCompetitors);
   
   return (
@@ -253,6 +538,10 @@ function App() {
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
           onTitleSelector={() => setScreen('titleSelector')}
+          onTournament={() => setScreen('tournament')}
+          currentTournament={currentTournament}
+          nextTournamentTime={nextTournamentTime}
+          isRegistered={isPlayerRegistered}
         />
       )}
       
@@ -293,6 +582,29 @@ function App() {
           onBack={() => setScreen('menu')}
           isPracticeMode={isPracticeMode}
           practiceDifficulty={practiceDifficulty}
+        />
+      )}
+      
+      {screen === 'tournament' && currentTournament && (
+        <TournamentScreen
+          tournament={currentTournament}
+          playerData={playerData}
+          isRegistered={isPlayerRegistered}
+          onRegister={handleTournamentRegister}
+          onUnregister={handleTournamentUnregister}
+          onPlayMatch={handleTournamentMatchStart}
+          onBack={handleTournamentLeave}
+        />
+      )}
+      
+      {screen === 'tournamentGame' && tournamentMatch && (
+        <GameScreen
+          playerData={playerData}
+          onMatchEnd={(won) => handleTournamentMatchEnd(won)}
+          onBack={handleTournamentLeave}
+          isPracticeMode={false}
+          isTournamentMode={true}
+          tournamentMatch={tournamentMatch}
         />
       )}
       

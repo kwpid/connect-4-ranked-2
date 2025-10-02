@@ -1,4 +1,4 @@
-import { PlayerData, AICompetitor, SeasonData, Title } from '../types/game';
+import { PlayerData, AICompetitor, SeasonData, Title, TournamentData } from '../types/game';
 import { generateAICompetitors, getCurrentSeasonData } from './seasonManager';
 
 const STORAGE_KEYS = {
@@ -6,7 +6,9 @@ const STORAGE_KEYS = {
   AI_COMPETITORS: 'connect_ranked_ai',
   SEASON: 'connect_ranked_season',
   SHOP_ROTATION: 'connect_ranked_shop',
-  LAST_SEASON_CHECK: 'connect_ranked_last_check'
+  LAST_SEASON_CHECK: 'connect_ranked_last_check',
+  TOURNAMENT: 'connect_ranked_tournament',
+  NEXT_TOURNAMENT: 'connect_ranked_next_tournament'
 };
 
 export function getPlayerData(): PlayerData {
@@ -94,4 +96,26 @@ export function getShopRotation(): number {
 
 export function saveShopRotation(timestamp: number): void {
   localStorage.setItem(STORAGE_KEYS.SHOP_ROTATION, timestamp.toString());
+}
+
+export function getTournamentData(): TournamentData | null {
+  const stored = localStorage.getItem(STORAGE_KEYS.TOURNAMENT);
+  return stored ? JSON.parse(stored) : null;
+}
+
+export function saveTournamentData(data: TournamentData | null): void {
+  if (data === null) {
+    localStorage.removeItem(STORAGE_KEYS.TOURNAMENT);
+  } else {
+    localStorage.setItem(STORAGE_KEYS.TOURNAMENT, JSON.stringify(data));
+  }
+}
+
+export function getNextTournamentTime(): number | null {
+  const stored = localStorage.getItem(STORAGE_KEYS.NEXT_TOURNAMENT);
+  return stored ? parseInt(stored) : null;
+}
+
+export function saveNextTournamentTime(timestamp: number): void {
+  localStorage.setItem(STORAGE_KEYS.NEXT_TOURNAMENT, timestamp.toString());
 }

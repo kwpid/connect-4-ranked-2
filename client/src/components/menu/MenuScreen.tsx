@@ -1,7 +1,8 @@
-import React from 'react';
-import { PlayerData } from '../../types/game';
+import React, { useState, useEffect } from 'react';
+import { PlayerData, TournamentData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { TitleDisplay } from '../common/TitleDisplay';
+import { getTimeUntilTournament } from '../../utils/tournamentManager';
 
 interface MenuScreenProps {
   playerData: PlayerData;
@@ -12,6 +13,10 @@ interface MenuScreenProps {
   onStats: () => void;
   onSettings: () => void;
   onTitleSelector: () => void;
+  onTournament: () => void;
+  currentTournament: TournamentData | null;
+  nextTournamentTime: number;
+  isRegistered: boolean;
 }
 
 export function MenuScreen({
@@ -22,8 +27,21 @@ export function MenuScreen({
   onShop,
   onStats,
   onSettings,
-  onTitleSelector
+  onTitleSelector,
+  onTournament,
+  currentTournament,
+  nextTournamentTime,
+  isRegistered
 }: MenuScreenProps) {
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
   
@@ -78,24 +96,42 @@ export function MenuScreen({
         <div className="space-y-4 mb-8">
           <button
             onClick={onQueue}
-            className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg"
+            disabled={isRegistered}
+            className={`w-full py-6 ${isRegistered ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'} rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg`}
           >
-            Find Match
+            {isRegistered ? 'Registered for Tournament' : 'Find Match'}
           </button>
           
-          <button
-            onClick={onPractice}
-            className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
-          >
-            🎓 Practice
-          </button>
+          {/* Tournament Button */}
+          {currentTournament && (
+            <button
+              onClick={onTournament}
+              className="w-full py-5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
+            >
+              🏆 Tournament
+              <span className="text-sm block mt-1">
+                {currentTournament.status === 'registration' 
+                  ? `Registration: ${getTimeUntilTournament(currentTime, nextTournamentTime)}`
+                  : 'In Progress'}
+              </span>
+            </button>
+          )}
           
-          <button
-            onClick={onLeaderboard}
-            className="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
-          >
-            🏆 Leaderboard
-          </button>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={onPractice}
+              className="py-3 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors"
+            >
+              🎓 Practice
+            </button>
+            
+            <button
+              onClick={onLeaderboard}
+              className="py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+            >
+              🏆 Leaderboard
+            </button>
+          </div>
         </div>
         
         {/* Secondary Actions */}

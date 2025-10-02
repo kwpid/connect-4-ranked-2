@@ -89,6 +89,51 @@ export function getTitleFromId(titleId: string): Title {
     };
   }
   
+  // Tournament titles (S# [RANK] TOURNAMENT WINNER or S# [RANK] TOURNAMENT WINNER_MULTI)
+  const tournamentMatch = titleId.match(/^S(\d+)\s+(.+?)\s+TOURNAMENT\s+WINNER(_MULTI)?$/);
+  if (tournamentMatch) {
+    const [, seasonNum, rank, multi] = tournamentMatch;
+    let color = '#9CA3AF'; // Default grey
+    let glow = 'none';
+    
+    if (multi) {
+      // Multi-win (3+) colors
+      if (rank === 'CONNECT LEGEND') {
+        color = '#FF69B4'; // Pink for multi-win Legend
+        glow = '#FF69B4';
+      } else if (rank === 'GRAND CHAMPION') {
+        color = '#FFD700'; // Gold for multi-win GC
+        glow = '#FFD700';
+      } else {
+        color = '#00FF00'; // Green for multi-win regular ranks
+        glow = '#00FF00';
+      }
+    } else {
+      // Single-win colors
+      if (rank === 'CONNECT LEGEND') {
+        color = '#FFFFFF'; // White for Legend
+        glow = '#FFFFFF';
+      } else if (rank === 'GRAND CHAMPION') {
+        color = '#FF0000'; // Red for GC
+        glow = '#FF0000';
+      } else {
+        color = '#9CA3AF'; // Grey for regular ranks
+        glow = 'none';
+      }
+    }
+    
+    const displayName = `S${seasonNum} ${rank} TOURNAMENT WINNER`;
+    
+    return {
+      id: titleId,
+      name: displayName,
+      type: 'season',
+      color,
+      glow,
+      season: parseInt(seasonNum)
+    };
+  }
+  
   // Fallback for any other title
   return {
     id: titleId,

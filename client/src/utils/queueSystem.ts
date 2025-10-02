@@ -31,9 +31,13 @@ export function calculateQueueTime(trophies: number, playersInRank?: number): nu
   
   const totalTime = Math.floor(baseTime * timeMultiplier * playerMultiplier);
   
-  // Add some randomness (±3 seconds)
-  const variance = Math.floor(Math.random() * 7) - 3;
-  return Math.max(30, Math.min(60, totalTime + variance));
+  // Add significant randomness (±5 seconds, with occasional spikes)
+  const baseVariance = Math.floor(Math.random() * 11) - 5;
+  // 10% chance for extra variance
+  const extraVariance = Math.random() < 0.1 ? (Math.random() < 0.5 ? -8 : 8) : 0;
+  const variance = baseVariance + extraVariance;
+  
+  return Math.max(2, Math.min(15, totalTime + variance));
 }
 
 export function getEstimatedQueueTime(trophies: number): string {

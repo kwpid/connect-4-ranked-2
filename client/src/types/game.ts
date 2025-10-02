@@ -53,6 +53,7 @@ export interface PlayerData {
   peakRank?: string;
   peakSeason?: number;
   matchHistory?: MatchHistoryEntry[];
+  tournamentStats?: PlayerTournamentStats;
 }
 
 export interface AICompetitor {
@@ -94,4 +95,46 @@ export interface MatchState {
   matchWinner: 'player' | 'ai' | null;
 }
 
-export type Screen = 'menu' | 'queue' | 'game' | 'practice' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo';
+export interface TournamentParticipant {
+  id: string;
+  username: string;
+  trophies: number;
+  isPlayer: boolean;
+  titleId?: string | null;
+}
+
+export interface TournamentMatch {
+  id: string;
+  participant1: TournamentParticipant;
+  participant2: TournamentParticipant;
+  winner: TournamentParticipant | null;
+  round: number;
+  bestOf: number;
+}
+
+export interface TournamentBracket {
+  round1: TournamentMatch[];
+  round2: TournamentMatch[];
+  round3: TournamentMatch[];
+  finals: TournamentMatch[];
+}
+
+export interface TournamentData {
+  id: string;
+  startTime: number;
+  registrationOpenTime: number;
+  status: 'registration' | 'in_progress' | 'completed';
+  participants: TournamentParticipant[];
+  bracket: TournamentBracket | null;
+  playerPlacement: number | null;
+  playerReward: number;
+}
+
+export interface PlayerTournamentStats {
+  tournamentsWon: number;
+  tournamentsPlayed: number;
+  currentSeasonWins: number;
+  lastTournamentLeft: number | null;
+}
+
+export type Screen = 'menu' | 'queue' | 'game' | 'practice' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo' | 'tournament' | 'tournamentGame';

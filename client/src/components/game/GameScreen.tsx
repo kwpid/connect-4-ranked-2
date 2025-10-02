@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MatchState, PlayerData, GameResult } from '../../types/game';
+import { MatchState, PlayerData, GameResult, TournamentMatch } from '../../types/game';
 import { createEmptyBoard, dropPiece, getWinnerWithCells, WinningCells } from '../../utils/gameLogic';
 import { AIPlayer, AIDifficulty } from '../../utils/aiPlayer';
 import { Connect4Board } from './Connect4Board';
@@ -9,13 +9,23 @@ import { getCurrentSeasonData } from '../../utils/seasonManager';
 
 interface GameScreenProps {
   playerData: PlayerData;
-  onMatchEnd: (won: boolean, trophyChange: number, opponentName?: string, opponentTrophies?: number, matchScore?: string) => void;
+  onMatchEnd: (won: boolean, trophyChange?: number, opponentName?: string, opponentTrophies?: number, matchScore?: string) => void;
   onBack: () => void;
   isPracticeMode?: boolean;
   practiceDifficulty?: AIDifficulty;
+  isTournamentMode?: boolean;
+  tournamentMatch?: TournamentMatch;
 }
 
-export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = false, practiceDifficulty }: GameScreenProps) {
+export function GameScreen({ 
+  playerData, 
+  onMatchEnd, 
+  onBack, 
+  isPracticeMode = false, 
+  practiceDifficulty,
+  isTournamentMode = false,
+  tournamentMatch
+}: GameScreenProps) {
   // Generate opponent username and trophies based on player's trophy range
   const generateOpponent = () => {
     // Mix of short, regular, and long usernames
@@ -129,7 +139,19 @@ export function GameScreen({ playerData, onMatchEnd, onBack, isPracticeMode = fa
     return Math.random() < 0.5 ? 'player' : 'ai';
   };
   
-  const [opponent] = useState(isPracticeMode ? { name: `${practiceDifficulty?.toUpperCase()} AI`, trophies: 0, titleId: null } : generateOpponent());
+  const [opponent] = useState(() => {
+    if (isTournamentMode && tournamentMatch) {
+      const opponentData = tournamentMatch.participant1.isPlayer ? tournamentMatch.participant2 : tournamentMatch.participant1;
+      return { 
+        name: opponentData.username, 
+        trophies: opponentData.trophies, 
+        titleId: opponentData.titleId || null 
+      };
+    }
+    return isPracticeMode ? 
+      { name: `${practiceDifficulty?.toUpperCase()} AI`, trophies: 0, titleId: null } : 
+      generateOpponent();
+  });
   const [initialPlayer] = useState(determineFirstPlayer());
   const [match, setMatch] = useState<MatchState>({
     currentGame: 1,

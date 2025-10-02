@@ -10,6 +10,24 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+**October 2, 2025 (Tournament System Added):**
+- **Comprehensive Tournament System Implementation:**
+  - Tournaments occur every 10 minutes with 3-minute registration window
+  - 16-player single-elimination bracket (15 AI, 1 player)
+  - Rounds 1-3 are Best of 3, Finals are Best of 5
+  - Prize structure: Top 8 (2,500 coins), Top 4 (5,000 coins), Winner (10,000 coins + title)
+  - Tournament winner titles based on current rank with special colors:
+    - Regular ranks: Grey (1 win), Green (3+ wins)
+    - Grand Champion: Red (1 win), Gold (3+ wins)
+    - Connect Legend: White (1 win), Pink (3+ wins)
+  - Anti-cheat: Leaving tournament = no rewards + penalty
+  - Console cheat code: `startTournament()` for testing
+  - Can't queue for regular games while registered for tournament
+  - AI opponents can display tournament titles from current/previous seasons
+  - Updated queue times with more randomness (±5s variance, 10% spike chance)
+  - Practice button moved to smaller grid layout with Leaderboard
+  - Tournament button appears on main menu during registration/active tournaments
+
 **October 2, 2025 (Import Complete):**
 - **GitHub Import Successfully Configured for Replit:**
   - All dependencies installed successfully (611 packages)
