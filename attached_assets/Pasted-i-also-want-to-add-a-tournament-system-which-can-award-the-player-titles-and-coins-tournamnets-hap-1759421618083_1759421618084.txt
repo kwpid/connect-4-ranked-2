@@ -1,0 +1,21 @@
+i also want to add a tournament system, which can award the player titles and coins.
+tournamnets happen every 10 minutes, regardless of your rank. ( have a console cheat code to start a tournament for testing)
+the player can register 3 minutes prior the tournmanet starting, onceit starts, they cant register again. While registered for a tourny, yu cant queue for a regular game.
+Regular tournaments has 16 total ai/players (15 ai, 1 player), so a total of 4 rounds. ai will register for the tournament
+first rounds are best of 3, round 4 is best of 5, winner of that round wins the tournament
+top 8 in tournament gives you 2500 coins, top 4 gets you 5k, tournament win gets oyu 10k coins and a title "S# [RANK] TOURNAMENT WINNER"
+based off season # and rank, each title is grey expect for grand champ and connect legend, where grand champ is red, connect legend is white
+if your bronze rank and win a tournament, you get the bronze tourny title, if your diamond and win a tournament, you get the diamond tourny winner, etc
+AI can use these titles too, just have to be in their rank + have to be current or prior season (if season 1 = only season 1 titles, since theres no season prior)
+you can compete in multiple tounrmanets per season, however you can only get one tournamnet winner title
+if you win 3 or more tournaments in a single season, then the title changes color
+for regualr ranks, grey > green, for grand champ, red > gold, for conncet legend, white > pink
+one loss in tournament = out of tournament (no double elim, if u lose a best of, your out of the tournament and your placement is shown, as well as your rewards)
+move the practice button into a smaller button
+ensure theres not text saying "AI" on the tournament screen, should just show prizes and formatting
+ensure the player can leave registration whenever
+once u lose in the tournamnet or finish it, ur kicked out of the tournament and can play regular games again
+ensure tounrament system has anti cheat:
+- if you leave during a tournament, then u dont get rewards and have to wait for next tournament
+
+update queue times to be a bit more random
