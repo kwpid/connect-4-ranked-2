@@ -98,6 +98,15 @@ export interface ShopItem {
   price: number;
 }
 
+export interface FeaturedItem {
+  id: string;
+  title?: Title;
+  banner?: Banner;
+  price: number;
+  expiresAt: number; // Timestamp when this item should be removed
+  duration: string; // Human-readable duration like "24h", "7d", "2w"
+}
+
 export interface MatchState {
   currentGame: number; // 1, 2, or 3
   playerWins: number;

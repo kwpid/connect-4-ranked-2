@@ -85,6 +85,8 @@ function App() {
           // Create new tournament only if no active tournament or previous is completed
           const newTournamentTime = calcNextTournamentTime(now + 1000);
           const newTournament = createNewTournament(newTournamentTime);
+          // Explicitly ensure participants array is empty to prevent auto-registration bug
+          newTournament.participants = [];
           setNextTournamentTime(newTournamentTime);
           saveNextTournamentTime(newTournamentTime);
           setCurrentTournament(newTournament);
@@ -95,6 +97,8 @@ function App() {
       // Open registration 3 minutes before
       if (!currentTournament && canRegisterForTournament(now, nextTournamentTime)) {
         const newTournament = createNewTournament(nextTournamentTime);
+        // Explicitly ensure participants array is empty to prevent auto-registration bug
+        newTournament.participants = [];
         setCurrentTournament(newTournament);
         saveTournamentData(newTournament);
       }
@@ -105,6 +109,89 @@ function App() {
     
     return () => clearInterval(interval);
   }, [nextTournamentTime, currentTournament, aiCompetitors, playerData.trophies, seasonData.seasonNumber]);
+  
+  // AI match simulation when player is NOT in tournament or has been eliminated
+  useEffect(() => {
+    if (!currentTournament || currentTournament.status !== 'in_progress') return;
+    if (!currentTournament.bracket) return;
+    
+    // Check if player has a pending match (still actively playing)
+    const findPlayerMatch = (): boolean => {
+      const allMatches = [
+        ...currentTournament.bracket!.round1,
+        ...currentTournament.bracket!.round2,
+        ...currentTournament.bracket!.round3,
+        ...currentTournament.bracket!.finals
+      ];
+      
+      for (const match of allMatches) {
+        if (!match.winner && (match.participant1.isPlayer || match.participant2.isPlayer)) {
+          return true;
+        }
+      }
+      
+      return false;
+    };
+    
+    const playerHasPendingMatch = findPlayerMatch();
+    if (playerHasPendingMatch) return; // Player has a pending match, don't auto-simulate
+    
+    // Find all pending AI matches (matches without winners)
+    const allRounds = [
+      { matches: currentTournament.bracket.round1, roundNum: 1 },
+      { matches: currentTournament.bracket.round2, roundNum: 2 },
+      { matches: currentTournament.bracket.round3, roundNum: 3 },
+      { matches: currentTournament.bracket.finals, roundNum: 4 }
+    ];
+    
+    // Find the earliest round with pending matches
+    for (const { matches, roundNum } of allRounds) {
+      const pendingMatches = matches.filter(m => !m.winner);
+      
+      if (pendingMatches.length > 0) {
+        // Simulate one match at a time with a delay
+        const timer = setTimeout(() => {
+          const matchToSimulate = pendingMatches[0];
+          const winner = simulateAIMatch(matchToSimulate);
+          
+          // Update the match with the winner
+          const updatedBracket = { ...currentTournament.bracket! };
+          const roundKey = roundNum === 1 ? 'round1' : 
+                         roundNum === 2 ? 'round2' : 
+                         roundNum === 3 ? 'round3' : 'finals';
+          
+          updatedBracket[roundKey] = updatedBracket[roundKey].map(m => 
+            m.id === matchToSimulate.id ? { ...m, winner } : m
+          );
+          
+          // Check if this was the last match in the round
+          const allMatchesComplete = updatedBracket[roundKey].every(m => m.winner);
+          
+          let finalBracket = updatedBracket;
+          if (allMatchesComplete && roundNum < 4) {
+            // Advance to next round
+            finalBracket = advanceTournamentRound(updatedBracket, roundNum);
+          }
+          
+          const updatedTournament = {
+            ...currentTournament,
+            bracket: finalBracket
+          };
+          
+          // Check if tournament is complete (finals winner exists)
+          if (roundNum === 4 && finalBracket.finals[0]?.winner) {
+            updatedTournament.status = 'completed' as const;
+            updatedTournament.participants = []; // Clear participants
+          }
+          
+          setCurrentTournament(updatedTournament);
+          saveTournamentData(updatedTournament);
+        }, 2000); // 2 second delay between AI matches
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [currentTournament]);
   
   // Console cheat code to start tournament immediately
   useEffect(() => {
@@ -445,16 +532,18 @@ function App() {
       setPlayerData(updatedPlayer);
       savePlayerData(updatedPlayer);
       
-      const completedTournament = {
+      // Keep tournament as 'in_progress' so AI simulation can continue
+      // Don't mark as 'completed' - let AI simulation complete the tournament
+      const eliminatedTournament = {
         ...currentTournament,
         bracket: updatedBracket,
-        status: 'completed' as const,
+        status: 'in_progress' as const, // Keep in progress for AI to finish
         playerPlacement: placement,
         playerReward: reward
       };
       
-      setCurrentTournament(completedTournament);
-      saveTournamentData(completedTournament);
+      setCurrentTournament(eliminatedTournament);
+      saveTournamentData(eliminatedTournament);
       setIsTournamentMode(false);
       setScreen('tournament');
       return;
@@ -530,7 +619,8 @@ function App() {
         bracket: updatedBracket,
         status: 'completed' as const,
         playerPlacement: 1,
-        playerReward: reward
+        playerReward: reward,
+        participants: [] // Clear participants to prevent auto-registration in next tournament
       };
       
       setCurrentTournament(completedTournament);
