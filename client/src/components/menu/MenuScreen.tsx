@@ -9,6 +9,7 @@ interface MenuScreenProps {
   onQueue: () => void;
   onPractice: () => void;
   onLeaderboard: () => void;
+  onCSL: () => void;
   onShop: () => void;
   onStats: () => void;
   onSettings: () => void;
@@ -25,6 +26,7 @@ export function MenuScreen({
   onQueue,
   onPractice,
   onLeaderboard,
+  onCSL,
   onShop,
   onStats,
   onSettings,
@@ -94,6 +96,10 @@ export function MenuScreen({
               <p className="text-gray-400 text-sm">Coins</p>
               <p className="text-xl font-bold text-yellow-400">💰 {playerData.coins}</p>
             </div>
+            <div className="text-center col-span-2">
+              <p className="text-gray-400 text-sm">RP</p>
+              <p className="text-xl font-bold text-cyan-400">⚡ {playerData.rp}</p>
+            </div>
           </div>
         </div>
         
@@ -122,12 +128,19 @@ export function MenuScreen({
             </button>
           )}
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <button
               onClick={onPractice}
               className="py-3 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors"
             >
               🎓 Practice
+            </button>
+            
+            <button
+              onClick={onCSL}
+              className="py-3 bg-cyan-600 hover:bg-cyan-700 rounded-lg text-sm font-semibold transition-colors"
+            >
+              ⚡ CSL
             </button>
             
             <button

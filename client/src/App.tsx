@@ -53,6 +53,7 @@ import { StatsScreen } from './components/stats/StatsScreen';
 import { SettingsScreen } from './components/settings/SettingsScreen';
 import { TournamentScreen } from './components/tournament/TournamentScreen';
 import { InventoryScreen } from './components/inventory/InventoryScreen';
+import { CSLScreen } from './components/csl/CSLScreen';
 import { AIDifficulty } from './utils/aiPlayer';
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
     getNextTournamentTime() || calcNextTournamentTime()
   );
   const [tournamentMatch, setTournamentMatch] = useState<TournamentMatch | null>(null);
+  const [nextAIUpdate, setNextAIUpdate] = useState<number>(Date.now() + 5 * 60 * 1000);
   
   // Tournament timer
   useEffect(() => {
@@ -213,6 +215,7 @@ function App() {
       const updatedAI = updateLeaderboardAI(aiCompetitors);
       setAiCompetitors(updatedAI);
       saveAICompetitors(updatedAI);
+      setNextAIUpdate(Date.now() + 5 * 60 * 1000);
       console.log('Leaderboard AI updated - some AI won/lost trophies');
     };
     
@@ -701,6 +704,7 @@ function App() {
           onQueue={() => setScreen('queue')}
           onPractice={() => setScreen('practice')}
           onLeaderboard={() => setScreen('leaderboard')}
+          onCSL={() => setScreen('csl')}
           onShop={() => setScreen('shop')}
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
@@ -789,6 +793,7 @@ function App() {
         <LeaderboardScreen
           leaderboard={leaderboard}
           playerData={playerData}
+          nextAIUpdate={nextAIUpdate}
           onBack={() => setScreen('menu')}
           onRankInfo={() => setScreen('rankInfo')}
         />
@@ -819,6 +824,13 @@ function App() {
         <SettingsScreen
           playerData={playerData}
           onUsernameChange={handleUsernameChange}
+          onBack={() => setScreen('menu')}
+        />
+      )}
+      
+      {screen === 'csl' && (
+        <CSLScreen
+          playerData={playerData}
           onBack={() => setScreen('menu')}
         />
       )}

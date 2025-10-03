@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LeaderboardEntry, PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { getSeasonRewardCoins } from '../../utils/rankSystem';
@@ -7,16 +7,34 @@ import { getCurrentSeasonData, getTimeUntilSeasonEnd } from '../../utils/seasonM
 interface LeaderboardScreenProps {
   leaderboard: LeaderboardEntry[];
   playerData: PlayerData;
+  nextAIUpdate: number;
   onBack: () => void;
   onRankInfo: () => void;
 }
 
-export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo }: LeaderboardScreenProps) {
+export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBack, onRankInfo }: LeaderboardScreenProps) {
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
+  
   const playerInTop30 = leaderboard.find(e => e.isPlayer);
   const seasonData = getCurrentSeasonData();
   const timeRemaining = getTimeUntilSeasonEnd();
   const playerRank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(playerRank.tier);
+  
+  const getAIUpdateCountdown = () => {
+    const diff = Math.max(0, nextAIUpdate - currentTime);
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
@@ -57,6 +75,13 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
               <p className="text-2xl font-bold text-yellow-400">🏆 {playerData.trophies}</p>
             </div>
           </div>
+          
+          {/* AI Update Countdown */}
+          <div className="mt-4 pt-4 border-t border-purple-500/30 text-center">
+            <p className="text-gray-400 text-sm mb-1">Next Leaderboard Update</p>
+            <p className="text-xl font-bold text-cyan-400">⏱️ {getAIUpdateCountdown()}</p>
+          </div>
+          
           {playerInTop30 && (
             <div className="mt-4 pt-4 border-t border-purple-500/30 text-center">
               <p className="text-yellow-400 font-semibold">
