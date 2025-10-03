@@ -760,7 +760,7 @@ function App() {
             setIsPracticeMode(false);
             setScreen('game');
           }}
-          onCancel={() => setScreen('menu')}
+          onCancel={() => setScreen('playMenu')}
         />
       )}
       
