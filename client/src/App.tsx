@@ -253,7 +253,7 @@ function App() {
       newTitles.push(seasonTitle);
     }
     
-    // Check leaderboard position
+    // Check leaderboard position and extract top 30 AI IDs
     const leaderboard = getTop30Leaderboard(playerData, aiCompetitors);
     const playerEntry = leaderboard.find(e => e.isPlayer);
     if (playerEntry) {
@@ -264,6 +264,16 @@ function App() {
       
       if (lbTitle) newTitles.push(lbTitle);
     }
+    
+    // Extract top 30 AI IDs for reset (exclude player)
+    const top30AIIds = new Set(
+      leaderboard
+        .filter(entry => !entry.isPlayer)
+        .map(entry => entry.username)
+        .slice(0, 30)
+        .map(username => aiCompetitors.find(ai => ai.username === username)?.id)
+        .filter(Boolean) as string[]
+    );
     
     // Award ranked banners
     const newBanners = [...playerData.ownedBanners];
@@ -308,8 +318,8 @@ function App() {
     setPlayerData(updatedPlayer);
     savePlayerData(updatedPlayer);
     
-    // Reset AI competitors for new season
-    const resetAI = resetAICompetitorsForSeason(aiCompetitors);
+    // Reset AI competitors for new season (top 30 leaderboard AI reset to 701 trophies)
+    const resetAI = resetAICompetitorsForSeason(aiCompetitors, top30AIIds);
     setAiCompetitors(resetAI);
     saveAICompetitors(resetAI);
     

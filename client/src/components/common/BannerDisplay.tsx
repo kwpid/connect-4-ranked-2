@@ -36,6 +36,15 @@ export function BannerDisplay({ bannerId, username, titleId, className = '' }: B
       ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
       : {};
     
+    // Dynamic title size based on length - bigger text that scales down for longer titles
+    const getTitleSizeClass = (titleName: string) => {
+      const length = titleName.length;
+      if (length <= 10) return 'text-sm'; // Small titles: bigger text (14px)
+      if (length <= 20) return 'text-xs'; // Medium titles: medium text (12px)
+      if (length <= 30) return 'text-[11px]'; // Long titles: smaller text (11px)
+      return 'text-[10px]'; // Very long titles: smallest text (10px)
+    };
+    
     return (
       <div className={`inline-block relative ${className}`}>
         <img
@@ -49,7 +58,14 @@ export function BannerDisplay({ bannerId, username, titleId, className = '' }: B
             {username}
           </span>
           {title && (
-            <p className="text-[10px] font-semibold mt-0.5" style={{ color: title.color, textShadow: '2px 2px 4px rgba(0,0,0,0.8)', ...glowStyle }}>
+            <p 
+              className={`${getTitleSizeClass(title.name)} font-bold mt-0.5 px-1 leading-tight`}
+              style={{ 
+                color: title.color, 
+                textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                ...glowStyle 
+              }}
+            >
               {title.name.toUpperCase()}
             </p>
           )}

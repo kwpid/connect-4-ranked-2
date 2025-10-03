@@ -279,10 +279,11 @@ export function updateAICompetitors(competitors: AICompetitor[]): AICompetitor[]
 }
 
 // Reset AI competitors for new season
-export function resetAICompetitorsForSeason(competitors: AICompetitor[]): AICompetitor[] {
+export function resetAICompetitorsForSeason(competitors: AICompetitor[], top30AIIds?: Set<string>): AICompetitor[] {
   return competitors.map(ai => {
-    // Reset to minimum trophy for their rank (same as player logic)
-    const resetTrophies = getSeasonResetTrophiesForAI(ai.trophies);
+    // Top 30 leaderboard AI get reset to 701 trophies
+    // All other AI reset to minimum trophy for their rank
+    const resetTrophies = top30AIIds?.has(ai.id) ? 701 : getSeasonResetTrophiesForAI(ai.trophies);
     
     return {
       ...ai,
