@@ -31,7 +31,23 @@ The project came pre-configured with proper Replit settings:
 - No additional configuration changes were needed
 - Fresh npm install completed successfully with all 612 packages
 
-### Recent Updates: October 3, 2025 (Evening)
+### Recent Updates: October 3, 2025 (Late Evening)
+
+- **RP Currency System**: Added new RP (Ranked Points) currency to player data with proper migration support. RP starts at 0 for all players and displays on the main menu alongside coins with a lightning bolt icon (⚡).
+
+- **Dynamic AI Leaderboard Updates**: Implemented 5-minute automatic leaderboard refresh system where AI competitors realistically win/lose matches and update their trophy counts. Each AI has 20-60% chance to update per cycle, ensuring the leaderboard remains dynamic and competitive.
+
+- **Leaderboard Countdown Timer**: Added live countdown timer to leaderboard screen showing time until next AI update in mm:ss format. Timer updates every second and displays in cyan color under "Next Leaderboard Update" section.
+
+- **CSL (Competitive Seasonal League) Screen**: Created new CSL screen accessible from main menu via dedicated button positioned between Practice and Leaderboard buttons. Features:
+  - RP display at the top
+  - Upcoming tournaments section (placeholder for future implementation)
+  - Career earnings tab showing all-time earnings breakdown
+  - Consistent dark theme styling with gradient backgrounds
+
+- **Dynamic Title Sizing**: Enhanced TitleDisplay component to automatically resize titles based on text length (14px-20px range) for optimal visibility across all screens, ensuring long titles remain legible without layout issues.
+
+### Earlier Updates: October 3, 2025 (Evening)
 
 - **Title Display Consistency**: Simplified title sizing from variable multi-tier system to a single consistent 12px (`text-xs`) size for all titles. This eliminates inconsistent sizing issues and provides a cleaner, more professional appearance across all screens.
 
