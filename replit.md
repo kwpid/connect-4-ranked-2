@@ -31,7 +31,24 @@ The project came pre-configured with proper Replit settings:
 - No additional configuration changes were needed
 - Fresh npm install completed successfully with all 612 packages
 
-### Recent Updates: October 3, 2025 (Late Evening)
+### Recent Updates: October 3, 2025 (Late Evening - News Feed System)
+
+- **News Feed System**: Comprehensive news and version tracking system added with the following features:
+  - **Version Display**: Current version (v1.0.0) shown in main menu header
+  - **News Button**: Dedicated news button on main menu with animated notification badge showing unread count (1-9+)
+  - **News Popup**: Clean, tabbed interface displaying news with:
+    - Four tabs: All, Updates, News, Season (filter by type)
+    - Type badges (blue for updates, green for news, purple for season)
+    - Version tags for update news
+    - Season numbers for season-specific news
+    - Date formatting for easy readability
+    - "NEW" animated badge for unread items
+    - "Mark All Read" button
+  - **Auto-Show on Load**: Popup automatically appears on site load when unread news exists (can be disabled in settings)
+  - **Settings Integration**: Toggle in Settings screen to disable auto-show behavior
+  - **Dynamic News**: Static news stored in `client/public/data/news.json`, dynamic news (like season end announcements) stored in localStorage
+  - **Season News Auto-Generation**: Automatically creates news item when season ends, announcing rewards and new season start
+  - **Notification Tracking**: Tracks which news items user has read via localStorage
 
 - **RP Currency System**: Added new RP (Ranked Points) currency to player data with proper migration support. RP starts at 0 for all players and displays on the main menu alongside coins with a lightning bolt icon (⚡).
 
@@ -124,6 +141,23 @@ The frontend is built with React 18 and Vite. State management relies on local c
         - For titles: use title ID (e.g., "grey_veteran", "grey_champion")
         - Duration format: "24h" (hours), "7d" (days), "2w" (weeks)
         - `addedAt`: timestamp when added (use `Date.now()` in JavaScript)
+-   **News Feed System**: Displays updates, announcements, and season news with notification badges. News items are managed in `client/public/data/news.json` for static content.
+    -   **Adding News**: Edit `client/public/data/news.json` and add new news items at the top of the array. The system will automatically display them with proper formatting and notification badges.
+    -   **News Item Format**:
+        ```json
+        {
+          "id": "unique_id_here",
+          "type": "update" | "news" | "season",
+          "version": "1.0.1" (optional, for updates),
+          "title": "News Title",
+          "content": "News content goes here...",
+          "date": 1727740800000,
+          "season": 2 (optional, for season-specific news)
+        }
+        ```
+        - Types: "update" (blue badge), "news" (green badge), "season" (purple badge)
+        - Date: Unix timestamp in milliseconds (use `Date.now()` in JavaScript console)
+        - Season news is automatically generated when seasons end
 -   **Game Board**: 9x7 dimensions, Connect 4 win condition.
 
 ## External Dependencies
