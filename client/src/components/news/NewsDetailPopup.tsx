@@ -7,14 +7,64 @@ interface NewsDetailPopupProps {
 }
 
 export function NewsDetailPopup({ newsItem, onClose }: NewsDetailPopupProps) {
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
+  const formatDate = (dateStr: string) => {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const [month, day, year] = parts;
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      return date.toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric'
+      });
+    }
+    return dateStr;
+  };
+  
+  const renderContent = () => {
+    if (typeof newsItem.content === 'string') {
+      return (
+        <p className="text-gray-200 text-lg leading-relaxed whitespace-pre-wrap">
+          {newsItem.content}
+        </p>
+      );
+    }
+    
+    return newsItem.content.map((block, index) => {
+      switch (block.type) {
+        case 'heading':
+          const HeadingTag = `h${block.level || 2}` as keyof JSX.IntrinsicElements;
+          return (
+            <HeadingTag key={index} className="text-white font-bold mb-4" style={{ fontSize: block.level === 2 ? '1.5rem' : '1.25rem' }}>
+              {block.content}
+            </HeadingTag>
+          );
+        case 'paragraph':
+          return (
+            <p key={index} className="text-gray-200 text-lg leading-relaxed mb-4">
+              {block.content}
+            </p>
+          );
+        case 'list':
+          return (
+            <ul key={index} className="list-disc list-inside text-gray-200 text-lg mb-4 space-y-2">
+              {block.items?.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          );
+        case 'image':
+          return (
+            <img 
+              key={index} 
+              src={block.imageUrl} 
+              alt={block.imageAlt || ''} 
+              className="w-full rounded-lg mb-4"
+            />
+          );
+        default:
+          return null;
+      }
     });
   };
   
@@ -73,9 +123,7 @@ export function NewsDetailPopup({ newsItem, onClose }: NewsDetailPopupProps) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-8">
           <div className="prose prose-invert max-w-none">
-            <p className="text-gray-200 text-lg leading-relaxed whitespace-pre-wrap">
-              {newsItem.content}
-            </p>
+            {renderContent()}
           </div>
         </div>
         

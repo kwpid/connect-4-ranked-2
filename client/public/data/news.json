@@ -4,9 +4,31 @@
     "type": "update",
     "version": "1.0.0",
     "title": "Welcome to Connect Ranked!",
-    "content": "Welcome to Connect Ranked - a competitive Connect 4 experience! Take on AI opponents, climb the ranked ladder, and compete in tournaments every 10 minutes. Good luck!",
-    "date": 1727740800000,
-    "season": null
+    "content": [
+      {
+        "type": "paragraph",
+        "content": "Welcome to Connect Ranked - a competitive Connect 4 experience! Take on AI opponents, climb the ranked ladder, and compete in tournaments every 10 minutes."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Competitive ranked matchmaking with 23 unique ranks",
+          "Tournaments every 10 minutes with exclusive rewards",
+          "Seasonal progression with special titles and banners",
+          "In-game shop with rotating cosmetic items"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": "Good luck on your journey to Connect Legend!"
+      }
+    ],
+    "date": "10-01-2024"
   },
   {
     "id": "season_2_news_1",
@@ -14,7 +36,8 @@
     "version": "2",
     "title": "Season 2 Rewards And News",
     "content": "Season 2 is here! Season 2 offers new changes, with new season banners (of course), but also new titles!",
-    "date": 1760486400000,
+    "date": "10-15-2025",
+    "releaseDate": "10-15-2025",
     "season": 2
   }
 ]

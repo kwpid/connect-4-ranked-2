@@ -1,10 +1,20 @@
+export interface NewsContentBlock {
+  type: 'paragraph' | 'heading' | 'list' | 'image';
+  content?: string;
+  items?: string[];
+  imageUrl?: string;
+  imageAlt?: string;
+  level?: number;
+}
+
 export interface NewsItem {
   id: string;
   type: 'update' | 'news' | 'season';
   version?: string;
   title: string;
-  content: string;
-  date: number;
+  content: string | NewsContentBlock[];
+  date: string;
+  releaseDate?: string;
   season?: number | null;
 }
 
@@ -40,16 +50,37 @@ export function addDynamicNews(newsItem: NewsItem): void {
   saveDynamicNews(updated);
 }
 
+function parseDateString(dateStr: string): Date {
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const [month, day, year] = parts;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
+  return new Date(dateStr);
+}
+
+function isNewsAvailable(newsItem: NewsItem): boolean {
+  if (!newsItem.releaseDate) return true;
+  
+  const releaseDate = parseDateString(newsItem.releaseDate);
+  const now = new Date();
+  return now >= releaseDate;
+}
+
 export async function loadNews(): Promise<NewsItem[]> {
   try {
     const response = await fetch('/data/news.json');
     const staticNews: NewsItem[] = await response.json();
     const dynamicNews = getDynamicNews();
-    const allNews = [...dynamicNews, ...staticNews];
-    return allNews.sort((a, b) => b.date - a.date);
+    const allNews = [...dynamicNews, ...staticNews]
+      .filter(isNewsAvailable)
+      .sort((a, b) => parseDateString(b.date).getTime() - parseDateString(a.date).getTime());
+    return allNews;
   } catch (error) {
     console.error('Failed to load news:', error);
-    return getDynamicNews().sort((a, b) => b.date - a.date);
+    return getDynamicNews()
+      .filter(isNewsAvailable)
+      .sort((a, b) => parseDateString(b.date).getTime() - parseDateString(a.date).getTime());
   }
 }
 
@@ -118,13 +149,21 @@ export function filterNewsByType(news: NewsItem[], type: 'all' | 'update' | 'new
   return news.filter(item => item.type === type);
 }
 
+function getCurrentDateString(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const year = now.getFullYear();
+  return `${month}-${day}-${year}`;
+}
+
 export function generateSeasonNews(seasonNumber: number): NewsItem {
   return {
     id: `season_${seasonNumber}_end`,
     type: 'season',
     title: `Season ${seasonNumber} Has Ended!`,
     content: `Season ${seasonNumber} has concluded! Rewards have been distributed based on your final rank. Check your inventory for new titles and banners. The new season has begun - good luck climbing the ladder!`,
-    date: Date.now(),
+    date: getCurrentDateString(),
     season: seasonNumber
   };
 }

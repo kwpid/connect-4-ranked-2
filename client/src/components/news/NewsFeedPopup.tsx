@@ -35,13 +35,18 @@ export function NewsFeedPopup({ onClose, autoOpened = false }: NewsFeedPopupProp
     window.location.reload();
   };
   
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+  const formatDate = (dateStr: string) => {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const [month, day, year] = parts;
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    }
+    return dateStr;
   };
   
   const getTypeColor = (type: NewsItem['type']) => {
@@ -71,9 +76,18 @@ export function NewsFeedPopup({ onClose, autoOpened = false }: NewsFeedPopupProp
     }
   };
   
-  const truncateContent = (content: string, maxLength: number = 120) => {
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + '...';
+  const truncateContent = (content: string | any[], maxLength: number = 120) => {
+    if (typeof content === 'string') {
+      if (content.length <= maxLength) return content;
+      return content.substring(0, maxLength) + '...';
+    }
+    
+    const firstBlock = content.find(block => block.type === 'paragraph' && block.content);
+    if (firstBlock && firstBlock.content) {
+      if (firstBlock.content.length <= maxLength) return firstBlock.content;
+      return firstBlock.content.substring(0, maxLength) + '...';
+    }
+    return 'Click to read more...';
   };
   
   if (selectedNewsItem) {
