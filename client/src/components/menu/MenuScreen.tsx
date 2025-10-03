@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlayerData, TournamentData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
-import { TitleDisplay } from '../common/TitleDisplay';
 import { BannerDisplay } from '../common/BannerDisplay';
 import { getTimeUntilTournament } from '../../utils/tournamentManager';
 

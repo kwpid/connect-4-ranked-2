@@ -6,7 +6,7 @@ Connect Ranked is a single-player competitive Connect 4 game against AI opponent
 
 ## Replit Environment Setup
 
-### Latest Import: October 3, 2025
+### Latest Updates: October 3, 2025
 
 This project has been successfully re-imported and configured for the Replit environment:
 
@@ -18,6 +18,11 @@ This project has been successfully re-imported and configured for the Replit env
 - **Workflow**: "Start Game" workflow configured to run `npm run dev` on port 5000 with webview output
 - **Deployment**: Configured for autoscale deployment with build (`npm run build`) and start (`npm run start`) scripts
 - **Status**: ✅ Application running successfully, all systems operational
+
+### Recent Fixes: October 3, 2025 (PM)
+
+- **Season System Bug Fix**: Fixed critical bug in season calculation where seasons were only lasting 4 days instead of 14 days. Seasons now properly span 2 weeks and automatically transition to the next season when they end.
+- **Title Display Enhancement**: Titles now render within the banner component itself (properly layered on top of the banner image) instead of being positioned outside with negative margin, improving visibility and layout consistency across all screens.
 
 ### Previous Setup: October 2, 2025
 
