@@ -42,6 +42,7 @@ import { loadBanners, getRankBannersForPlayer } from './utils/bannerManager';
 
 // Screens
 import { MenuScreen } from './components/menu/MenuScreen';
+import { PlayMenuScreen } from './components/menu/PlayMenuScreen';
 import { TitleSelector } from './components/menu/TitleSelector';
 import { PracticeScreen } from './components/menu/PracticeScreen';
 import { QueueScreen } from './components/queue/QueueScreen';
@@ -701,16 +702,23 @@ function App() {
       {screen === 'menu' && (
         <MenuScreen
           playerData={playerData}
-          onQueue={() => setScreen('queue')}
-          onPractice={() => setScreen('practice')}
+          onPlay={() => setScreen('playMenu')}
           onLeaderboard={() => setScreen('leaderboard')}
           onCSL={() => setScreen('csl')}
           onShop={() => setScreen('shop')}
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
-          onTitleSelector={() => setScreen('titleSelector')}
           onInventory={() => setScreen('inventory')}
+        />
+      )}
+      
+      {screen === 'playMenu' && (
+        <PlayMenuScreen
+          playerData={playerData}
+          onQueue={() => setScreen('queue')}
+          onPractice={() => setScreen('practice')}
           onTournament={() => setScreen('tournament')}
+          onBack={() => setScreen('menu')}
           currentTournament={currentTournament}
           nextTournamentTime={nextTournamentTime}
           isRegistered={isPlayerRegistered}
@@ -724,7 +732,7 @@ function App() {
             setIsPracticeMode(true);
             setScreen('game');
           }}
-          onBack={() => setScreen('menu')}
+          onBack={() => setScreen('playMenu')}
         />
       )}
       
