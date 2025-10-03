@@ -19,6 +19,7 @@ import {
 import { 
   shouldResetSeason, 
   updateAICompetitors, 
+  updateLeaderboardAI,
   resetAICompetitorsForSeason,
   getTop30Leaderboard,
   getCurrentSeasonData 
@@ -205,6 +206,20 @@ function App() {
       console.log('Tournament will start in 5 seconds! Registration is now open.');
     };
   }, []);
+  
+  // Leaderboard AI update every 5 minutes
+  useEffect(() => {
+    const updateLeaderboard = () => {
+      const updatedAI = updateLeaderboardAI(aiCompetitors);
+      setAiCompetitors(updatedAI);
+      saveAICompetitors(updatedAI);
+      console.log('Leaderboard AI updated - some AI won/lost trophies');
+    };
+    
+    const interval = setInterval(updateLeaderboard, 5 * 60 * 1000); // Every 5 minutes
+    
+    return () => clearInterval(interval);
+  }, [aiCompetitors]);
   
   // Check for season reset and shop rotation on load and periodically
   useEffect(() => {

@@ -51,6 +51,7 @@ export interface PlayerData {
   level: number;
   xp: number;
   coins: number;
+  rp: number;
   equippedTitle: string | null;
   ownedTitles: string[];
   equippedBanner: number | null;

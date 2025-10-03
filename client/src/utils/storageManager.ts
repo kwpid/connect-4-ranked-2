@@ -23,6 +23,12 @@ export function getPlayerData(): PlayerData {
       savePlayerData(player);
     }
     
+    // Migrate existing players to have RP field
+    if (player.rp === undefined) {
+      player.rp = 0;
+      savePlayerData(player);
+    }
+    
     return player;
   }
   
@@ -32,6 +38,7 @@ export function getPlayerData(): PlayerData {
     level: 1,
     xp: 0,
     coins: 500,
+    rp: 0,
     equippedTitle: null,
     ownedTitles: [],
     equippedBanner: 1,

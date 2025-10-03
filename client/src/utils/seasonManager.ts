@@ -344,6 +344,47 @@ export function updateAICompetitors(competitors: AICompetitor[]): AICompetitor[]
   });
 }
 
+export function updateLeaderboardAI(competitors: AICompetitor[]): AICompetitor[] {
+  const now = Date.now();
+  
+  return competitors.map(ai => {
+    // Each AI has a chance to play 1-3 games in a 5-minute period
+    const gamesPlayed = Math.floor(Math.random() * 3) + 1;
+    
+    let currentTrophies = ai.trophies;
+    let winStreak = 0;
+    
+    for (let i = 0; i < gamesPlayed; i++) {
+      // Win rate varies by trophy count
+      let winRate = 0.5; // Base 50%
+      if (currentTrophies > 500) winRate = 0.60;
+      else if (currentTrophies > 300) winRate = 0.55;
+      else if (currentTrophies > 150) winRate = 0.52;
+      else if (currentTrophies < 50) winRate = 0.48;
+      
+      const won = Math.random() < winRate;
+      
+      if (won) {
+        winStreak++;
+        // Trophy gain: 2-4 trophies per win
+        const trophyGain = Math.floor(Math.random() * 3) + 2;
+        currentTrophies += trophyGain;
+      } else {
+        winStreak = 0;
+        // Trophy loss: 1-3 trophies per loss
+        const trophyLoss = Math.floor(Math.random() * 3) + 1;
+        currentTrophies = Math.max(0, currentTrophies - trophyLoss);
+      }
+    }
+    
+    return {
+      ...ai,
+      trophies: currentTrophies,
+      lastUpdate: now
+    };
+  });
+}
+
 // Reset AI competitors for new season
 export function resetAICompetitorsForSeason(competitors: AICompetitor[], top30AIIds?: Set<string>): AICompetitor[] {
   return competitors.map(ai => {

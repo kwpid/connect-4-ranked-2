@@ -27,10 +27,20 @@ export function TitleDisplay({ title, titleId }: TitleDisplayProps) {
     };
   };
   
+  const getFontSizeClass = (text: string) => {
+    const length = text.length;
+    
+    if (length <= 8) return 'text-lg';
+    if (length <= 12) return 'text-base';
+    if (length <= 16) return 'text-sm';
+    if (length <= 20) return 'text-xs';
+    return 'text-[10px]';
+  };
+  
   return (
     <div className="text-center">
       <p
-        className="text-lg font-bold uppercase"
+        className={`${getFontSizeClass(displayTitle.name)} font-bold uppercase`}
         style={{
           color: displayTitle.color,
           ...getGlowStyle()
