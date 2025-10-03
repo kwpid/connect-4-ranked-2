@@ -7,5 +7,14 @@
     "content": "Welcome to Connect Ranked - a competitive Connect 4 experience! Take on AI opponents, climb the ranked ladder, and compete in tournaments every 10 minutes. Good luck!",
     "date": 1727740800000,
     "season": null
+  },
+  {
+    "id": "season_2_news_1",
+    "type": "season",
+    "version": "2",
+    "title": "Season 2 Rewards And News",
+    "content": "Season 2 is here! Season 2 offers new changes, with new season banners (of course), but also new titles!",
+    "date": 1760486400000,
+    "season": 2
   }
 ]
