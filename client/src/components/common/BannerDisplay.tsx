@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
+import { getTitleFromId } from '../../utils/titleManager';
 
 interface BannerDisplayProps {
   bannerId: number | null;
   username?: string;
+  titleId?: string | null;
   className?: string;
 }
 
-export function BannerDisplay({ bannerId, username, className = '' }: BannerDisplayProps) {
+export function BannerDisplay({ bannerId, username, titleId, className = '' }: BannerDisplayProps) {
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,18 +31,28 @@ export function BannerDisplay({ bannerId, username, className = '' }: BannerDisp
   }
 
   if (username) {
+    const title = titleId ? getTitleFromId(titleId) : null;
+    const glowStyle = title && title.glow && title.glow !== 'none' 
+      ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
+      : {};
+    
     return (
       <div className={`inline-block relative ${className}`}>
         <img
           src={bannerUrl}
           alt="Banner"
-          className="h-[65px] w-auto"
+          className="h-[62px] w-auto"
           style={{ imageRendering: 'crisp-edges' }}
         />
-        <div className="absolute inset-0 flex items-center justify-center pt-1">
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-white font-bold px-2 text-shadow-lg text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
             {username}
           </span>
+          {title && (
+            <p className="text-[10px] font-semibold mt-0.5" style={{ color: title.color, textShadow: '2px 2px 4px rgba(0,0,0,0.8)', ...glowStyle }}>
+              {title.name.toUpperCase()}
+            </p>
+          )}
         </div>
       </div>
     );

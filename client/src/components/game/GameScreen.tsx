@@ -439,19 +439,9 @@ export function GameScreen({
               <BannerDisplay 
                 bannerId={playerData.equippedBanner}
                 username={playerData.username}
+                titleId={playerData.equippedTitle}
                 className="scale-100"
               />
-              {playerData.equippedTitle && (() => {
-                const title = getTitleFromId(playerData.equippedTitle);
-                const glowStyle = title.glow && title.glow !== 'none' 
-                  ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
-                  : {};
-                return (
-                  <p className="text-[10px] -mt-3 font-semibold" style={{ color: title.color, ...glowStyle }}>
-                    {title.name.toUpperCase()}
-                  </p>
-                );
-              })()}
             </div>
             <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>
             <p className="text-3xl font-bold text-blue-400 mt-1">{match.playerWins}</p>
@@ -462,19 +452,9 @@ export function GameScreen({
               <BannerDisplay 
                 bannerId={opponentBannerId}
                 username={opponent.name}
+                titleId={opponent.titleId}
                 className="scale-100"
               />
-              {opponent.titleId && (() => {
-                const title = getTitleFromId(opponent.titleId);
-                const glowStyle = title.glow && title.glow !== 'none' 
-                  ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
-                  : {};
-                return (
-                  <p className="text-[10px] -mt-3 font-semibold" style={{ color: title.color, ...glowStyle }}>
-                    {title.name.toUpperCase()}
-                  </p>
-                );
-              })()}
             </div>
             {!isPracticeMode && <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>}
             <p className="text-3xl font-bold text-red-400 mt-1">{match.aiWins}</p>

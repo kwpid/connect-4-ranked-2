@@ -14,8 +14,7 @@ export function getCurrentSeasonData(): SeasonData {
   
   const currentSeasonEnd = new Date(currentSeasonStart);
   currentSeasonEnd.setDate(currentSeasonStart.getDate() + 14);
-  // Set to Wednesday 12pm EST (2 weeks from start which is Monday, so add 2 days to get to Wednesday)
-  currentSeasonEnd.setDate(currentSeasonEnd.getDate() - 12 + 2); // Adjust to Wednesday
+  // Season end is 2 weeks (14 days) from start
   
   return {
     seasonNumber,

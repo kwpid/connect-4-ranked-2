@@ -66,11 +66,9 @@ export function MenuScreen({
               <BannerDisplay 
                 bannerId={playerData.equippedBanner}
                 username={playerData.username}
+                titleId={playerData.equippedTitle}
               />
             </div>
-            <TitleDisplay 
-              titleId={playerData.equippedTitle}
-            />
           </div>
           
           <button
