@@ -57,6 +57,7 @@ import { InventoryScreen } from './components/inventory/InventoryScreen';
 import { CSLScreen } from './components/csl/CSLScreen';
 import { AIDifficulty } from './utils/aiPlayer';
 import { NewsFeedPopup } from './components/news/NewsFeedPopup';
+import { ItemNotificationPopup, type NewItem } from './components/common/ItemNotificationPopup';
 import { 
   loadNews, 
   getUnreadCount, 
@@ -85,6 +86,8 @@ function App() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [showNewsPopup, setShowNewsPopup] = useState(false);
   const [newsAutoOpened, setNewsAutoOpened] = useState(false);
+  const [newItems, setNewItems] = useState<NewItem[]>([]);
+  const [showItemNotification, setShowItemNotification] = useState(false);
   
   // Tournament timer
   useEffect(() => {
@@ -297,6 +300,9 @@ function App() {
     const coinsReward = getSeasonRewardCoins(playerData.trophies);
     const resetTrophies = getSeasonResetTrophies(playerData.trophies);
     
+    // Collect new items for notification
+    const earnedItems: NewItem[] = [];
+    
     // Generate season title if eligible
     const newTitles = [...playerData.ownedTitles];
     if (playerData.trophies >= 401) {
@@ -304,6 +310,7 @@ function App() {
                    playerData.trophies >= 551 ? 'GRAND CHAMPION' : 'CHAMPION';
       const seasonTitle = `S${currentSeason.seasonNumber} ${rank}`;
       newTitles.push(seasonTitle);
+      earnedItems.push({ type: 'title', titleId: seasonTitle });
     }
     
     // Check leaderboard position and extract top 30 AI IDs
@@ -315,7 +322,10 @@ function App() {
       else if (playerEntry.rank && playerEntry.rank <= 10) lbTitle = `S${currentSeason.seasonNumber} TOP 10`;
       else if (playerEntry.rank && playerEntry.rank <= 30) lbTitle = `S${currentSeason.seasonNumber} TOP 30`;
       
-      if (lbTitle) newTitles.push(lbTitle);
+      if (lbTitle) {
+        newTitles.push(lbTitle);
+        earnedItems.push({ type: 'title', titleId: lbTitle });
+      }
     }
     
     // Extract top 30 AI IDs for reset (exclude player)
@@ -354,6 +364,10 @@ function App() {
       earnedBannerIds.forEach(bannerId => {
         if (!newBanners.includes(bannerId)) {
           newBanners.push(bannerId);
+          const banner = banners.find(b => b.bannerId === bannerId);
+          if (banner) {
+            earnedItems.push({ type: 'banner', banner });
+          }
         }
       });
     }
@@ -379,6 +393,12 @@ function App() {
     // Update season data
     setSeasonData(currentSeason);
     saveSeasonData(currentSeason);
+    
+    // Show item notifications if any items were earned
+    if (earnedItems.length > 0) {
+      setNewItems(earnedItems);
+      setShowItemNotification(true);
+    }
   };
   
   const handleMatchEnd = (won: boolean, trophyChange: number = 0, opponentName?: string, opponentTrophies?: number, matchScore?: string) => {
@@ -397,6 +417,7 @@ function App() {
     // Award rank-based titles if player won and is in Grand Champion or Legend rank
     const newTitles = [...playerData.ownedTitles];
     const currentSeason = getCurrentSeasonData();
+    const earnedItems: NewItem[] = [];
     
     if (won && newTrophies >= 551) {
       // Connect Legend title (701+)
@@ -404,6 +425,7 @@ function App() {
         const legendTitle = `S${currentSeason.seasonNumber} CONNECT LEGEND`;
         if (!newTitles.includes(legendTitle)) {
           newTitles.push(legendTitle);
+          earnedItems.push({ type: 'title', titleId: legendTitle });
         }
       }
       
@@ -412,6 +434,7 @@ function App() {
         const gcTitle = `S${currentSeason.seasonNumber} GRAND CHAMPION`;
         if (!newTitles.includes(gcTitle)) {
           newTitles.push(gcTitle);
+          earnedItems.push({ type: 'title', titleId: gcTitle });
         }
       }
     }
@@ -468,6 +491,12 @@ function App() {
     setPlayerData(updatedPlayer);
     savePlayerData(updatedPlayer);
     setScreen('menu');
+    
+    // Show item notifications if any items were earned
+    if (earnedItems.length > 0) {
+      setNewItems(earnedItems);
+      setShowItemNotification(true);
+    }
   };
   
   const handleEquipTitle = (titleId: string | null) => {
@@ -493,10 +522,13 @@ function App() {
       };
       setPlayerData(updatedPlayer);
       savePlayerData(updatedPlayer);
+      
+      setNewItems([{ type: 'title', titleId }]);
+      setShowItemNotification(true);
     }
   };
 
-  const handlePurchaseBanner = (bannerId: number, price: number) => {
+  const handlePurchaseBanner = async (bannerId: number, price: number) => {
     if (playerData.coins >= price && !playerData.ownedBanners.includes(bannerId)) {
       const updatedPlayer = {
         ...playerData,
@@ -505,6 +537,13 @@ function App() {
       };
       setPlayerData(updatedPlayer);
       savePlayerData(updatedPlayer);
+      
+      const banners = await loadBanners();
+      const banner = banners.find(b => b.bannerId === bannerId);
+      if (banner) {
+        setNewItems([{ type: 'banner', banner }]);
+        setShowItemNotification(true);
+      }
     }
   };
   
@@ -658,8 +697,11 @@ function App() {
       const title = getTournamentTitle(placement, playerData.trophies, seasonData.seasonNumber, newSeasonWins);
       
       const newTitles = [...playerData.ownedTitles];
+      const earnedItems: NewItem[] = [];
+      
       if (title && !newTitles.includes(title)) {
         newTitles.push(title);
+        earnedItems.push({ type: 'title', titleId: title });
       }
       
       const updatedPlayer = {
@@ -690,6 +732,12 @@ function App() {
       saveTournamentData(completedTournament);
       setIsTournamentMode(false);
       setScreen('tournament');
+      
+      // Show item notifications if any items were earned
+      if (earnedItems.length > 0) {
+        setNewItems(earnedItems);
+        setShowItemNotification(true);
+      }
       return;
     }
     
@@ -756,6 +804,19 @@ function App() {
         <NewsFeedPopup
           onClose={() => setShowNewsPopup(false)}
           autoOpened={newsAutoOpened}
+        />
+      )}
+      
+      {showItemNotification && newItems.length > 0 && (
+        <ItemNotificationPopup
+          items={newItems}
+          username={playerData.username}
+          currentBannerId={playerData.equippedBanner || 1}
+          currentTitleId={playerData.equippedTitle}
+          onClose={() => {
+            setShowItemNotification(false);
+            setNewItems([]);
+          }}
         />
       )}
       
