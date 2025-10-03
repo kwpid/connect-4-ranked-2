@@ -22,7 +22,8 @@ This project has been successfully re-imported and configured for the Replit env
 ### Recent Fixes: October 3, 2025 (PM)
 
 - **Season System Bug Fix**: Fixed critical bug in season calculation where seasons were only lasting 4 days instead of 14 days. Seasons now properly span 2 weeks and automatically transition to the next season when they end.
-- **Title Display Enhancement**: Titles now render within the banner component itself (properly layered on top of the banner image) instead of being positioned outside with negative margin, improving visibility and layout consistency across all screens.
+- **Season Reset Improvements**: Enhanced season reset logic to properly handle leaderboard AI. Top 30 leaderboard AI now reset to exactly 701 trophies when a season ends, while other AI reset to their rank minimum. Tournament season wins (`currentSeasonWins`) are properly reset to 0, and tournament titles automatically use the current season number.
+- **Title Display Enhancement**: Titles now render within the banner component itself (properly layered on top of the banner image) instead of being positioned outside with negative margin, improving visibility and layout consistency across all screens. Implemented dynamic text sizing based on title length - short titles (≤10 chars) display at 14px, scaling down to 10px for very long titles (>30 chars) to ensure readability while fitting within the banner.
 
 ### Previous Setup: October 2, 2025
 
