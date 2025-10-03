@@ -56,6 +56,16 @@ import { TournamentScreen } from './components/tournament/TournamentScreen';
 import { InventoryScreen } from './components/inventory/InventoryScreen';
 import { CSLScreen } from './components/csl/CSLScreen';
 import { AIDifficulty } from './utils/aiPlayer';
+import { NewsFeedPopup } from './components/news/NewsFeedPopup';
+import { 
+  loadNews, 
+  getUnreadCount, 
+  shouldAutoShowNews, 
+  getCurrentVersion,
+  generateSeasonNews,
+  addDynamicNews,
+  type NewsItem
+} from './utils/newsManager';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('menu');
@@ -72,6 +82,9 @@ function App() {
   );
   const [tournamentMatch, setTournamentMatch] = useState<TournamentMatch | null>(null);
   const [nextAIUpdate, setNextAIUpdate] = useState<number>(Date.now() + 5 * 60 * 1000);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [showNewsPopup, setShowNewsPopup] = useState(false);
+  const [newsAutoOpened, setNewsAutoOpened] = useState(false);
   
   // Tournament timer
   useEffect(() => {
@@ -197,6 +210,19 @@ function App() {
     }
   }, [currentTournament]);
   
+  // Load news and check for auto-show on initial mount
+  useEffect(() => {
+    loadNews().then(newsData => {
+      setNews(newsData);
+      
+      // Auto-show news popup if there are unread news and setting is enabled
+      if (shouldAutoShowNews(newsData)) {
+        setShowNewsPopup(true);
+        setNewsAutoOpened(true);
+      }
+    });
+  }, []);
+  
   // Console cheat code to start tournament immediately
   useEffect(() => {
     (window as any).startTournament = () => {
@@ -258,6 +284,14 @@ function App() {
   
   const handleSeasonReset = async () => {
     const currentSeason = getCurrentSeasonData();
+    
+    // Generate and save season end news dynamically
+    const seasonNews = generateSeasonNews(currentSeason.seasonNumber);
+    addDynamicNews(seasonNews);
+    
+    // Reload news to include the new season news
+    const updatedNews = await loadNews();
+    setNews(updatedNews);
     
     // Award season rewards
     const coinsReward = getSeasonRewardCoins(playerData.trophies);
@@ -709,6 +743,19 @@ function App() {
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
           onInventory={() => setScreen('inventory')}
+          onNews={() => {
+            setShowNewsPopup(true);
+            setNewsAutoOpened(false);
+          }}
+          unreadNewsCount={getUnreadCount(news)}
+          version={getCurrentVersion()}
+        />
+      )}
+      
+      {showNewsPopup && (
+        <NewsFeedPopup
+          onClose={() => setShowNewsPopup(false)}
+          autoOpened={newsAutoOpened}
         />
       )}
       

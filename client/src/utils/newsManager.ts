@@ -15,20 +15,41 @@ export interface NewsState {
 }
 
 const STORAGE_KEY = 'connect_ranked_news';
+const DYNAMIC_NEWS_KEY = 'connect_ranked_dynamic_news';
 const CURRENT_VERSION = '1.0.0';
 
 export function getCurrentVersion(): string {
   return CURRENT_VERSION;
 }
 
+function getDynamicNews(): NewsItem[] {
+  const stored = localStorage.getItem(DYNAMIC_NEWS_KEY);
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  return [];
+}
+
+function saveDynamicNews(news: NewsItem[]): void {
+  localStorage.setItem(DYNAMIC_NEWS_KEY, JSON.stringify(news));
+}
+
+export function addDynamicNews(newsItem: NewsItem): void {
+  const existing = getDynamicNews();
+  const updated = [newsItem, ...existing];
+  saveDynamicNews(updated);
+}
+
 export async function loadNews(): Promise<NewsItem[]> {
   try {
     const response = await fetch('/data/news.json');
-    const news: NewsItem[] = await response.json();
-    return news.sort((a, b) => b.date - a.date);
+    const staticNews: NewsItem[] = await response.json();
+    const dynamicNews = getDynamicNews();
+    const allNews = [...dynamicNews, ...staticNews];
+    return allNews.sort((a, b) => b.date - a.date);
   } catch (error) {
     console.error('Failed to load news:', error);
-    return [];
+    return getDynamicNews().sort((a, b) => b.date - a.date);
   }
 }
 
