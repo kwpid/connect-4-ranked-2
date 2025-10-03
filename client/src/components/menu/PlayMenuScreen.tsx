@@ -48,20 +48,30 @@ export function PlayMenuScreen({
         </div>
         
         <div className="space-y-4 mb-8">
-          <button
-            onClick={onQueue}
-            disabled={isRegistered}
-            className={`w-full py-6 ${isRegistered ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'} rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg`}
-          >
-            {isRegistered ? 'Registered for Tournament' : 'Queue Ranked'}
-          </button>
-          
-          <div className="text-center -mt-2 mb-2">
-            <p className="text-gray-400 text-sm">
-              <span style={{ color: tierColor }} className="font-bold">{rank.name}</span>
-              {' • '}
-              <span className="text-yellow-400 font-bold">🏆 {playerData.trophies}</span>
-            </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <button
+                onClick={onQueue}
+                disabled={isRegistered}
+                className={`w-full h-32 ${isRegistered ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'} rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg flex flex-col items-center justify-center`}
+              >
+                {isRegistered ? 'Registered for Tournament' : 'Queue Ranked'}
+              </button>
+              <div className="text-center mt-2">
+                <p className="text-gray-400 text-sm">
+                  <span style={{ color: tierColor }} className="font-bold">{rank.name}</span>
+                  {' • '}
+                  <span className="text-yellow-400 font-bold">🏆 {playerData.trophies}</span>
+                </p>
+              </div>
+            </div>
+            
+            <button
+              onClick={onPractice}
+              className="w-full h-32 bg-green-600 hover:bg-green-700 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
+            >
+              Practice
+            </button>
           </div>
           
           {currentTournament && (
@@ -77,13 +87,6 @@ export function PlayMenuScreen({
               </span>
             </button>
           )}
-          
-          <button
-            onClick={onPractice}
-            className="w-full py-5 bg-green-600 hover:bg-green-700 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
-          >
-            Practice
-          </button>
         </div>
         
         <button
