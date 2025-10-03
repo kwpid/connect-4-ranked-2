@@ -4,18 +4,25 @@
 
 Connect Ranked is a single-player competitive Connect 4 game against AI opponents, designed to simulate a multiplayer ranked experience. It features a comprehensive trophy-based ranking system with seasonal resets, an in-game shop for cosmetic titles and banners, and a dynamic leaderboard. The game focuses on local data persistence and offers a progression-based experience with evolving AI competitors, including varied play styles and adaptive counter-play. The project aims to provide an engaging and strategic Connect 4 experience with long-term player progression.
 
-## Replit Environment Setup (October 2, 2025)
+## Replit Environment Setup
 
-This project has been successfully imported and configured for the Replit environment:
+### Latest Import: October 3, 2025
+
+This project has been successfully re-imported and configured for the Replit environment:
 
 - **Build System**: Vite for frontend, esbuild for backend bundling
 - **Development Server**: Express.js serving Vite dev server on port 5000
-- **Host Configuration**: Configured with `allowedHosts: true` in vite middleware to work with Replit's proxy
-- **Database**: PostgreSQL database provisioned and schema pushed successfully (users table configured)
-- **Data Persistence**: Currently uses localStorage; database available for future backend features
-- **Dependencies**: All npm packages installed successfully
+- **Host Configuration**: Configured with `allowedHosts: true` in vite middleware to work with Replit's proxy (already configured in server/vite.ts)
+- **Data Persistence**: Uses localStorage; PostgreSQL database available but not currently utilized
+- **Dependencies**: All npm packages installed and up to date (612 packages)
 - **Workflow**: "Start Game" workflow configured to run `npm run dev` on port 5000 with webview output
-- **Deployment**: Configured for autoscale deployment with build and start scripts
+- **Deployment**: Configured for autoscale deployment with build (`npm run build`) and start (`npm run start`) scripts
+- **Status**: ✅ Application running successfully, all systems operational
+
+### Previous Setup: October 2, 2025
+
+- PostgreSQL database was provisioned and schema pushed successfully (users table configured)
+- Database available for future backend features
 
 ## User Preferences
 
