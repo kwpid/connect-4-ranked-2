@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NewsItem, loadNews, getNewsState, markNewsAsRead, markAllNewsAsRead, filterNewsByType } from '../../utils/newsManager';
+import { NewsDetailPopup } from './NewsDetailPopup';
 
 interface NewsFeedPopupProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ export function NewsFeedPopup({ onClose, autoOpened = false }: NewsFeedPopupProp
   const [news, setNews] = useState<NewsItem[]>([]);
   const [selectedTab, setSelectedTab] = useState<TabType>('all');
   const [loading, setLoading] = useState(true);
+  const [selectedNewsItem, setSelectedNewsItem] = useState<NewsItem | null>(null);
   const newsState = getNewsState();
   
   useEffect(() => {
@@ -61,6 +63,27 @@ export function NewsFeedPopup({ onClose, autoOpened = false }: NewsFeedPopupProp
   };
   
   const isUnread = (newsId: string) => !newsState.readIds.includes(newsId);
+  
+  const handleNewsItemClick = (item: NewsItem) => {
+    setSelectedNewsItem(item);
+    if (isUnread(item.id)) {
+      markNewsAsRead(item.id);
+    }
+  };
+  
+  const truncateContent = (content: string, maxLength: number = 120) => {
+    if (content.length <= maxLength) return content;
+    return content.substring(0, maxLength) + '...';
+  };
+  
+  if (selectedNewsItem) {
+    return (
+      <NewsDetailPopup
+        newsItem={selectedNewsItem}
+        onClose={() => setSelectedNewsItem(null)}
+      />
+    );
+  }
   
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
@@ -141,10 +164,11 @@ export function NewsFeedPopup({ onClose, autoOpened = false }: NewsFeedPopupProp
               {filteredNews.map((item) => (
                 <div
                   key={item.id}
-                  className={`bg-gray-800/50 backdrop-blur rounded-xl p-5 border transition-all ${
+                  onClick={() => handleNewsItemClick(item)}
+                  className={`bg-gray-800/50 backdrop-blur rounded-xl p-5 border transition-all cursor-pointer hover:bg-gray-800/70 ${
                     isUnread(item.id) 
-                      ? 'border-blue-500 shadow-lg shadow-blue-500/20' 
-                      : 'border-gray-700'
+                      ? 'border-blue-500 shadow-lg shadow-blue-500/20 hover:border-blue-400' 
+                      : 'border-gray-700 hover:border-gray-600'
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -172,7 +196,8 @@ export function NewsFeedPopup({ onClose, autoOpened = false }: NewsFeedPopupProp
                   </div>
                   
                   <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                  <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{item.content}</p>
+                  <p className="text-gray-300 leading-relaxed">{truncateContent(item.content)}</p>
+                  <p className="text-blue-400 text-sm mt-2 font-semibold">Click to read more →</p>
                 </div>
               ))}
             </div>
