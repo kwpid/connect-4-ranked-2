@@ -124,5 +124,32 @@
     "ranked": false,
     "season": null,
     "rank": null
+  },
+  {
+    "bannerId": 15,
+    "bannerName": "Vaporwave",
+    "imageName": "vaporwave.png",
+    "price": 650,
+    "ranked": false,
+    "season": null,
+    "rank": null
+  },
+  {
+    "bannerId": 16,
+    "bannerName": "Cat in a Pond",
+    "imageName": "cat_pond.png",
+    "price": 625,
+    "ranked": false,
+    "season": null,
+    "rank": null
+  },
+  {
+    "bannerId": 17,
+    "bannerName": "Perplexity",
+    "imageName": "cat_pond.png",
+    "price": 625,
+    "ranked": false,
+    "season": null,
+    "rank": null
   }
 ]
