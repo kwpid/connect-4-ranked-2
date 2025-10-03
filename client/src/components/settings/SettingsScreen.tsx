@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlayerData } from '../../types/game';
+import { getNewsState, setAutoShowDisabled } from '../../utils/newsManager';
 
 interface SettingsScreenProps {
   playerData: PlayerData;
@@ -10,6 +11,12 @@ interface SettingsScreenProps {
 export function SettingsScreen({ playerData, onUsernameChange, onBack }: SettingsScreenProps) {
   const [username, setUsername] = useState(playerData.username);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [autoShowNews, setAutoShowNews] = useState(true);
+  
+  useEffect(() => {
+    const newsState = getNewsState();
+    setAutoShowNews(!newsState.autoShowDisabled);
+  }, []);
   
   const handleSave = () => {
     if (username.trim() && username !== playerData.username) {
@@ -17,6 +24,12 @@ export function SettingsScreen({ playerData, onUsernameChange, onBack }: Setting
       setShowConfirm(true);
       setTimeout(() => setShowConfirm(false), 2000);
     }
+  };
+  
+  const handleAutoShowToggle = () => {
+    const newValue = !autoShowNews;
+    setAutoShowNews(newValue);
+    setAutoShowDisabled(!newValue);
   };
   
   return (
@@ -61,6 +74,29 @@ export function SettingsScreen({ playerData, onUsernameChange, onBack }: Setting
               ✓ Username updated!
             </p>
           )}
+        </div>
+        
+        {/* News Settings */}
+        <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 mb-6">
+          <h3 className="text-xl font-bold mb-4">News Preferences</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-white">Auto-show News</p>
+              <p className="text-sm text-gray-400">Automatically display news popup when new updates are available</p>
+            </div>
+            <button
+              onClick={handleAutoShowToggle}
+              className={`relative w-16 h-8 rounded-full transition-colors ${
+                autoShowNews ? 'bg-blue-600' : 'bg-gray-600'
+              }`}
+            >
+              <div
+                className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform ${
+                  autoShowNews ? 'translate-x-8' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
         </div>
         
         {/* Game Info */}

@@ -12,6 +12,9 @@ interface MenuScreenProps {
   onStats: () => void;
   onSettings: () => void;
   onInventory: () => void;
+  onNews: () => void;
+  unreadNewsCount?: number;
+  version?: string;
 }
 
 export function MenuScreen({
@@ -22,7 +25,10 @@ export function MenuScreen({
   onShop,
   onStats,
   onSettings,
-  onInventory
+  onInventory,
+  onNews,
+  unreadNewsCount = 0,
+  version = '1.0.0'
 }: MenuScreenProps) {
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
@@ -35,7 +41,10 @@ export function MenuScreen({
           <h1 className="text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
             Connect Ranked
           </h1>
-          <p className="text-gray-400">Competitive Connect 4</p>
+          <div className="flex items-center justify-center gap-2">
+            <p className="text-gray-400">Competitive Connect 4</p>
+            <span className="text-gray-600 text-sm">v{version}</span>
+          </div>
         </div>
         
         {/* Player Info */}
@@ -102,8 +111,8 @@ export function MenuScreen({
             </button>
           </div>
           
-          {/* CSL, Stats, Settings */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* CSL, Stats, Settings, News */}
+          <div className="grid grid-cols-4 gap-4">
             <button
               onClick={onCSL}
               className="py-3 bg-cyan-600 hover:bg-cyan-700 rounded-lg text-sm font-semibold transition-colors"
@@ -115,6 +124,17 @@ export function MenuScreen({
               className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
             >
               Stats
+            </button>
+            <button
+              onClick={onNews}
+              className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold relative"
+            >
+              News
+              {unreadNewsCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-pulse">
+                  {unreadNewsCount > 9 ? '9+' : unreadNewsCount}
+                </span>
+              )}
             </button>
             <button
               onClick={onSettings}
