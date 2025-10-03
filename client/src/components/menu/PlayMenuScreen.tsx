@@ -49,22 +49,20 @@ export function PlayMenuScreen({
         
         <div className="space-y-4 mb-8">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <button
-                onClick={onQueue}
-                disabled={isRegistered}
-                className={`w-full h-32 ${isRegistered ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'} rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg flex flex-col items-center justify-center`}
-              >
-                {isRegistered ? 'Registered for Tournament' : 'Queue Ranked'}
-              </button>
-              <div className="text-center mt-2">
-                <p className="text-gray-400 text-sm">
+            <button
+              onClick={onQueue}
+              disabled={isRegistered}
+              className={`w-full h-32 ${isRegistered ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'} rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg flex flex-col items-center justify-center`}
+            >
+              <span>{isRegistered ? 'Registered for Tournament' : 'Queue Ranked'}</span>
+              {!isRegistered && (
+                <span className="text-sm font-normal mt-2 opacity-80">
                   <span style={{ color: tierColor }} className="font-bold">{rank.name}</span>
                   {' • '}
                   <span className="text-yellow-400 font-bold">🏆 {playerData.trophies}</span>
-                </p>
-              </div>
-            </div>
+                </span>
+              )}
+            </button>
             
             <button
               onClick={onPractice}
