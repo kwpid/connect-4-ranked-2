@@ -29,11 +29,28 @@ The project came pre-configured with proper Replit settings:
 - Port 5000 correctly configured throughout the stack
 - No additional configuration changes were needed
 
-### Recent Fixes: October 3, 2025 (PM)
+### Recent Updates: October 3, 2025 (Evening)
+
+- **Title Display Consistency**: Simplified title sizing from variable multi-tier system to a single consistent 12px (`text-xs`) size for all titles. This eliminates inconsistent sizing issues and provides a cleaner, more professional appearance across all screens.
+
+- **Season System Overhaul**: Completely redesigned season system to use fixed global schedule instead of local-data-based calculations:
+  - **Fixed Schedule**: Seasons now end every 2 weeks on Wednesdays at 11:59 PM Eastern time
+  - **Starting Season**: Set to Season 2 (Season 1 ended Oct 1, 2025 at 11:59 PM EDT)
+  - **DST Handling**: Implemented DST-aware calculation that properly handles timezone transitions
+    - Uses iterative boundary calculation with Eastern timezone rules
+    - Each season boundary is calculated individually to account for EDT (UTC-4) vs EST (UTC-5)
+    - Seasons that cross DST boundaries correctly gain/lose 1 hour while maintaining 11:59 PM Eastern end time
+  - **Season Schedule**:
+    - Season 2: Oct 1 - Oct 15, 2025
+    - Season 3: Oct 15 - Oct 29, 2025
+    - Season 4: Oct 29 - Nov 12, 2025 (crosses DST boundary on Nov 2)
+    - Future seasons continue every 14 days on this schedule
+
+### Earlier Fixes: October 3, 2025 (PM)
 
 - **Season System Bug Fix**: Fixed critical bug in season calculation where seasons were only lasting 4 days instead of 14 days. Seasons now properly span 2 weeks and automatically transition to the next season when they end.
 - **Season Reset Improvements**: Enhanced season reset logic to properly handle leaderboard AI. Top 30 leaderboard AI now reset to exactly 701 trophies when a season ends, while other AI reset to their rank minimum. Tournament season wins (`currentSeasonWins`) are properly reset to 0, and tournament titles automatically use the current season number.
-- **Title Display Enhancement**: Titles now render within the banner component itself (properly layered on top of the banner image) instead of being positioned outside with negative margin, improving visibility and layout consistency across all screens. Implemented dynamic text sizing based on title length - short titles (≤10 chars) display at 14px, scaling down to 10px for very long titles (>30 chars) to ensure readability while fitting within the banner.
+- **Title Display Enhancement**: Titles now render within the banner component itself (properly layered on top of the banner image) instead of being positioned outside with negative margin, improving visibility and layout consistency across all screens.
 
 ### Previous Setup: October 2, 2025
 
