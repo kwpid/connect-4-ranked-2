@@ -1,0 +1,11 @@
+[
+  {
+    "id": "welcome_v1.0.0",
+    "type": "update",
+    "version": "1.0.0",
+    "title": "Welcome to Connect Ranked!",
+    "content": "Welcome to Connect Ranked - a competitive Connect 4 experience! Take on AI opponents, climb the ranked ladder, and compete in tournaments every 10 minutes. Good luck!",
+    "date": 1727740800000,
+    "season": null
+  }
+]
