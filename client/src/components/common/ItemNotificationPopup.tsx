@@ -39,7 +39,7 @@ export function ItemNotificationPopup({
           setBannerUrl(getBannerImagePath(banner.imageName));
         }
       });
-    } else if (currentItem.type === 'title' && currentBannerId) {
+    } else if (currentItem.type === 'title' && currentBannerId !== null && currentBannerId !== undefined) {
       loadBanners().then(banners => {
         const banner = getBannerById(currentBannerId, banners);
         if (banner) {
