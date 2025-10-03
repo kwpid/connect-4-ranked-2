@@ -6,7 +6,8 @@
     "price": null,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 2,
@@ -15,7 +16,8 @@
     "price": 250,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 3,
@@ -24,7 +26,8 @@
     "price": 300,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 4,
@@ -33,7 +36,8 @@
     "price": 350,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 5,
@@ -42,7 +46,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Bronze"
+    "rank": "Bronze",
+    "offSale": false
   },
   {
     "bannerId": 6,
@@ -51,7 +56,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Silver"
+    "rank": "Silver",
+    "offSale": false
   },
   {
     "bannerId": 7,
@@ -60,7 +66,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Gold"
+    "rank": "Gold",
+    "offSale": false
   },
   {
     "bannerId": 8,
@@ -69,7 +76,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Platinum"
+    "rank": "Platinum",
+    "offSale": false
   },
   {
     "bannerId": 9,
@@ -78,7 +86,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Diamond"
+    "rank": "Diamond",
+    "offSale": false
   },
   {
     "bannerId": 10,
@@ -87,7 +96,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Champion"
+    "rank": "Champion",
+    "offSale": false
   },
   {
     "bannerId": 11,
@@ -96,7 +106,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Grand Champion"
+    "rank": "Grand Champion",
+    "offSale": false
   },
   {
     "bannerId": 12,
@@ -105,7 +116,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Connect Legend"
+    "rank": "Connect Legend",
+    "offSale": false
   },
   {
     "bannerId": 13,
@@ -114,7 +126,8 @@
     "price": 1500,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 14,
@@ -123,7 +136,8 @@
     "price": 750,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 15,
@@ -132,7 +146,8 @@
     "price": 650,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 16,
@@ -141,7 +156,8 @@
     "price": 625,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 17,
@@ -150,7 +166,8 @@
     "price": 625,
     "ranked": false,
     "season": null,
-    "rank": null
+    "rank": null,
+    "offSale": false
   },
   {
     "bannerId": 18,
@@ -159,7 +176,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Bronze"
+    "rank": "Bronze",
+    "offSale": false
   },
   {
     "bannerId": 19,
@@ -168,7 +186,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Silver"
+    "rank": "Silver",
+    "offSale": false
   },
   {
     "bannerId": 20,
@@ -177,7 +196,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Gold"
+    "rank": "Gold",
+    "offSale": false
   },
   {
     "bannerId": 21,
@@ -186,7 +206,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Platinum"
+    "rank": "Platinum",
+    "offSale": false
   },
   {
     "bannerId": 22,
@@ -195,7 +216,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Diamond"
+    "rank": "Diamond",
+    "offSale": false
   },
   {
     "bannerId": 23,
@@ -204,7 +226,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Champion"
+    "rank": "Champion",
+    "offSale": false
   },
   {
     "bannerId": 24,
@@ -213,7 +236,8 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Grand Champion"
+    "rank": "Grand Champion",
+    "offSale": false
   },
   {
     "bannerId": 25,
@@ -222,6 +246,7 @@
     "price": null,
     "ranked": true,
     "season": 1,
-    "rank": "Connect Legend"
+    "rank": "Connect Legend",
+    "offSale": false
   }
 ]

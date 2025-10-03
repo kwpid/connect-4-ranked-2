@@ -12,6 +12,10 @@ const GREY_TITLES = [
   'Warrior', 'Knight', 'Paladin', 'Crusader', 'Conqueror'
 ];
 
+// Titles that are off-sale and won't appear in the regular shop rotation
+// They can still appear in featured items
+const OFF_SALE_TITLES: string[] = [];
+
 export function shouldRotateShop(lastRotation: number): boolean {
   const now = new Date();
   const last = new Date(lastRotation);
@@ -37,11 +41,16 @@ export async function generateShopItems(seed: number): Promise<ShopItem[]> {
   const items: ShopItem[] = [];
   const usedTitles = new Set<string>();
   
-  // Generate 3 random grey titles
-  for (let i = 0; i < 3; i++) {
+  // Generate 3 random grey titles (excluding off-sale titles)
+  const availableTitles = GREY_TITLES.filter(t => !OFF_SALE_TITLES.includes(t));
+  
+  // Determine how many titles to generate (max 3, but limited by available titles)
+  const titleCount = Math.min(3, availableTitles.length);
+  
+  for (let i = 0; i < titleCount; i++) {
     let titleName: string;
     do {
-      titleName = GREY_TITLES[Math.floor(random(GREY_TITLES.length))];
+      titleName = availableTitles[Math.floor(random(availableTitles.length))];
     } while (usedTitles.has(titleName));
     
     usedTitles.add(titleName);

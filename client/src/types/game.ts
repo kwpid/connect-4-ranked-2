@@ -33,6 +33,7 @@ export interface Banner {
   ranked: boolean;
   season: number | null;
   rank: string | null;
+  offSale?: boolean;
 }
 
 export interface MatchHistoryEntry {

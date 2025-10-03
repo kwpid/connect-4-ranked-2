@@ -41,7 +41,11 @@ export function getBannerImagePath(imageName: string): string {
 }
 
 export function getShopBanners(banners: Banner[]): Banner[] {
-  return banners.filter(banner => banner.price !== null && banner.price > 0);
+  return banners.filter(banner => 
+    banner.price !== null && 
+    banner.price > 0 && 
+    banner.offSale !== true
+  );
 }
 
 export function getRankedBannersBySeasonAndRank(
