@@ -161,4 +161,4 @@ export interface PlayerTournamentStats {
   lastTournamentLeft: number | null;
 }
 
-export type Screen = 'menu' | 'queue' | 'game' | 'practice' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo' | 'tournament' | 'tournamentGame' | 'inventory' | 'csl';
+export type Screen = 'menu' | 'playMenu' | 'queue' | 'game' | 'practice' | 'leaderboard' | 'shop' | 'stats' | 'settings' | 'titleSelector' | 'rankInfo' | 'tournament' | 'tournamentGame' | 'inventory' | 'csl';
