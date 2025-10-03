@@ -1,51 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { PlayerData, TournamentData } from '../../types/game';
+import React from 'react';
+import { PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { BannerDisplay } from '../common/BannerDisplay';
-import { getTimeUntilTournament } from '../../utils/tournamentManager';
 
 interface MenuScreenProps {
   playerData: PlayerData;
-  onQueue: () => void;
-  onPractice: () => void;
+  onPlay: () => void;
   onLeaderboard: () => void;
   onCSL: () => void;
   onShop: () => void;
   onStats: () => void;
   onSettings: () => void;
-  onTitleSelector: () => void;
   onInventory: () => void;
-  onTournament: () => void;
-  currentTournament: TournamentData | null;
-  nextTournamentTime: number;
-  isRegistered: boolean;
 }
 
 export function MenuScreen({
   playerData,
-  onQueue,
-  onPractice,
+  onPlay,
   onLeaderboard,
   onCSL,
   onShop,
   onStats,
   onSettings,
-  onTitleSelector,
-  onInventory,
-  onTournament,
-  currentTournament,
-  nextTournamentTime,
-  isRegistered
+  onInventory
 }: MenuScreenProps) {
-  const [currentTime, setCurrentTime] = useState(Date.now());
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, []);
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
   
@@ -96,82 +74,55 @@ export function MenuScreen({
               <p className="text-gray-400 text-sm">Coins</p>
               <p className="text-xl font-bold text-yellow-400">💰 {playerData.coins}</p>
             </div>
-            <div className="text-center col-span-2">
-              <p className="text-gray-400 text-sm">RP</p>
-              <p className="text-xl font-bold text-cyan-400">⚡ {playerData.rp}</p>
-            </div>
           </div>
         </div>
         
-        {/* Main Actions */}
+        {/* Main Play Button */}
         <div className="space-y-4 mb-8">
           <button
-            onClick={onQueue}
-            disabled={isRegistered}
-            className={`w-full py-6 ${isRegistered ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'} rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg`}
+            onClick={onPlay}
+            className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg"
           >
-            {isRegistered ? 'Registered for Tournament' : 'Find Match'}
+            Play
           </button>
           
-          {/* Tournament Button */}
-          {currentTournament && (
+          {/* Shop and Leaderboard */}
+          <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={onTournament}
-              className="w-full py-5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
+              onClick={onShop}
+              className="py-4 bg-yellow-600 hover:bg-yellow-700 rounded-lg transition-colors font-semibold text-lg"
             >
-              Tournament
-              <span className="text-sm block mt-1">
-                {currentTournament.status === 'registration' 
-                  ? `Registration: ${getTimeUntilTournament(currentTime, nextTournamentTime)}`
-                  : 'In Progress'}
-              </span>
+              Shop
             </button>
-          )}
+            <button
+              onClick={onLeaderboard}
+              className="py-4 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold text-lg"
+            >
+              Leaderboard
+            </button>
+          </div>
           
+          {/* CSL, Stats, Settings */}
           <div className="grid grid-cols-3 gap-4">
-            <button
-              onClick={onPractice}
-              className="py-3 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors"
-            >
-              🎓 Practice
-            </button>
-            
             <button
               onClick={onCSL}
               className="py-3 bg-cyan-600 hover:bg-cyan-700 rounded-lg text-sm font-semibold transition-colors"
             >
-              ⚡ CSL
+              CSL
             </button>
-            
             <button
-              onClick={onLeaderboard}
-              className="py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+              onClick={onStats}
+              className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
             >
-              🏆 Leaderboard
+              Stats
+            </button>
+            <button
+              onClick={onSettings}
+              className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
+            >
+              Settings
             </button>
           </div>
-        </div>
-        
-        {/* Secondary Actions */}
-        <div className="grid grid-cols-3 gap-4">
-          <button
-            onClick={onShop}
-            className="py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg transition-colors font-semibold"
-          >
-            $ Shop
-          </button>
-          <button
-            onClick={onStats}
-            className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
-          >
-            ≡ Stats
-          </button>
-          <button
-            onClick={onSettings}
-            className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
-          >
-            ⋮ Settings
-          </button>
         </div>
       </div>
     </div>
