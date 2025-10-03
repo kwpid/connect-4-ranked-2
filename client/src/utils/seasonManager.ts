@@ -1,27 +1,93 @@
 import { SeasonData, AICompetitor, LeaderboardEntry } from '../types/game';
 
+// Helper to determine if a date is in DST for US Eastern timezone
+function isEasternDST(year: number, month: number, day: number): boolean {
+  // US DST: Second Sunday in March (2 AM) to First Sunday in November (2 AM)
+  // 2025: March 9 to November 2
+  // 2026: March 8 to November 1
+  // 2027: March 14 to November 7
+  
+  // Before March or after November: definitely not DST
+  if (month < 3 || month > 11) return false;
+  if (month > 3 && month < 11) return true; // April to October: definitely DST
+  
+  // Find second Sunday in March for DST start
+  const marchFirst = new Date(year, 2, 1); // March 1
+  const marchFirstDay = marchFirst.getDay(); // 0 = Sunday
+  const daysUntilFirstSunday = marchFirstDay === 0 ? 0 : 7 - marchFirstDay;
+  const secondSundayInMarch = 1 + daysUntilFirstSunday + 7;
+  
+  // Find first Sunday in November for DST end
+  const novFirst = new Date(year, 10, 1); // November 1
+  const novFirstDay = novFirst.getDay();
+  const firstSundayInNov = novFirstDay === 0 ? 1 : 1 + (7 - novFirstDay);
+  
+  if (month === 3) { // March
+    return day >= secondSundayInMarch;
+  } else { // November
+    return day < firstSundayInNov;
+  }
+}
+
+// Helper to get UTC time for a specific Eastern date/time, accounting for DST
+function getEasternTimeInUTC(year: number, month: number, day: number, hour: number, minute: number): number {
+  // Eastern Time: EDT (UTC-4) during DST, EST (UTC-5) otherwise
+  const isDST = isEasternDST(year, month, day);
+  const utcHour = isDST ? hour + 4 : hour + 5;
+  
+  return Date.UTC(year, month - 1, day, utcHour, minute, 0);
+}
+
 export function getCurrentSeasonData(): SeasonData {
-  const startDate = new Date('2025-09-29T12:00:00-04:00'); // Monday Sep 29, 12pm EST
-  const now = new Date();
+  // Season 1 ended on Oct 1, 2025 at 11:59 PM Eastern (Wed)
+  // All seasons last exactly 2 weeks and end on Wednesdays at 11:59 PM Eastern
+  // Starting season number is 2
   
-  // Calculate which season we're in
-  const daysSinceStart = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  const seasonNumber = Math.floor(daysSinceStart / 14) + 1;
+  const now = Date.now();
   
-  // Calculate current season dates
-  const currentSeasonStart = new Date(startDate);
-  currentSeasonStart.setDate(startDate.getDate() + (seasonNumber - 1) * 14);
+  // Base season: Season 1 ended Oct 1, 2025 (season 2 starts then)
+  let seasonStartYear = 2025;
+  let seasonStartMonth = 10;
+  let seasonStartDay = 1;
+  let seasonNumber = 2;
   
-  const currentSeasonEnd = new Date(currentSeasonStart);
-  currentSeasonEnd.setDate(currentSeasonStart.getDate() + 14);
-  // Season end is 2 weeks (14 days) from start
-  
-  return {
-    seasonNumber,
-    startDate: currentSeasonStart.getTime(),
-    endDate: currentSeasonEnd.getTime(),
-    leaderboard: []
-  };
+  // Find current season by iterating through season boundaries
+  // Each season spans exactly 14 calendar days in Eastern time
+  while (true) {
+    // Calculate when this season ends (14 days after it started)
+    const startDate = new Date(seasonStartYear, seasonStartMonth - 1, seasonStartDay);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 14);
+    
+    const endYear = endDate.getFullYear();
+    const endMonth = endDate.getMonth() + 1;
+    const endDay = endDate.getDate();
+    
+    // Convert end boundary to UTC using Eastern timezone rules
+    const seasonEndUTC = getEasternTimeInUTC(endYear, endMonth, endDay, 23, 59);
+    
+    // If we haven't reached this season's end yet, this is our current season
+    if (now < seasonEndUTC) {
+      const seasonStartUTC = getEasternTimeInUTC(seasonStartYear, seasonStartMonth, seasonStartDay, 23, 59);
+      return {
+        seasonNumber,
+        startDate: seasonStartUTC,
+        endDate: seasonEndUTC,
+        leaderboard: []
+      };
+    }
+    
+    // Move to next season
+    seasonStartYear = endYear;
+    seasonStartMonth = endMonth;
+    seasonStartDay = endDay;
+    seasonNumber++;
+    
+    // Safety check to prevent infinite loop (max 1000 seasons ~38 years)
+    if (seasonNumber > 1000) {
+      throw new Error('Season calculation exceeded maximum iterations');
+    }
+  }
 }
 
 export function shouldResetSeason(lastChecked: number): boolean {
