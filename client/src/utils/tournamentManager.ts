@@ -306,9 +306,9 @@ export function getPlayerPlacement(bracket: TournamentBracket, isPlayer: boolean
 }
 
 export function calculateTournamentReward(placement: number): number {
-  if (placement === 1) return 10000;
-  if (placement <= 4) return 5000;
-  if (placement <= 8) return 2500;
+  if (placement === 1) return 5000;
+  if (placement <= 4) return 2000;
+  if (placement <= 8) return 1000;
   return 0;
 }
 

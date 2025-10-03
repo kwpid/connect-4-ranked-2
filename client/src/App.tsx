@@ -325,7 +325,7 @@ function App() {
     const xpGain = won ? 25 : 10;
     const newXP = playerData.xp + xpGain;
     const newLevel = Math.floor(newXP / 100) + 1;
-    const coinsGain = won ? 50 : 20;
+    const coinsGain = won ? Math.floor(Math.random() * 9) + 17 : Math.floor(Math.random() * 7) + 10; // 17-25 for win, 10-16 for loss
     
     // Check if leveled up
     const leveledUp = newLevel > playerData.level;

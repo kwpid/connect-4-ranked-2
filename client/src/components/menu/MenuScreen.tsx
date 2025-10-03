@@ -77,7 +77,7 @@ export function MenuScreen({
             onClick={onInventory}
             className="w-full mb-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm font-semibold"
           >
-            📦 Inventory
+            Inventory
           </button>
           
           <div className="grid grid-cols-2 gap-4">
@@ -116,7 +116,7 @@ export function MenuScreen({
               onClick={onTournament}
               className="w-full py-5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
             >
-              🏆 Tournament
+              Tournament
               <span className="text-sm block mt-1">
                 {currentTournament.status === 'registration' 
                   ? `Registration: ${getTimeUntilTournament(currentTime, nextTournamentTime)}`

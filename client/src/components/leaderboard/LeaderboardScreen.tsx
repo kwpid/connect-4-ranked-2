@@ -106,9 +106,9 @@ export function LeaderboardScreen({ leaderboard, playerData, onBack, onRankInfo 
                   const isPlayer = entry.isPlayer;
                   
                   let rewardText = '';
-                  if (entry.rank === 1) rewardText = '👑 TOP CHAMPION';
-                  else if (entry.rank && entry.rank <= 10) rewardText = '🏅 TOP 10';
-                  else if (entry.rank && entry.rank <= 30) rewardText = '⭐ TOP 30';
+                  if (entry.rank === 1) rewardText = '10,000 coins + 👑 TOP CHAMPION';
+                  else if (entry.rank && entry.rank <= 10) rewardText = '5,000 coins + 🏅 TOP 10';
+                  else if (entry.rank && entry.rank <= 30) rewardText = '2,500 coins + ⭐ TOP 30';
                   
                   return (
                     <tr

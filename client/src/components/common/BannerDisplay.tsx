@@ -34,11 +34,11 @@ export function BannerDisplay({ bannerId, username, className = '' }: BannerDisp
         <img
           src={bannerUrl}
           alt="Banner"
-          className="h-[50px] w-auto"
+          className="h-[65px] w-auto"
           style={{ imageRendering: 'crisp-edges' }}
         />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-white font-bold px-2 text-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+        <div className="absolute inset-0 flex items-center justify-center pt-1">
+          <span className="text-white font-bold px-2 text-shadow-lg text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
             {username}
           </span>
         </div>
@@ -50,7 +50,7 @@ export function BannerDisplay({ bannerId, username, className = '' }: BannerDisp
     <img
       src={bannerUrl}
       alt="Banner"
-      className={`h-[50px] w-auto ${className}`}
+      className={`h-[65px] w-auto ${className}`}
       style={{ imageRendering: 'crisp-edges' }}
     />
   );

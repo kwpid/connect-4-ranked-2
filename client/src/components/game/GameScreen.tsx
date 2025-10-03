@@ -159,7 +159,7 @@ export function GameScreen({
   
   useEffect(() => {
     const loadOpponentBanner = async () => {
-      if (!isPracticeMode && !isTournamentMode) {
+      if (!isPracticeMode) {
         const banners = await loadBanners();
         const currentSeason = getCurrentSeasonData();
         const aiBannerId = getAIBanner(banners, opponent.trophies, currentSeason.seasonNumber);
@@ -435,47 +435,47 @@ export function GameScreen({
         {/* Score */}
         <div className="flex justify-center gap-8 mb-8">
           <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
+            <div className="flex flex-col items-center justify-center mb-1">
               <BannerDisplay 
                 bannerId={playerData.equippedBanner}
                 username={playerData.username}
-                className="scale-90"
+                className="scale-100"
               />
+              {playerData.equippedTitle && (() => {
+                const title = getTitleFromId(playerData.equippedTitle);
+                const glowStyle = title.glow && title.glow !== 'none' 
+                  ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
+                  : {};
+                return (
+                  <p className="text-[10px] -mt-3 font-semibold" style={{ color: title.color, ...glowStyle }}>
+                    {title.name.toUpperCase()}
+                  </p>
+                );
+              })()}
             </div>
-            {playerData.equippedTitle && (() => {
-              const title = getTitleFromId(playerData.equippedTitle);
-              const glowStyle = title.glow && title.glow !== 'none' 
-                ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
-                : {};
-              return (
-                <p className="text-xs mt-1 font-semibold" style={{ color: title.color, ...glowStyle }}>
-                  {title.name}
-                </p>
-              );
-            })()}
             <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>
             <p className="text-3xl font-bold text-blue-400 mt-1">{match.playerWins}</p>
           </div>
           <div className="text-4xl font-bold text-gray-500">-</div>
           <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
+            <div className="flex flex-col items-center justify-center mb-1">
               <BannerDisplay 
                 bannerId={opponentBannerId}
                 username={opponent.name}
-                className="scale-90"
+                className="scale-100"
               />
+              {opponent.titleId && (() => {
+                const title = getTitleFromId(opponent.titleId);
+                const glowStyle = title.glow && title.glow !== 'none' 
+                  ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
+                  : {};
+                return (
+                  <p className="text-[10px] -mt-3 font-semibold" style={{ color: title.color, ...glowStyle }}>
+                    {title.name.toUpperCase()}
+                  </p>
+                );
+              })()}
             </div>
-            {opponent.titleId && (() => {
-              const title = getTitleFromId(opponent.titleId);
-              const glowStyle = title.glow && title.glow !== 'none' 
-                ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}` }
-                : {};
-              return (
-                <p className="text-xs mt-1 font-semibold" style={{ color: title.color, ...glowStyle }}>
-                  {title.name}
-                </p>
-              );
-            })()}
             {!isPracticeMode && <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>}
             <p className="text-3xl font-bold text-red-400 mt-1">{match.aiWins}</p>
           </div>

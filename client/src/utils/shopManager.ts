@@ -89,12 +89,73 @@ export function getShopRotationSeed(): number {
 // Featured Items Management
 export async function getFeaturedItems(): Promise<FeaturedItem[]> {
   try {
-    const response = await fetch('/api/featured-items');
+    // Read the JSON file directly
+    const response = await fetch('/data/featured-items.json');
     if (!response.ok) {
       console.error('Failed to fetch featured items');
       return [];
     }
-    return await response.json();
+    
+    interface SimpleFeaturedItem {
+      itemId: string;
+      duration: string;
+      addedAt: number;
+    }
+    
+    const simpleItems: SimpleFeaturedItem[] = await response.json();
+    const banners = await loadBanners();
+    const now = Date.now();
+    
+    // Expand and filter items
+    const expandedItems: FeaturedItem[] = [];
+    
+    for (const item of simpleItems) {
+      const durationMs = parseDuration(item.duration);
+      const expiresAt = item.addedAt + durationMs;
+      
+      // Skip expired items
+      if (expiresAt < now) continue;
+      
+      const itemId = item.itemId.toLowerCase();
+      
+      // Check if it's a banner
+      if (itemId.startsWith('banner_') || !isNaN(Number(itemId))) {
+        const bannerId = itemId.startsWith('banner_') 
+          ? parseInt(itemId.replace('banner_', ''))
+          : parseInt(itemId);
+        
+        const banner = banners.find(b => b.bannerId === bannerId);
+        if (banner) {
+          expandedItems.push({
+            id: `featured_banner_${bannerId}_${item.addedAt}`,
+            banner: banner,
+            price: banner.price || 500,
+            expiresAt,
+            duration: item.duration
+          });
+        }
+      } else {
+        // It's a title
+        const titleName = itemId.replace('grey_', '').replace(/_/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
+        
+        expandedItems.push({
+          id: `featured_title_${itemId}_${item.addedAt}`,
+          title: {
+            id: itemId,
+            name: titleName,
+            type: 'grey',
+            color: '#9CA3AF',
+            glow: 'none'
+          },
+          price: 500,
+          expiresAt,
+          duration: item.duration
+        });
+      }
+    }
+    
+    return expandedItems;
   } catch (error) {
     console.error('Error fetching featured items:', error);
     return [];
