@@ -33,9 +33,10 @@ Preferred communication style: Simple, everyday language.
 ### UI/UX Decisions
 
 The application utilizes React with TypeScript, styled using TailwindCSS for a custom dark theme. UI components are built using Radix UI for accessibility. Cosmetic systems include:
--   **Titles**: Text displayed under player usernames, categorized as Ranked (season), Tournament, Leaderboard, and Shop. AI opponents also display titles.
--   **Banners**: 150x50 PNG images displayed behind usernames in menus and during matches, available as Default, Shop (purchasable), and Ranked (season rewards). AI opponents use shop banners and ranked banners from previous seasons only. An Inventory screen manages both.
+-   **Titles**: Text displayed under player usernames in ALL CAPS format, categorized as Ranked (season), Tournament, Leaderboard, and Shop. AI opponents also display titles. Positioned underneath username within banner area.
+-   **Banners**: 150x50 PNG images displayed behind usernames in menus and during matches, enlarged by 25% (62px height), available as Default, Shop (purchasable), and Ranked (season rewards). AI opponents use shop banners and ranked banners from previous seasons only. An Inventory screen manages both.
 -   The game board has been expanded to 9x7 for increased strategic depth.
+-   **Clean UI**: Inventory and Tournament buttons display without emoji decorations for a cleaner interface.
 
 ### Technical Implementations
 
@@ -49,11 +50,11 @@ The frontend is built with React 18 and Vite. State management relies on local c
     -   **Auto-Registration Fix** (Oct 2, 2025): Fixed bug where players were automatically re-registered for new tournaments. Participants array is now properly cleared when tournaments complete.
     -   **Tournament Navigation** (Oct 2, 2025): Added back button to tournament screen for improved navigation.
     -   **AI Match Simulation** (Oct 2, 2025): Tournaments now continue autonomously via AI simulation even after player elimination. Tournament status remains 'in_progress' until finals winner is determined, allowing players to observe the bracket completion.
--   **Queue System**: Simulated matchmaking with variable queue times (2-15 seconds) and opponent generation with similar trophy counts (±30 variance).
--   **Match System**: Best-of-3 format with a 15-second turn timer. Dynamic trophy rewards/penalties based on opponent rank, win streaks, and game speed. Includes XP, level progression, and coin rewards.
+-   **Queue System**: Realistic matchmaking with trophy-based queue times (2-8s for low trophies, 40-60s for high trophies) with time-of-day variance. Opponent generation with similar trophy counts (±30 variance).
+-   **Match System**: Best-of-3 format with a 15-second turn timer. Dynamic trophy rewards/penalties based on opponent rank, win streaks, and game speed. Includes XP, level progression, and balanced coin rewards (17-25 for wins, 10-16 for losses).
 -   **Shop System**: Rotates 3 titles and 3 banners every 12 hours for in-game currency purchase.
-    -   **Featured Items** (Oct 2, 2025): Featured Items section with time-based exclusivity. Items are stored in `server/data/featured-items.json` for persistence across all sessions. The system automatically looks up item details and calculates expiry times. Console helper: `await window.addFeaturedShopItem(itemId, duration)`.
-    -   **Editing Featured Items**: Simply specify the item ID and duration in `server/data/featured-items.json`. The server automatically looks up all item details. Examples:
+    -   **Featured Items** (Oct 2-3, 2025): Featured Items section with time-based exclusivity. Items are stored in `client/public/data/featured-items.json` and loaded directly by the client without API calls. The system automatically looks up item details and calculates expiry times.
+    -   **Editing Featured Items**: Simply specify the item ID and duration in `client/public/data/featured-items.json`. The system automatically looks up all item details. Examples:
         ```json
         [
           {
