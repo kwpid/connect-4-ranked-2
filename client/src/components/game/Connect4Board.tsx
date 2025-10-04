@@ -9,12 +9,17 @@ interface Connect4BoardProps {
   winningCells?: Array<[number, number]>;
   bestMoveColumn?: number;
   hintColumn?: number;
+  playerColor: 'blue' | 'red';
 }
 
-export function Connect4Board({ board, onColumnClick, currentPlayer, disabled, winningCells = [], bestMoveColumn, hintColumn }: Connect4BoardProps) {
+export function Connect4Board({ board, onColumnClick, currentPlayer, disabled, winningCells = [], bestMoveColumn, hintColumn, playerColor }: Connect4BoardProps) {
   const getCellColor = (cell: CellValue): string => {
-    if (cell === 'player') return '#3B82F6'; // Blue
-    if (cell === 'ai') return '#EF4444'; // Red
+    if (cell === 'player') {
+      return playerColor === 'blue' ? '#3B82F6' : '#EF4444';
+    }
+    if (cell === 'ai') {
+      return playerColor === 'blue' ? '#EF4444' : '#3B82F6';
+    }
     return '#1F2937'; // Empty
   };
   

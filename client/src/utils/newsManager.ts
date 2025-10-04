@@ -60,11 +60,18 @@ function parseDateString(dateStr: string): Date {
 }
 
 function isNewsAvailable(newsItem: NewsItem): boolean {
-  if (!newsItem.releaseDate) return true;
-  
-  const releaseDate = parseDateString(newsItem.releaseDate);
   const now = new Date();
-  return now >= releaseDate;
+  now.setHours(0, 0, 0, 0);
+  
+  if (newsItem.releaseDate) {
+    const releaseDate = parseDateString(newsItem.releaseDate);
+    releaseDate.setHours(0, 0, 0, 0);
+    if (now < releaseDate) return false;
+  }
+  
+  const newsDate = parseDateString(newsItem.date);
+  newsDate.setHours(0, 0, 0, 0);
+  return newsDate <= now;
 }
 
 export async function loadNews(): Promise<NewsItem[]> {

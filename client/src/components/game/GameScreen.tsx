@@ -136,11 +136,6 @@ export function GameScreen({
     return { name, trophies, titleId };
   };
   
-  // 50/50 chance for who goes first
-  const determineFirstPlayer = (): 'player' | 'ai' => {
-    return Math.random() < 0.5 ? 'player' : 'ai';
-  };
-  
   const [opponent] = useState(() => {
     if (isTournamentMode && tournamentMatch) {
       const opponentData = tournamentMatch.participant1.isPlayer ? tournamentMatch.participant2 : tournamentMatch.participant1;
@@ -168,7 +163,8 @@ export function GameScreen({
     };
     loadOpponentBanner();
   }, []);
-  const [initialPlayer] = useState(determineFirstPlayer());
+  const [initialPlayer] = useState<'player' | 'ai'>(() => Math.random() < 0.5 ? 'player' : 'ai');
+  const [playerColor] = useState<'blue' | 'red'>(() => Math.random() < 0.5 ? 'blue' : 'red');
   const [match, setMatch] = useState<MatchState>({
     currentGame: 1,
     playerWins: 0,
@@ -299,7 +295,7 @@ export function GameScreen({
           setTimeout(() => {
             setTotalMoves(0);
             setWinningCells([]);
-            const nextFirstPlayer = determineFirstPlayer();
+            const nextFirstPlayer: 'player' | 'ai' = Math.random() < 0.5 ? 'player' : 'ai';
             setMatch(prev => ({
               ...prev,
               currentGame: prev.currentGame + 1,
@@ -444,7 +440,7 @@ export function GameScreen({
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>
-            <p className="text-3xl font-bold text-blue-400 mt-1">{match.playerWins}</p>
+            <p className={`text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>{match.playerWins}</p>
           </div>
           <div className="text-4xl font-bold text-gray-500">-</div>
           <div className="text-center">
@@ -457,7 +453,7 @@ export function GameScreen({
               />
             </div>
             {!isPracticeMode && <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>}
-            <p className="text-3xl font-bold text-red-400 mt-1">{match.aiWins}</p>
+            <p className={`text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-red-400' : 'text-blue-400'}`}>{match.aiWins}</p>
           </div>
         </div>
         
@@ -481,6 +477,7 @@ export function GameScreen({
             winningCells={winningCells}
             bestMoveColumn={bestMoveColumn}
             hintColumn={isPracticeMode && coachingHint ? coachingHint.column : undefined}
+            playerColor={playerColor}
           />
         </div>
         
@@ -549,7 +546,9 @@ export function GameScreen({
             </p>
           ) : (
             <p className="text-xl">
-              {match.currentPlayer === 'player' ? '🔵 Your turn' : `🔴 ${opponent.name} is making a move...`}
+              {match.currentPlayer === 'player' 
+                ? `${playerColor === 'blue' ? '🔵' : '🔴'} Your turn` 
+                : `${playerColor === 'blue' ? '🔴' : '🔵'} ${opponent.name} is making a move...`}
             </p>
           )}
         </div>
