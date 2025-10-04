@@ -45,3 +45,22 @@ The frontend is built with React 18 and Vite. State management relies on local c
 -   **nanoid**: Unique ID generation.
 -   **Express.js**: Backend server framework (serves static files).
 -   **Drizzle ORM & Neon Database**: Configured for PostgreSQL, but not actively utilized; data is stored in `localStorage`.
+
+## Replit Environment Setup
+
+### Development Setup (Completed)
+
+The project is successfully configured for the Replit environment:
+
+- **Workflow**: "Start Game" workflow configured to run `npm run dev` on port 5000 with webview output
+- **Dev Server**: Vite dev server properly configured with `host: "0.0.0.0"` and `allowedHosts: true` for Replit proxy support
+- **Backend**: Express server serves both API routes and frontend, listening on 0.0.0.0:5000 with `reusePort: true`
+- **Deployment**: Autoscale deployment configured with `npm run build` and `npm run start`
+- **API Routes**: `/api/featured-items` endpoints for managing featured shop items
+- **Assets**: Textures (asphalt.png, grass.png, sand.jpg, sky.png, wood.jpg) and sounds (background.mp3, hit.mp3, success.mp3) available in `client/public/`
+
+### Running the Project
+
+- **Development**: Use the "Start Game" workflow or run `npm run dev`
+- **Production Build**: Run `npm run build` followed by `npm run start`
+- **Type Checking**: Run `npm run check`
