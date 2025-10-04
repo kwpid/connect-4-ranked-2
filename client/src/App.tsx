@@ -21,7 +21,7 @@ import {
   updateAICompetitors, 
   updateLeaderboardAI,
   resetAICompetitorsForSeason,
-  getTop30Leaderboard,
+  getTop100Leaderboard,
   getCurrentSeasonData 
 } from './utils/seasonManager';
 import { getSeasonResetTrophies, getSeasonRewardCoins, getRankByTrophies } from './utils/rankSystem';
@@ -242,9 +242,11 @@ function App() {
   // Leaderboard AI update every 5 minutes
   useEffect(() => {
     const updateLeaderboard = () => {
-      const updatedAI = updateLeaderboardAI(aiCompetitors);
-      setAiCompetitors(updatedAI);
-      saveAICompetitors(updatedAI);
+      setAiCompetitors(currentAI => {
+        const updatedAI = updateLeaderboardAI(currentAI);
+        saveAICompetitors(updatedAI);
+        return updatedAI;
+      });
       setNextAIUpdate(Date.now() + 5 * 60 * 1000);
       console.log('Leaderboard AI updated - some AI won/lost trophies');
     };
@@ -252,7 +254,7 @@ function App() {
     const interval = setInterval(updateLeaderboard, 5 * 60 * 1000); // Every 5 minutes
     
     return () => clearInterval(interval);
-  }, [aiCompetitors]);
+  }, []); // No dependencies - interval runs continuously
   
   // Check for season reset and shop rotation on load and periodically
   useEffect(() => {
@@ -313,14 +315,16 @@ function App() {
       earnedItems.push({ type: 'title', titleId: seasonTitle });
     }
     
-    // Check leaderboard position and extract top 30 AI IDs
-    const leaderboard = getTop30Leaderboard(playerData, aiCompetitors);
+    // Check leaderboard position and extract top 100 AI IDs
+    const leaderboard = getTop100Leaderboard(playerData, aiCompetitors);
     const playerEntry = leaderboard.find(e => e.isPlayer);
-    if (playerEntry) {
+    // Only top 50 get placement titles
+    if (playerEntry && playerEntry.rank && playerEntry.rank <= 50) {
       let lbTitle = '';
       if (playerEntry.rank === 1) lbTitle = `S${currentSeason.seasonNumber} TOP CHAMPION`;
-      else if (playerEntry.rank && playerEntry.rank <= 10) lbTitle = `S${currentSeason.seasonNumber} TOP 10`;
-      else if (playerEntry.rank && playerEntry.rank <= 30) lbTitle = `S${currentSeason.seasonNumber} TOP 30`;
+      else if (playerEntry.rank <= 10) lbTitle = `S${currentSeason.seasonNumber} TOP 10`;
+      else if (playerEntry.rank <= 25) lbTitle = `S${currentSeason.seasonNumber} TOP 25`;
+      else if (playerEntry.rank <= 50) lbTitle = `S${currentSeason.seasonNumber} TOP 50`;
       
       if (lbTitle) {
         newTitles.push(lbTitle);
@@ -328,12 +332,12 @@ function App() {
       }
     }
     
-    // Extract top 30 AI IDs for reset (exclude player)
-    const top30AIIds = new Set(
+    // Extract top 100 AI IDs for reset (exclude player)
+    const top100AIIds = new Set(
       leaderboard
         .filter(entry => !entry.isPlayer)
         .map(entry => entry.username)
-        .slice(0, 30)
+        .slice(0, 100)
         .map(username => aiCompetitors.find(ai => ai.username === username)?.id)
         .filter(Boolean) as string[]
     );
@@ -385,8 +389,8 @@ function App() {
     setPlayerData(updatedPlayer);
     savePlayerData(updatedPlayer);
     
-    // Reset AI competitors for new season (top 30 leaderboard AI reset to 701 trophies)
-    const resetAI = resetAICompetitorsForSeason(aiCompetitors, top30AIIds);
+    // Reset AI competitors for new season (top 100 leaderboard AI reset to 701 trophies)
+    const resetAI = resetAICompetitorsForSeason(aiCompetitors, top100AIIds);
     setAiCompetitors(resetAI);
     saveAICompetitors(resetAI);
     
@@ -777,7 +781,7 @@ function App() {
   };
   
   const isPlayerRegistered = currentTournament?.participants.some(p => p.isPlayer) || false;
-  const leaderboard = getTop30Leaderboard(playerData, aiCompetitors);
+  const leaderboard = getTop100Leaderboard(playerData, aiCompetitors);
   
   return (
     <>

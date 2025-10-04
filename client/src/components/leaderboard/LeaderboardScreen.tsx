@@ -23,7 +23,7 @@ export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBac
     return () => clearInterval(timer);
   }, []);
   
-  const playerInTop30 = leaderboard.find(e => e.isPlayer);
+  const playerInTop100 = leaderboard.find(e => e.isPlayer);
   const seasonData = getCurrentSeasonData();
   const timeRemaining = getTimeUntilSeasonEnd();
   const playerRank = getRankByTrophies(playerData.trophies);
@@ -46,7 +46,7 @@ export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBac
           >
             ← Back
           </button>
-          <h2 className="text-3xl font-bold">Top 30 Leaderboard</h2>
+          <h2 className="text-3xl font-bold">Top 100 Leaderboard</h2>
           <button
             onClick={onRankInfo}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
@@ -82,20 +82,20 @@ export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBac
             <p className="text-xl font-bold text-cyan-400">⏱️ {getAIUpdateCountdown()}</p>
           </div>
           
-          {playerInTop30 && (
+          {playerInTop100 && (
             <div className="mt-4 pt-4 border-t border-purple-500/30 text-center">
               <p className="text-yellow-400 font-semibold">
-                🎯 Leaderboard Position: #{playerInTop30.rank}
+                🎯 Leaderboard Position: #{playerInTop100.rank}
               </p>
             </div>
           )}
         </div>
         
         {/* Player Status */}
-        {playerInTop30 ? (
+        {playerInTop100 ? (
           <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-800/20 backdrop-blur rounded-xl p-4 mb-6 border border-yellow-600/50">
             <p className="text-center text-yellow-400 font-semibold">
-              🏆 You're #{playerInTop30.rank} with {playerInTop30.trophies} trophies!
+              🏆 You're #{playerInTop100.rank} with {playerInTop100.trophies} trophies!
             </p>
             <p className="text-center text-gray-300 text-sm mt-1">
               Season Reward: {getSeasonRewardCoins(playerData.trophies)} coins
@@ -131,9 +131,12 @@ export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBac
                   const isPlayer = entry.isPlayer;
                   
                   let rewardText = '';
+                  // Top 50 get titles based on placement, top 100 get coin rewards
                   if (entry.rank === 1) rewardText = '10,000 coins + 👑 TOP CHAMPION';
                   else if (entry.rank && entry.rank <= 10) rewardText = '5,000 coins + 🏅 TOP 10';
-                  else if (entry.rank && entry.rank <= 30) rewardText = '2,500 coins + ⭐ TOP 30';
+                  else if (entry.rank && entry.rank <= 25) rewardText = '3,000 coins + ⭐ TOP 25';
+                  else if (entry.rank && entry.rank <= 50) rewardText = '2,000 coins + 🎖️ TOP 50';
+                  else if (entry.rank && entry.rank <= 100) rewardText = '1,000 coins';
                   
                   return (
                     <tr
