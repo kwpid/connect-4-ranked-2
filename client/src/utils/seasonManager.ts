@@ -344,35 +344,95 @@ export function updateAICompetitors(competitors: AICompetitor[]): AICompetitor[]
   });
 }
 
+// Helper to get activity multiplier based on time of day (simulates peak hours)
+function getTimeOfDayMultiplier(): number {
+  const now = new Date();
+  const hour = now.getHours();
+  
+  // Peak hours: 6 PM - 11 PM (18-23) - 100% activity
+  // Good hours: 12 PM - 6 PM (12-17) and 11 PM - 1 AM (23, 0, 1) - 70% activity
+  // Medium hours: 8 AM - 12 PM (8-11) and 1 AM - 3 AM (1-3) - 40% activity
+  // Low hours: 3 AM - 8 AM (3-7) - 15% activity
+  
+  if (hour >= 18 && hour <= 23) return 1.0; // Peak
+  if ((hour >= 12 && hour <= 17) || hour === 0 || hour === 1) return 0.7; // Good
+  if ((hour >= 8 && hour <= 11) || (hour >= 2 && hour <= 3)) return 0.4; // Medium
+  return 0.15; // Low (late night/early morning)
+}
+
 export function updateLeaderboardAI(competitors: AICompetitor[]): AICompetitor[] {
   const now = Date.now();
+  const timeMultiplier = getTimeOfDayMultiplier();
   
   return competitors.map(ai => {
-    // Each AI has a chance to play 1-3 games in a 5-minute period
-    const gamesPlayed = Math.floor(Math.random() * 3) + 1;
+    // Determine if this AI plays during this 5-minute period
+    // Some AI don't play at all (10% chance), adjusted by time of day
+    const playsThisPeriod = Math.random() < (0.9 * timeMultiplier);
+    
+    if (!playsThisPeriod) {
+      return { ...ai, lastUpdate: now };
+    }
+    
+    // Determine AI's grinding intensity for this period
+    // Some grind hard (~45 trophies), some casual (~10 trophies), most in between
+    const intensityRoll = Math.random();
+    let gamesPlayed: number;
+    
+    if (intensityRoll < 0.05) {
+      // 5% - Super grinders (10-15 games, can get ~45 trophies with good wins)
+      gamesPlayed = Math.floor(Math.random() * 6) + 10;
+    } else if (intensityRoll < 0.20) {
+      // 15% - Heavy grinders (6-9 games, ~25-35 trophies)
+      gamesPlayed = Math.floor(Math.random() * 4) + 6;
+    } else if (intensityRoll < 0.50) {
+      // 30% - Active players (3-5 games, ~12-20 trophies)
+      gamesPlayed = Math.floor(Math.random() * 3) + 3;
+    } else if (intensityRoll < 0.80) {
+      // 30% - Casual players (1-2 games, ~4-8 trophies)
+      gamesPlayed = Math.floor(Math.random() * 2) + 1;
+    } else {
+      // 20% - Very casual (0-1 games, barely any change)
+      gamesPlayed = Math.random() < 0.5 ? 1 : 0;
+    }
+    
+    // Adjust games by time of day
+    gamesPlayed = Math.floor(gamesPlayed * timeMultiplier);
+    
+    if (gamesPlayed === 0) {
+      return { ...ai, lastUpdate: now };
+    }
     
     let currentTrophies = ai.trophies;
-    let winStreak = 0;
+    let consecutiveWins = 0;
+    let consecutiveLosses = 0;
     
     for (let i = 0; i < gamesPlayed; i++) {
-      // Win rate varies by trophy count
-      let winRate = 0.5; // Base 50%
-      if (currentTrophies > 500) winRate = 0.60;
-      else if (currentTrophies > 300) winRate = 0.55;
-      else if (currentTrophies > 150) winRate = 0.52;
-      else if (currentTrophies < 50) winRate = 0.48;
+      // Win rate varies by trophy count and current streak
+      let baseWinRate = 0.5;
+      if (currentTrophies > 650) baseWinRate = 0.58;
+      else if (currentTrophies > 500) baseWinRate = 0.56;
+      else if (currentTrophies > 300) baseWinRate = 0.53;
+      else if (currentTrophies > 150) baseWinRate = 0.51;
+      else if (currentTrophies < 50) baseWinRate = 0.47;
+      
+      // Streak effects: winning streaks slightly increase win rate, losing streaks decrease it
+      const streakEffect = (consecutiveWins * 0.01) - (consecutiveLosses * 0.02);
+      const winRate = Math.min(0.70, Math.max(0.30, baseWinRate + streakEffect));
       
       const won = Math.random() < winRate;
       
       if (won) {
-        winStreak++;
-        // Trophy gain: 2-4 trophies per win
-        const trophyGain = Math.floor(Math.random() * 3) + 2;
-        currentTrophies += trophyGain;
+        consecutiveWins++;
+        consecutiveLosses = 0;
+        // Trophy gain: 2-5 trophies per win, with streak bonus
+        const baseGain = Math.floor(Math.random() * 4) + 2;
+        const streakBonus = Math.floor(consecutiveWins / 3);
+        currentTrophies += (baseGain + streakBonus);
       } else {
-        winStreak = 0;
-        // Trophy loss: 1-3 trophies per loss
-        const trophyLoss = Math.floor(Math.random() * 3) + 1;
+        consecutiveLosses++;
+        consecutiveWins = 0;
+        // Trophy loss: 1-4 trophies per loss
+        const trophyLoss = Math.floor(Math.random() * 4) + 1;
         currentTrophies = Math.max(0, currentTrophies - trophyLoss);
       }
     }
@@ -386,11 +446,11 @@ export function updateLeaderboardAI(competitors: AICompetitor[]): AICompetitor[]
 }
 
 // Reset AI competitors for new season
-export function resetAICompetitorsForSeason(competitors: AICompetitor[], top30AIIds?: Set<string>): AICompetitor[] {
+export function resetAICompetitorsForSeason(competitors: AICompetitor[], top100AIIds?: Set<string>): AICompetitor[] {
   return competitors.map(ai => {
-    // Top 30 leaderboard AI get reset to 701 trophies
+    // Top 100 leaderboard AI get reset to 701 trophies
     // All other AI reset to minimum trophy for their rank
-    const resetTrophies = top30AIIds?.has(ai.id) ? 701 : getSeasonResetTrophiesForAI(ai.trophies);
+    const resetTrophies = top100AIIds?.has(ai.id) ? 701 : getSeasonResetTrophiesForAI(ai.trophies);
     
     return {
       ...ai,
@@ -510,7 +570,7 @@ function getRandomAITitle(trophies: number, currentSeasonNum: number): string | 
   return `S${getValidSeasonNum()} CONNECT LEGEND`;
 }
 
-export function getTop30Leaderboard(playerData: any, aiCompetitors: AICompetitor[]): LeaderboardEntry[] {
+export function getTop100Leaderboard(playerData: any, aiCompetitors: AICompetitor[]): LeaderboardEntry[] {
   const currentSeason = getCurrentSeasonData();
   const entries: LeaderboardEntry[] = [
     {
@@ -527,10 +587,10 @@ export function getTop30Leaderboard(playerData: any, aiCompetitors: AICompetitor
     }))
   ];
   
-  // Sort by trophies and get top 30 (no minimum trophy requirement)
+  // Sort by trophies and get top 100 (no minimum trophy requirement)
   const sorted = entries
     .sort((a, b) => b.trophies - a.trophies)
-    .slice(0, 30)
+    .slice(0, 100)
     .map((entry, index) => ({
       ...entry,
       rank: index + 1
@@ -538,3 +598,6 @@ export function getTop30Leaderboard(playerData: any, aiCompetitors: AICompetitor
   
   return sorted;
 }
+
+// Keep legacy function name for backwards compatibility during migration
+export const getTop30Leaderboard = getTop100Leaderboard;
