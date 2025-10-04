@@ -345,8 +345,8 @@ export function updateAICompetitors(competitors: AICompetitor[]): AICompetitor[]
 }
 
 // Helper to get activity multiplier based on time of day (simulates peak hours)
-function getTimeOfDayMultiplier(): number {
-  const now = new Date();
+function getTimeOfDayMultiplier(timestamp?: number): number {
+  const now = timestamp ? new Date(timestamp) : new Date();
   const hour = now.getHours();
   
   // Peak hours: 6 PM - 11 PM (18-23) - 100% activity
@@ -358,6 +358,102 @@ function getTimeOfDayMultiplier(): number {
   if ((hour >= 12 && hour <= 17) || hour === 0 || hour === 1) return 0.7; // Good
   if ((hour >= 8 && hour <= 11) || (hour >= 2 && hour <= 3)) return 0.4; // Medium
   return 0.15; // Low (late night/early morning)
+}
+
+// Catch up AI competitors based on time elapsed since last update
+// This allows AI to continue "grinding" even when player is offline
+export function catchUpAICompetitors(competitors: AICompetitor[]): AICompetitor[] {
+  const now = Date.now();
+  const FIVE_MINUTES = 5 * 60 * 1000;
+  
+  return competitors.map(ai => {
+    const timeSinceLastUpdate = now - ai.lastUpdate;
+    
+    // If less than 5 minutes, no catch-up needed
+    if (timeSinceLastUpdate < FIVE_MINUTES) {
+      return ai;
+    }
+    
+    // Calculate how many 5-minute periods have passed
+    const periodsToSimulate = Math.floor(timeSinceLastUpdate / FIVE_MINUTES);
+    
+    // Cap at 288 periods (24 hours worth) to prevent extreme calculations
+    const cappedPeriods = Math.min(periodsToSimulate, 288);
+    
+    let currentTrophies = ai.trophies;
+    let currentTime = ai.lastUpdate;
+    
+    // Simulate each 5-minute period
+    for (let period = 0; period < cappedPeriods; period++) {
+      currentTime += FIVE_MINUTES;
+      const timeMultiplier = getTimeOfDayMultiplier(currentTime);
+      
+      // Determine if this AI plays during this period
+      const playsThisPeriod = Math.random() < (0.9 * timeMultiplier);
+      
+      if (!playsThisPeriod) {
+        continue;
+      }
+      
+      // Determine grinding intensity
+      const intensityRoll = Math.random();
+      let gamesPlayed: number;
+      
+      if (intensityRoll < 0.05) {
+        gamesPlayed = Math.floor(Math.random() * 6) + 10;
+      } else if (intensityRoll < 0.20) {
+        gamesPlayed = Math.floor(Math.random() * 4) + 6;
+      } else if (intensityRoll < 0.50) {
+        gamesPlayed = Math.floor(Math.random() * 3) + 3;
+      } else if (intensityRoll < 0.80) {
+        gamesPlayed = Math.floor(Math.random() * 2) + 1;
+      } else {
+        gamesPlayed = Math.random() < 0.5 ? 1 : 0;
+      }
+      
+      gamesPlayed = Math.floor(gamesPlayed * timeMultiplier);
+      
+      if (gamesPlayed === 0) {
+        continue;
+      }
+      
+      let consecutiveWins = 0;
+      let consecutiveLosses = 0;
+      
+      for (let i = 0; i < gamesPlayed; i++) {
+        let baseWinRate = 0.5;
+        if (currentTrophies > 650) baseWinRate = 0.58;
+        else if (currentTrophies > 500) baseWinRate = 0.56;
+        else if (currentTrophies > 300) baseWinRate = 0.53;
+        else if (currentTrophies > 150) baseWinRate = 0.51;
+        else if (currentTrophies < 50) baseWinRate = 0.47;
+        
+        const streakEffect = (consecutiveWins * 0.01) - (consecutiveLosses * 0.02);
+        const winRate = Math.min(0.70, Math.max(0.30, baseWinRate + streakEffect));
+        
+        const won = Math.random() < winRate;
+        
+        if (won) {
+          consecutiveWins++;
+          consecutiveLosses = 0;
+          const baseGain = Math.floor(Math.random() * 4) + 2;
+          const streakBonus = Math.floor(consecutiveWins / 3);
+          currentTrophies += (baseGain + streakBonus);
+        } else {
+          consecutiveLosses++;
+          consecutiveWins = 0;
+          const trophyLoss = Math.floor(Math.random() * 4) + 1;
+          currentTrophies = Math.max(0, currentTrophies - trophyLoss);
+        }
+      }
+    }
+    
+    return {
+      ...ai,
+      trophies: currentTrophies,
+      lastUpdate: now
+    };
+  });
 }
 
 export function updateLeaderboardAI(competitors: AICompetitor[]): AICompetitor[] {

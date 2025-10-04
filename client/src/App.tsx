@@ -22,7 +22,8 @@ import {
   updateLeaderboardAI,
   resetAICompetitorsForSeason,
   getTop100Leaderboard,
-  getCurrentSeasonData 
+  getCurrentSeasonData,
+  catchUpAICompetitors
 } from './utils/seasonManager';
 import { getSeasonResetTrophies, getSeasonRewardCoins, getRankByTrophies } from './utils/rankSystem';
 import { shouldRotateShop, getShopRotationSeed } from './utils/shopManager';
@@ -88,6 +89,18 @@ function App() {
   const [newsAutoOpened, setNewsAutoOpened] = useState(false);
   const [newItems, setNewItems] = useState<NewItem[]>([]);
   const [showItemNotification, setShowItemNotification] = useState(false);
+  
+  // Catch up AI competitors on initial load (simulates grinding while player was away)
+  useEffect(() => {
+    const caughtUpAI = catchUpAICompetitors(aiCompetitors);
+    const hasChanges = caughtUpAI.some((ai, index) => ai.trophies !== aiCompetitors[index].trophies);
+    
+    if (hasChanges) {
+      setAiCompetitors(caughtUpAI);
+      saveAICompetitors(caughtUpAI);
+      console.log('AI competitors caught up from offline time');
+    }
+  }, []); // Only run once on mount
   
   // Tournament timer
   useEffect(() => {
