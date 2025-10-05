@@ -329,16 +329,20 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
         
         {/* Crate Opening Animation */}
         <Dialog open={isOpening} onOpenChange={() => setIsOpening(false)}>
-          <DialogContent className="bg-gray-900 text-white border-purple-500/50">
+          <DialogContent className="bg-gray-900 text-white border-purple-500/50" aria-describedby="crate-opening-description">
+            <DialogHeader>
+              <DialogTitle className="sr-only">Crate Opening</DialogTitle>
+              <DialogDescription id="crate-opening-description" className="sr-only">
+                Opening crate and revealing items
+              </DialogDescription>
+            </DialogHeader>
             <div className="text-center py-12">
               <div className="mb-6">
                 <p className="text-xl mb-4">Opening crate...</p>
-                <div className="relative h-40 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="absolute w-1 h-full bg-yellow-400 z-10 left-1/2 transform -translate-x-1/2 opacity-50"></div>
-                  </div>
-                  <div className="flex items-center h-full gap-4 px-4" style={{ 
-                    transform: `translateX(${-selectedItemIndex * 120 + 240}px)`,
+                <div className="relative h-40 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500 flex items-center justify-center">
+                  <div className="absolute w-1 h-full bg-yellow-400 z-10 opacity-50 left-1/2 transform -translate-x-1/2"></div>
+                  <div className="flex items-center h-full gap-4 absolute left-1/2" style={{ 
+                    transform: `translateX(calc(-50px - ${selectedItemIndex * 116}px))`,
                     transition: 'transform 0.3s ease-out'
                   }}>
                     {rollingItems.map((item, idx) => {

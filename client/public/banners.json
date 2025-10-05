@@ -17,7 +17,8 @@
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "common"
   },
   {
     "bannerId": 3,
@@ -27,17 +28,19 @@
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "common"
   },
   {
     "bannerId": 4,
     "bannerName": "Forest Green",
     "imageName": "forest_green.png",
-    "price": 350,
+    "price": 400,
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "regular"
   },
   {
     "bannerId": 5,
@@ -127,47 +130,52 @@
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": true
+    "offSale": true,
+    "rarity": "blackmarket"
   },
   {
     "bannerId": 14,
     "bannerName": "Starry Night",
     "imageName": "starry_night.png",
-    "price": 750,
+    "price": 850,
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "deluxe"
   },
   {
     "bannerId": 15,
     "bannerName": "Vaporwave",
     "imageName": "vaporwave.png",
-    "price": 650,
+    "price": 700,
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "special"
   },
   {
     "bannerId": 16,
     "bannerName": "Cat in a Pond",
     "imageName": "cat_pond.png",
-    "price": 625,
+    "price": 1100,
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "exotic"
   },
   {
     "bannerId": 17,
     "bannerName": "Perplexity",
     "imageName": "perp.png",
-    "price": 625,
+    "price": 600,
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "special"
   },
   {
     "bannerId": 18,
