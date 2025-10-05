@@ -12,7 +12,7 @@ Preferred communication style: Simple, everyday language.
 
 ### UI/UX Decisions
 
-The application utilizes React with TypeScript, styled using TailwindCSS for a custom dark theme. UI components are built using Radix UI for accessibility. Cosmetic systems include: Titles (Ranked, Tournament, Leaderboard, Shop) displayed under player usernames, and Banners (Default, Shop, Ranked) displayed behind usernames. The game board has been expanded to 9x7 for increased strategic depth. The UI aims for a clean interface with consistent styling.
+The application utilizes React with TypeScript, styled using TailwindCSS for a custom dark theme. UI components are built using Radix UI for accessibility. Cosmetic systems include: Titles (Ranked, Tournament, Leaderboard, Shop) displayed under player usernames, Banners (Default, Shop, Ranked) displayed behind usernames, and Profile Pictures (PFPs) displayed as circular overlays on the left side of banners. The game board has been expanded to 9x7 for increased strategic depth. The UI aims for a clean interface with consistent styling.
 
 ### Technical Implementations
 
@@ -28,6 +28,7 @@ The frontend is built with React 18 and Vite. State management relies on local c
 -   **Shop System**: Rotates 3 titles and 3 banners every 12 hours for in-game currency. Includes a "Featured Items" section with time-based exclusivity.
 -   **News Feed System**: Displays updates, announcements, and season news with notification badges and rich content support. News can be filtered by type and automatically appears on load for unread items.
 -   **Item Notification System**: Rocket League-style popup notifications when cosmetic items are obtained, showing visual previews.
+-   **Profile Picture (PFP) System**: Cosmetic profile pictures displayed as circular overlays on player banners. PFPs have rarities and attributes, available through shop purchases and crates. Managed via inventory with filtering and search functionality.
 -   **RP Currency System**: New RP (Ranked Points) currency with migration support, displayed on the main menu.
 -   **Dynamic AI Leaderboard**: Automatic 5-minute refresh system where AI competitors update trophy counts to ensure a dynamic leaderboard, with a visible countdown timer.
 -   **CSL (Competitive Seasonal League) Screen**: Dedicated screen showing RP, upcoming tournaments (placeholder), and career earnings.
@@ -74,3 +75,19 @@ The project has been successfully imported from GitHub and configured for the Re
 ✅ Development server running successfully
 ✅ Frontend loads and displays correctly
 ✅ Deployment configuration ready
+
+### Recent Updates (October 5, 2025)
+
+**Profile Picture (PFP) System Implementation**
+- Created PFP infrastructure: `pfps.json` with 10 initial PFPs, `pfpManager.ts` utility
+- Added PFP to player data types: `ownedPfps`, `equippedPfp` fields with localStorage persistence
+- Integrated PFP display: Circular overlays on banners in main menu and game screen
+- Enhanced inventory system: New PFP tab with search, rarity filtering, and instant equipping
+- Shop & crate integration: PFPs available in crates and future shop rotations
+- Item notifications: PFP support in Rocket League-style unlock popups
+- News announcement: Added PFP feature announcement to news feed (10/5/2025)
+
+**UX Improvements**
+- Inventory items now equip on click (removed scroll-to-equip requirement)
+- Tooltips show instantly on hover (removed delay)
+- Banner items have consistent sizing in inventory
