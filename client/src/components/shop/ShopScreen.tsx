@@ -104,26 +104,30 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
     }
     rollingSequence.push(result.item);
     
+    for (let i = 0; i < 8; i++) {
+      const randomItem = allPossibleItems[Math.floor(Math.random() * allPossibleItems.length)];
+      rollingSequence.push(randomItem);
+    }
+    
     setRollingItems(rollingSequence);
     setSelectedItemIndex(0);
     
     let currentIndex = 0;
-    const totalDuration = 3000;
-    const intervals = [100, 100, 100, 100, 150, 150, 200, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800];
+    const intervals = [80, 80, 80, 90, 90, 100, 110, 120, 140, 160, 180, 210, 250, 300, 360, 430, 510, 600, 700, 800, 900];
     
     const animateRoll = (index: number) => {
-      if (index >= rollingSequence.length) {
+      if (index > 20) {
         onCratePurchase(selectedCrate.price, result.item, result.isDuplicate, result.refundAmount);
         setTimeout(() => {
           setIsOpening(false);
           setRollingItems([]);
           setSelectedItemIndex(0);
-        }, 1500);
+        }, 2000);
         return;
       }
       
       setSelectedItemIndex(index);
-      const delay = intervals[index] || 100;
+      const delay = intervals[index] || 80;
       setTimeout(() => animateRoll(index + 1), delay);
     };
     
@@ -340,10 +344,10 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
               <div className="mb-6">
                 <p className="text-xl mb-4">Opening crate...</p>
                 <div className="relative h-40 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500 flex items-center justify-center">
-                  <div className="absolute w-1 h-full bg-yellow-400 z-10 opacity-50 left-1/2 transform -translate-x-1/2"></div>
-                  <div className="flex items-center h-full gap-4 absolute left-1/2" style={{ 
-                    transform: `translateX(calc(-50px - ${selectedItemIndex * 116}px))`,
-                    transition: 'transform 0.3s ease-out'
+                  <div className="absolute w-1 h-full bg-yellow-400 z-10 opacity-75 left-1/2 transform -translate-x-1/2"></div>
+                  <div className="flex items-center h-full gap-4 absolute" style={{ 
+                    transform: `translateX(calc(50% - 50px - ${selectedItemIndex * 116}px))`,
+                    transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
                   }}>
                     {rollingItems.map((item, idx) => {
                       const isBanner = 'bannerId' in item;
