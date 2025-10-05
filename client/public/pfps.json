@@ -10,5 +10,17 @@
     "offSale": false,
     "rarity": "common",
     "attributes": ["starter"]
+  },
+  {
+    "pfpId": 2,
+    "pfpName": "Ice Cream",
+    "imageName": "icecream.png",
+    "price": 125,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "common",
+    "attributes": ["starter"]
   }
 ]

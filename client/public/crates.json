@@ -46,8 +46,8 @@
         "dropRate": 30
       },
       {
-        "type": "title",
-        "id": "grey_master",
+        "type": "pfp",
+        "id": 2,
         "dropRate": 20
       }
     ]
