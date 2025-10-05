@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
 import { getTitleFromId } from '../../utils/titleManager';
+import { loadPfps, getPfpById, getPfpImagePath } from '../../utils/pfpManager';
 
 interface BannerDisplayProps {
   bannerId: number | null;
   username?: string;
   titleId?: string | null;
+  pfpId?: number | null;
   className?: string;
 }
 
-export function BannerDisplay({ bannerId, username, titleId, className = '' }: BannerDisplayProps) {
+export function BannerDisplay({ bannerId, username, titleId, pfpId, className = '' }: BannerDisplayProps) {
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [pfpUrl, setPfpUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!bannerId) {
@@ -25,6 +28,20 @@ export function BannerDisplay({ bannerId, username, titleId, className = '' }: B
       }
     });
   }, [bannerId]);
+
+  useEffect(() => {
+    if (!pfpId) {
+      setPfpUrl(null);
+      return;
+    }
+
+    loadPfps().then(pfps => {
+      const pfp = getPfpById(pfpId, pfps);
+      if (pfp) {
+        setPfpUrl(getPfpImagePath(pfp.imageName));
+      }
+    });
+  }, [pfpId]);
 
   if (!bannerId || !bannerUrl) {
     return username ? <span className={className}>{username}</span> : null;
@@ -46,22 +63,33 @@ export function BannerDisplay({ bannerId, username, titleId, className = '' }: B
           className="h-[62px] w-auto"
           style={{ imageRendering: isGif ? 'auto' : 'crisp-edges' }}
         />
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-white font-bold px-2 text-shadow-lg text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-            {username}
-          </span>
-          {title && (
-            <p 
-              className="text-xs font-bold mt-0.5 px-1 leading-tight"
-              style={{ 
-                color: title.color, 
-                textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
-                ...glowStyle 
-              }}
-            >
-              {title.name.toUpperCase()}
-            </p>
+        <div className="absolute inset-0 flex items-center justify-center">
+          {pfpUrl && (
+            <div className="absolute left-2 w-[45px] h-[45px] rounded-full overflow-hidden border-2 border-white shadow-lg">
+              <img
+                src={pfpUrl}
+                alt="Profile Picture"
+                className="w-full h-full object-cover"
+              />
+            </div>
           )}
+          <div className={`flex flex-col items-center justify-center ${pfpUrl ? 'ml-6' : ''}`}>
+            <span className="text-white font-bold px-2 text-shadow-lg text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+              {username}
+            </span>
+            {title && (
+              <p 
+                className="text-xs font-bold mt-0.5 px-1 leading-tight"
+                style={{ 
+                  color: title.color, 
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                  ...glowStyle 
+                }}
+              >
+                {title.name.toUpperCase()}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     );

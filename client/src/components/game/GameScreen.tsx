@@ -436,6 +436,7 @@ export function GameScreen({
                 bannerId={playerData.equippedBanner}
                 username={playerData.username}
                 titleId={playerData.equippedTitle}
+                pfpId={playerData.equippedPfp}
                 className="scale-100"
               />
             </div>

@@ -57,6 +57,7 @@ export function MenuScreen({
                 bannerId={playerData.equippedBanner}
                 username={playerData.username}
                 titleId={playerData.equippedTitle}
+                pfpId={playerData.equippedPfp}
               />
             </div>
           </div>
