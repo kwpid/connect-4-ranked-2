@@ -7,7 +7,9 @@
     "ranked": false,
     "season": null,
     "rank": null,
-    "offSale": false
+    "offSale": false,
+    "rarity": "common",
+    "attributes": ["starter"]
   },
   {
     "bannerId": 2,
@@ -18,7 +20,8 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "common"
+    "rarity": "common",
+    "attributes": ["classic"]
   },
   {
     "bannerId": 3,
@@ -29,7 +32,8 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "common"
+    "rarity": "common",
+    "attributes": ["classic"]
   },
   {
     "bannerId": 4,
@@ -40,7 +44,8 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "regular"
+    "rarity": "regular",
+    "attributes": ["classic"]
   },
   {
     "bannerId": 5,
@@ -50,7 +55,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Bronze",
-    "offSale": false
+    "offSale": false,
+    "rarity": "regular",
+    "attributes": ["ranked", "season1"]
   },
   {
     "bannerId": 6,
@@ -60,7 +67,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Silver",
-    "offSale": false
+    "offSale": false,
+    "rarity": "regular",
+    "attributes": ["ranked", "season1"]
   },
   {
     "bannerId": 7,
@@ -70,7 +79,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Gold",
-    "offSale": false
+    "offSale": false,
+    "rarity": "special",
+    "attributes": ["ranked", "season1"]
   },
   {
     "bannerId": 8,
@@ -80,7 +91,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Platinum",
-    "offSale": false
+    "offSale": false,
+    "rarity": "deluxe",
+    "attributes": ["ranked", "season1"]
   },
   {
     "bannerId": 9,
@@ -90,7 +103,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Diamond",
-    "offSale": false
+    "offSale": false,
+    "rarity": "exotic",
+    "attributes": ["ranked", "season1"]
   },
   {
     "bannerId": 10,
@@ -100,7 +115,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Champion",
-    "offSale": false
+    "offSale": false,
+    "rarity": "blackmarket",
+    "attributes": ["ranked", "season1", "champion"]
   },
   {
     "bannerId": 11,
@@ -110,7 +127,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Grand Champion",
-    "offSale": false
+    "offSale": false,
+    "rarity": "blackmarket",
+    "attributes": ["ranked", "season1", "champion", "animated"]
   },
   {
     "bannerId": 12,
@@ -120,7 +139,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Connect Legend",
-    "offSale": false
+    "offSale": false,
+    "rarity": "blackmarket",
+    "attributes": ["ranked", "season1", "legend", "animated"]
   },
   {
     "bannerId": 13,
@@ -131,7 +152,8 @@
     "season": null,
     "rank": null,
     "offSale": true,
-    "rarity": "blackmarket"
+    "rarity": "blackmarket",
+    "attributes": ["limited", "series"]
   },
   {
     "bannerId": 14,
@@ -142,7 +164,8 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "deluxe"
+    "rarity": "deluxe",
+    "attributes": ["artistic"]
   },
   {
     "bannerId": 15,
@@ -153,7 +176,8 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "special"
+    "rarity": "special",
+    "attributes": ["aesthetic", "animated"]
   },
   {
     "bannerId": 16,
@@ -164,7 +188,8 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "exotic"
+    "rarity": "exotic",
+    "attributes": ["cute", "animated"]
   },
   {
     "bannerId": 17,
@@ -175,7 +200,8 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "special"
+    "rarity": "special",
+    "attributes": ["brand", "tech"]
   },
   {
     "bannerId": 18,
@@ -185,7 +211,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Bronze",
-    "offSale": false
+    "offSale": false,
+    "rarity": "regular",
+    "attributes": ["ranked", "season2"]
   },
   {
     "bannerId": 19,
@@ -195,7 +223,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Silver",
-    "offSale": false
+    "offSale": false,
+    "rarity": "regular",
+    "attributes": ["ranked", "season2"]
   },
   {
     "bannerId": 20,
@@ -205,7 +235,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Gold",
-    "offSale": false
+    "offSale": false,
+    "rarity": "special",
+    "attributes": ["ranked", "season2"]
   },
   {
     "bannerId": 21,
@@ -215,7 +247,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Platinum",
-    "offSale": false
+    "offSale": false,
+    "rarity": "deluxe",
+    "attributes": ["ranked", "season2"]
   },
   {
     "bannerId": 22,
@@ -225,7 +259,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Diamond",
-    "offSale": false
+    "offSale": false,
+    "rarity": "exotic",
+    "attributes": ["ranked", "season2"]
   },
   {
     "bannerId": 23,
@@ -235,7 +271,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Champion",
-    "offSale": false
+    "offSale": false,
+    "rarity": "blackmarket",
+    "attributes": ["ranked", "season2", "champion"]
   },
   {
     "bannerId": 24,
@@ -245,7 +283,9 @@
     "ranked": true,
     "season": 1,
     "rank": "Grand Champion",
-    "offSale": false
+    "offSale": false,
+    "rarity": "blackmarket",
+    "attributes": ["ranked", "season2", "champion", "animated"]
   },
   {
     "bannerId": 25,
@@ -255,6 +295,8 @@
     "ranked": true,
     "season": 1,
     "rank": "Connect Legend",
-    "offSale": false
+    "offSale": false,
+    "rarity": "blackmarket",
+    "attributes": ["ranked", "season2", "legend", "animated"]
   }
 ]
