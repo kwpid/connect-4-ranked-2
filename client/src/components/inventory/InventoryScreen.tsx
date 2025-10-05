@@ -184,7 +184,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {ownedBanners.map(banner => (
-                  <TooltipProvider key={banner.bannerId}>
+                  <TooltipProvider key={banner.bannerId} delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
@@ -192,14 +192,14 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
                             rarity={banner.rarity}
                             attributes={banner.attributes}
                             selected={selectedBanner === banner.bannerId}
-                            onClick={() => setSelectedBanner(banner.bannerId)}
-                            className="aspect-square p-4"
+                            onClick={() => onEquipBanner(banner.bannerId)}
+                            className="aspect-square p-4 cursor-pointer"
                           >
                             <div className="flex flex-col items-center justify-center h-full">
                               <img
                                 src={getBannerImagePath(banner.imageName)}
                                 alt={banner.bannerName}
-                                className="h-[40px] mb-2"
+                                className="h-[50px] w-auto object-contain mb-2"
                                 style={{ imageRendering: banner.fileType === 'gif' ? 'auto' : 'crisp-edges' }}
                               />
                               <p className="text-xs text-center truncate w-full">{banner.bannerName}</p>
@@ -239,13 +239,6 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
                 </div>
               )}
 
-              <Button
-                onClick={() => onEquipBanner(selectedBanner)}
-                className="w-full"
-                size="lg"
-              >
-                Equip Selected Banner
-              </Button>
             </div>
           </TabsContent>
 
@@ -289,7 +282,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
 
               <div className="space-y-3">
                 <div
-                  onClick={() => setSelectedTitle(null)}
+                  onClick={() => onEquipTitle(null)}
                   className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                     selectedTitle === null
                       ? 'bg-blue-600 border-blue-400'
@@ -302,7 +295,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
                 {ownedTitles.map(title => (
                   <div
                     key={title.id}
-                    onClick={() => setSelectedTitle(title.id)}
+                    onClick={() => onEquipTitle(title.id)}
                     className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                       selectedTitle === title.id
                         ? 'bg-blue-600 border-blue-400'
@@ -320,13 +313,6 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
                 </div>
               )}
 
-              <Button
-                onClick={() => onEquipTitle(selectedTitle)}
-                className="w-full"
-                size="lg"
-              >
-                Equip Selected Title
-              </Button>
             </div>
           </TabsContent>
         </Tabs>
