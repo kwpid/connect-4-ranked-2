@@ -113,9 +113,12 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
     
     const animateRoll = (index: number) => {
       if (index >= rollingSequence.length) {
-        setCrateOpeningResult(result);
         onCratePurchase(selectedCrate.price, result.item, result.isDuplicate, result.refundAmount);
-        setIsOpening(false);
+        setTimeout(() => {
+          setIsOpening(false);
+          setRollingItems([]);
+          setSelectedItemIndex(0);
+        }, 1500);
         return;
       }
       
@@ -325,85 +328,53 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
         </Dialog>
         
         {/* Crate Opening Animation */}
-        <Dialog open={isOpening || !!crateOpeningResult} onOpenChange={() => setCrateOpeningResult(null)}>
+        <Dialog open={isOpening} onOpenChange={() => setIsOpening(false)}>
           <DialogContent className="bg-gray-900 text-white border-purple-500/50">
-            {isOpening ? (
-              <div className="text-center py-12">
-                <div className="mb-6">
-                  <p className="text-xl mb-4">Opening crate...</p>
-                  <div className="relative h-32 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="absolute w-1 h-full bg-yellow-400 z-10 left-1/2 transform -translate-x-1/2 opacity-50"></div>
-                    </div>
-                    <div className="flex items-center h-full gap-4 px-4">
-                      {rollingItems.length > 0 && rollingItems.slice(Math.max(0, selectedItemIndex - 2), selectedItemIndex + 3).map((item, idx) => {
-                        const actualIdx = Math.max(0, selectedItemIndex - 2) + idx;
-                        const isBanner = 'bannerId' in item;
-                        const isSelected = actualIdx === selectedItemIndex;
-                        
-                        return (
-                          <div
-                            key={actualIdx}
-                            className={`flex-shrink-0 bg-gray-700 rounded-lg p-3 transition-all duration-200 ${
-                              isSelected ? 'scale-110 border-2 border-yellow-400' : 'opacity-50 scale-90'
-                            }`}
-                            style={{ width: '100px', height: '100px' }}
-                          >
-                            {isBanner ? (
-                              <div className="flex flex-col items-center justify-center h-full">
-                                <img
-                                  src={getBannerImagePath((item as Banner).imageName)}
-                                  alt={(item as Banner).bannerName}
-                                  className="h-12"
-                                />
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-center h-full">
-                                <p className="text-xs text-center" style={{ color: (item as Title).color }}>
-                                  {(item as Title).name}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+            <div className="text-center py-12">
+              <div className="mb-6">
+                <p className="text-xl mb-4">Opening crate...</p>
+                <div className="relative h-40 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="absolute w-1 h-full bg-yellow-400 z-10 left-1/2 transform -translate-x-1/2 opacity-50"></div>
+                  </div>
+                  <div className="flex items-center h-full gap-4 px-4" style={{ 
+                    transform: `translateX(${-selectedItemIndex * 120 + 240}px)`,
+                    transition: 'transform 0.3s ease-out'
+                  }}>
+                    {rollingItems.map((item, idx) => {
+                      const isBanner = 'bannerId' in item;
+                      const isSelected = idx === selectedItemIndex;
+                      
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex-shrink-0 bg-gray-700 rounded-lg p-3 transition-all duration-200 ${
+                            isSelected ? 'scale-110 border-2 border-yellow-400' : 'opacity-50 scale-90'
+                          }`}
+                          style={{ width: '100px', height: '120px' }}
+                        >
+                          {isBanner ? (
+                            <div className="flex flex-col items-center justify-center h-full">
+                              <img
+                                src={getBannerImagePath((item as Banner).imageName)}
+                                alt={(item as Banner).bannerName}
+                                className="max-h-16 w-auto object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center h-full">
+                              <p className="text-xs text-center" style={{ color: (item as Title).color }}>
+                                {(item as Title).name}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
-            ) : crateOpeningResult && (
-              <div className="text-center py-8">
-                <div className="mb-6">
-                  {crateOpeningResult.reward.type === 'banner' ? (
-                    <div className="flex flex-col items-center">
-                      <img
-                        src={getBannerImagePath((crateOpeningResult.item as Banner).imageName)}
-                        alt={(crateOpeningResult.item as Banner).bannerName}
-                        className="h-[60px] mb-2"
-                      />
-                      <p className="text-lg">{(crateOpeningResult.item as Banner).bannerName}</p>
-                      {(crateOpeningResult.item as Banner).rarity && (
-                        <p className="text-sm text-gray-400 mt-1">
-                          {(crateOpeningResult.item as Banner).rarity}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <TitleDisplay title={crateOpeningResult.item as Title} />
-                  )}
-                </div>
-                {crateOpeningResult.isDuplicate && (
-                  <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-500/50 rounded-lg">
-                    <p className="text-yellow-400">
-                      ⚠️ Duplicate item! Refunded 💰 {crateOpeningResult.refundAmount} coins (85%)
-                    </p>
-                  </div>
-                )}
-                <Button onClick={() => setCrateOpeningResult(null)}>
-                  Claim
-                </Button>
-              </div>
-            )}
+            </div>
           </DialogContent>
         </Dialog>
       </div>
