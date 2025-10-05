@@ -919,6 +919,7 @@ function App() {
           playerData={playerData}
           onEquipTitle={handleEquipTitle}
           onEquipBanner={handleEquipBanner}
+          onEquipPfp={handleEquipPfp}
           onBack={() => setScreen('menu')}
         />
       )}

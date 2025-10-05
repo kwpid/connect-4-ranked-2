@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { PlayerData, Banner, ItemRarity } from '../../types/game';
+import { PlayerData, Banner, Pfp, ItemRarity } from '../../types/game';
 import { TitleDisplay } from '../common/TitleDisplay';
 import { getTitleFromId } from '../../utils/titleManager';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
+import { loadPfps, getPfpById, getPfpImagePath } from '../../utils/pfpManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ItemCard } from '../ui/item-card';
 import { Input } from '../ui/input';
@@ -14,6 +15,7 @@ interface InventoryScreenProps {
   playerData: PlayerData;
   onEquipTitle: (titleId: string | null) => void;
   onEquipBanner: (bannerId: number | null) => void;
+  onEquipPfp: (pfpId: number | null) => void;
   onBack: () => void;
 }
 
@@ -27,20 +29,27 @@ const rarityOrder: Record<ItemRarity, number> = {
   'common': 7,
 };
 
-export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBack }: InventoryScreenProps) {
+export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEquipPfp, onBack }: InventoryScreenProps) {
   const [selectedTitle, setSelectedTitle] = useState<string | null>(playerData.equippedTitle);
   const [selectedBanner, setSelectedBanner] = useState<number | null>(playerData.equippedBanner || 1);
+  const [selectedPfp, setSelectedPfp] = useState<number | null>(playerData.equippedPfp);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [pfps, setPfps] = useState<Pfp[]>([]);
   
   const [bannerSearch, setBannerSearch] = useState('');
   const [bannerRarityFilter, setBannerRarityFilter] = useState<string>('all');
   const [bannerSortBy, setBannerSortBy] = useState<'alphabetical' | 'rarity'>('alphabetical');
+  
+  const [pfpSearch, setPfpSearch] = useState('');
+  const [pfpRarityFilter, setPfpRarityFilter] = useState<string>('all');
+  const [pfpSortBy, setPfpSortBy] = useState<'alphabetical' | 'rarity'>('alphabetical');
   
   const [titleSearch, setTitleSearch] = useState('');
   const [titleTypeFilter, setTitleTypeFilter] = useState<string>('all');
 
   useEffect(() => {
     loadBanners().then(setBanners);
+    loadPfps().then(setPfps);
   }, []);
 
   const ownedTitles = useMemo(() => {
@@ -112,6 +121,36 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
     return filteredBanners;
   }, [playerData.ownedBanners, banners, bannerSearch, bannerRarityFilter, bannerSortBy]);
 
+  const ownedPfps = useMemo(() => {
+    let filteredPfps = (playerData.ownedPfps || [])
+      .map(pfpId => getPfpById(pfpId, pfps))
+      .filter((p): p is Pfp => p !== undefined);
+    
+    if (pfpSearch) {
+      filteredPfps = filteredPfps.filter(p => 
+        p.pfpName.toLowerCase().includes(pfpSearch.toLowerCase())
+      );
+    }
+    
+    if (pfpRarityFilter !== 'all') {
+      filteredPfps = filteredPfps.filter(p => 
+        p.rarity === pfpRarityFilter || (!p.rarity && pfpRarityFilter === 'common')
+      );
+    }
+    
+    filteredPfps.sort((a, b) => {
+      if (pfpSortBy === 'alphabetical') {
+        return a.pfpName.localeCompare(b.pfpName);
+      } else {
+        const rarityA = rarityOrder[a.rarity || 'common'];
+        const rarityB = rarityOrder[b.rarity || 'common'];
+        return rarityA - rarityB;
+      }
+    });
+    
+    return filteredPfps;
+  }, [playerData.ownedPfps, pfps, pfpSearch, pfpRarityFilter, pfpSortBy]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
       <div className="max-w-6xl mx-auto">
@@ -126,8 +165,9 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
         </div>
 
         <Tabs defaultValue="banners" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="banners">Banners</TabsTrigger>
+            <TabsTrigger value="pfps">PFPs</TabsTrigger>
             <TabsTrigger value="chips">Chips</TabsTrigger>
             <TabsTrigger value="titles">Titles</TabsTrigger>
           </TabsList>
@@ -236,6 +276,114 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
               {ownedBanners.length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-gray-400">No banners found</p>
+                </div>
+              )}
+
+            </div>
+          </TabsContent>
+
+          <TabsContent value="pfps">
+            <div className="space-y-6">
+              <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
+                <p className="text-gray-400 text-sm mb-3">Currently Equipped</p>
+                {playerData.equippedPfp && getPfpById(playerData.equippedPfp, pfps) ? (
+                  <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-4">
+                    <div className="w-[80px] h-[80px] rounded-full overflow-hidden border-2 border-gray-600">
+                      <img
+                        src={getPfpImagePath(getPfpById(playerData.equippedPfp, pfps)!.imageName)}
+                        alt={getPfpById(playerData.equippedPfp, pfps)!.pfpName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">No PFP equipped</p>
+                )}
+              </div>
+
+              <div className="flex gap-4 flex-wrap">
+                <Input
+                  placeholder="Search PFPs..."
+                  value={pfpSearch}
+                  onChange={(e) => setPfpSearch(e.target.value)}
+                  className="flex-1 min-w-[200px] bg-gray-800 border-gray-700"
+                />
+                <Select value={pfpRarityFilter} onValueChange={setPfpRarityFilter}>
+                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Rarity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Rarities</SelectItem>
+                    <SelectItem value="common">Common</SelectItem>
+                    <SelectItem value="regular">Regular</SelectItem>
+                    <SelectItem value="special">Special</SelectItem>
+                    <SelectItem value="deluxe">Deluxe</SelectItem>
+                    <SelectItem value="exotic">Exotic</SelectItem>
+                    <SelectItem value="blackmarket">Black Market</SelectItem>
+                    <SelectItem value="legacy">Legacy</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={pfpSortBy} onValueChange={(v) => setPfpSortBy(v as 'alphabetical' | 'rarity')}>
+                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="alphabetical">Alphabetical</SelectItem>
+                    <SelectItem value="rarity">Rarity</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {ownedPfps.map(pfp => (
+                  <TooltipProvider key={pfp.pfpId} delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <ItemCard
+                            rarity={pfp.rarity}
+                            attributes={pfp.attributes}
+                            selected={selectedPfp === pfp.pfpId}
+                            onClick={() => onEquipPfp(pfp.pfpId)}
+                            className="aspect-square p-4 cursor-pointer"
+                          >
+                            <div className="flex flex-col items-center justify-center h-full">
+                              <div className="w-[80px] h-[80px] rounded-full overflow-hidden border-2 border-gray-600 mb-2">
+                                <img
+                                  src={getPfpImagePath(pfp.imageName)}
+                                  alt={pfp.pfpName}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <p className="text-xs text-center truncate w-full">{pfp.pfpName}</p>
+                            </div>
+                          </ItemCard>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="space-y-1">
+                          <p className="font-semibold">{pfp.pfpName}</p>
+                          {pfp.description && <p className="text-xs text-gray-400">{pfp.description}</p>}
+                          {pfp.rarity && (
+                            <p className="text-xs">
+                              <span className="text-gray-400">Rarity:</span> {pfp.rarity}
+                            </p>
+                          )}
+                          {pfp.attributes && pfp.attributes.length > 0 && (
+                            <p className="text-xs">
+                              <span className="text-gray-400">Attributes:</span> {pfp.attributes.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
+
+              {ownedPfps.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">No PFPs found</p>
                 </div>
               )}
 
