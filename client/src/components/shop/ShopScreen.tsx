@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlayerData, ShopItem, FeaturedItem, Crate, Banner, Title, CrateOpenResult } from '../../types/game';
+import { PlayerData, ShopItem, FeaturedItem, Crate, Banner, Title, Pfp, CrateOpenResult } from '../../types/game';
 import { generateShopItems, shouldRotateShop, getShopRotationSeed, getFeaturedItems } from '../../utils/shopManager';
 import { loadCrates, openCrate, getCrateImagePath, getRewardPreview } from '../../utils/crateManager';
 import { TitleDisplay } from '../common/TitleDisplay';
@@ -89,7 +89,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
     setIsOpening(true);
     setCratePreviewOpen(false);
     
-    const result = await openCrate(selectedCrate, playerData.ownedBanners, playerData.ownedTitles);
+    const result = await openCrate(selectedCrate, playerData.ownedBanners, playerData.ownedTitles, playerData.ownedPfps);
     
     const allPossibleItems: (Banner | Title | Pfp)[] = [];
     for (const reward of selectedCrate.rewards) {
@@ -391,7 +391,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
 }
 
 function CrateRewardPreview({ reward }: { reward: any }) {
-  const [item, setItem] = useState<Banner | Title | null>(null);
+  const [item, setItem] = useState<Banner | Title | Pfp | null>(null);
   
   useEffect(() => {
     getRewardPreview(reward).then(setItem);
@@ -400,6 +400,7 @@ function CrateRewardPreview({ reward }: { reward: any }) {
   if (!item) return null;
   
   const isBanner = 'bannerId' in item;
+  const isPfp = 'pfpId' in item;
   const banner = isBanner ? (item as Banner) : undefined;
   
   return (

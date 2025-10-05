@@ -1,6 +1,7 @@
-import { Crate, CrateReward, CrateOpenResult, Banner, Title } from '../types/game';
+import { Crate, CrateReward, CrateOpenResult, Banner, Title, Pfp } from '../types/game';
 import { loadBanners, getBannerById } from './bannerManager';
 import { getTitleFromId } from './titleManager';
+import { loadPfps, getPfpById } from './pfpManager';
 
 let cratesCache: Crate[] | null = null;
 
@@ -24,7 +25,7 @@ export function getCrateById(crateId: number, crates: Crate[]): Crate | undefine
   return crates.find(c => c.crateId === crateId);
 }
 
-export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitles: string[]): Promise<CrateOpenResult> {
+export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitles: string[], ownedPfps: number[] = []): Promise<CrateOpenResult> {
   const totalRate = crate.rewards.reduce((sum, reward) => sum + reward.dropRate, 0);
   const roll = Math.random() * totalRate;
   
@@ -43,7 +44,7 @@ export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitle
     selectedReward = crate.rewards[crate.rewards.length - 1];
   }
   
-  let item: Banner | Title;
+  let item: Banner | Title | Pfp;
   let isDuplicate = false;
   
   if (selectedReward.type === 'banner') {
@@ -54,6 +55,14 @@ export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitle
     }
     item = banner;
     isDuplicate = ownedBanners.includes(banner.bannerId);
+  } else if (selectedReward.type === 'pfp') {
+    const pfps = await loadPfps();
+    const pfp = getPfpById(selectedReward.id as number, pfps);
+    if (!pfp) {
+      throw new Error('PFP not found');
+    }
+    item = pfp;
+    isDuplicate = ownedPfps.includes(pfp.pfpId);
   } else {
     item = getTitleFromId(selectedReward.id as string);
     isDuplicate = ownedTitles.includes((item as Title).id);
@@ -73,7 +82,7 @@ export function getCrateImagePath(imageName: string): string {
   return `/crates/${imageName}`;
 }
 
-export async function getRewardPreview(reward: CrateReward): Promise<Banner | Title> {
+export async function getRewardPreview(reward: CrateReward): Promise<Banner | Title | Pfp> {
   if (reward.type === 'banner') {
     const banners = await loadBanners();
     const banner = getBannerById(reward.id as number, banners);
@@ -81,6 +90,13 @@ export async function getRewardPreview(reward: CrateReward): Promise<Banner | Ti
       throw new Error('Banner not found');
     }
     return banner;
+  } else if (reward.type === 'pfp') {
+    const pfps = await loadPfps();
+    const pfp = getPfpById(reward.id as number, pfps);
+    if (!pfp) {
+      throw new Error('PFP not found');
+    }
+    return pfp;
   } else {
     return getTitleFromId(reward.id as string);
   }
