@@ -1,0 +1,80 @@
+import { Crate, CrateReward, CrateOpenResult, Banner, Title } from '../types/game';
+import { loadBanners, getBannerById } from './bannerManager';
+import { getTitleFromId } from './titleManager';
+
+let cratesCache: Crate[] | null = null;
+
+export async function loadCrates(): Promise<Crate[]> {
+  if (cratesCache) {
+    return cratesCache;
+  }
+
+  try {
+    const response = await fetch('/crates.json');
+    const crates: Crate[] = await response.json();
+    cratesCache = crates;
+    return crates;
+  } catch (error) {
+    console.error('Failed to load crates:', error);
+    return [];
+  }
+}
+
+export function getCrateById(crateId: number, crates: Crate[]): Crate | undefined {
+  return crates.find(c => c.crateId === crateId);
+}
+
+export async function openCrate(crate: Crate): Promise<CrateOpenResult> {
+  const totalRate = crate.rewards.reduce((sum, reward) => sum + reward.dropRate, 0);
+  const roll = Math.random() * totalRate;
+  
+  let currentRate = 0;
+  let selectedReward: CrateReward | null = null;
+  
+  for (const reward of crate.rewards) {
+    currentRate += reward.dropRate;
+    if (roll <= currentRate) {
+      selectedReward = reward;
+      break;
+    }
+  }
+  
+  if (!selectedReward) {
+    selectedReward = crate.rewards[crate.rewards.length - 1];
+  }
+  
+  let item: Banner | Title;
+  
+  if (selectedReward.type === 'banner') {
+    const banners = await loadBanners();
+    const banner = getBannerById(selectedReward.id as number, banners);
+    if (!banner) {
+      throw new Error('Banner not found');
+    }
+    item = banner;
+  } else {
+    item = getTitleFromId(selectedReward.id as string);
+  }
+  
+  return {
+    reward: selectedReward,
+    item
+  };
+}
+
+export function getCrateImagePath(imageName: string): string {
+  return `/crates/${imageName}`;
+}
+
+export async function getRewardPreview(reward: CrateReward): Promise<Banner | Title> {
+  if (reward.type === 'banner') {
+    const banners = await loadBanners();
+    const banner = getBannerById(reward.id as number, banners);
+    if (!banner) {
+      throw new Error('Banner not found');
+    }
+    return banner;
+  } else {
+    return getTitleFromId(reward.id as string);
+  }
+}

@@ -15,6 +15,10 @@ export interface RankInfo {
   tier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'champion' | 'grand_champion' | 'legend';
 }
 
+export type ItemRarity = 'common' | 'regular' | 'special' | 'deluxe' | 'exotic' | 'blackmarket' | 'legacy';
+
+export type ItemAttribute = 'certified' | 'painted' | 'animated' | 'seasonal';
+
 export interface Title {
   id: string;
   name: string;
@@ -29,11 +33,15 @@ export interface Banner {
   bannerId: number;
   bannerName: string;
   imageName: string;
+  fileType?: 'png' | 'gif';
   price: number | null;
   ranked: boolean;
   season: number | null;
   rank: string | null;
   offSale?: boolean;
+  rarity?: ItemRarity;
+  attributes?: ItemAttribute[];
+  description?: string;
 }
 
 export interface MatchHistoryEntry {
@@ -107,6 +115,26 @@ export interface FeaturedItem {
   price: number;
   expiresAt: number; // Timestamp when this item should be removed
   duration: string; // Human-readable duration like "24h", "7d", "2w"
+}
+
+export interface CrateReward {
+  type: 'banner' | 'title';
+  id: number | string;
+  dropRate: number;
+}
+
+export interface Crate {
+  crateId: number;
+  crateName: string;
+  crateImage: string;
+  price: number;
+  description: string;
+  rewards: CrateReward[];
+}
+
+export interface CrateOpenResult {
+  reward: CrateReward;
+  item: Banner | Title;
 }
 
 export interface MatchState {

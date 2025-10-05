@@ -2,6 +2,8 @@ import React from 'react';
 import { PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { BannerDisplay } from '../common/BannerDisplay';
+import { Button } from '../ui/button';
+import { Card, CardContent } from '../ui/card';
 
 interface MenuScreenProps {
   playerData: PlayerData;

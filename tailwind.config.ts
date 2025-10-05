@@ -44,6 +44,15 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        rarity: {
+          common: "#6B7280",
+          regular: "#86EFAC",
+          special: "#93C5FD",
+          deluxe: "#FDB67D",
+          exotic: "#FEF08A",
+          blackmarket: "#D8B4FE",
+          legacy: "#FB923C",
+        },
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",

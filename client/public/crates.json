@@ -1,0 +1,55 @@
+[
+  {
+    "crateId": 1,
+    "crateName": "Starter Crate",
+    "crateImage": "starter_crate.png",
+    "price": 150,
+    "description": "A basic crate with common items",
+    "rewards": [
+      {
+        "type": "banner",
+        "id": 2,
+        "dropRate": 40
+      },
+      {
+        "type": "banner",
+        "id": 3,
+        "dropRate": 35
+      },
+      {
+        "type": "title",
+        "id": "grey_novice",
+        "dropRate": 25
+      }
+    ]
+  },
+  {
+    "crateId": 2,
+    "crateName": "Premium Crate",
+    "crateImage": "premium_crate.png",
+    "price": 500,
+    "description": "A premium crate with rare items",
+    "rewards": [
+      {
+        "type": "banner",
+        "id": 2,
+        "dropRate": 25
+      },
+      {
+        "type": "banner",
+        "id": 3,
+        "dropRate": 25
+      },
+      {
+        "type": "banner",
+        "id": 4,
+        "dropRate": 30
+      },
+      {
+        "type": "title",
+        "id": "grey_master",
+        "dropRate": 20
+      }
+    ]
+  }
+]

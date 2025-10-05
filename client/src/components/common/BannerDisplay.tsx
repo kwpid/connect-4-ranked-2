@@ -30,6 +30,8 @@ export function BannerDisplay({ bannerId, username, titleId, className = '' }: B
     return username ? <span className={className}>{username}</span> : null;
   }
 
+  const isGif = bannerUrl?.toLowerCase().endsWith('.gif');
+  
   if (username) {
     const title = titleId ? getTitleFromId(titleId) : null;
     const glowStyle = title && title.glow && title.glow !== 'none' 
@@ -42,7 +44,7 @@ export function BannerDisplay({ bannerId, username, titleId, className = '' }: B
           src={bannerUrl}
           alt="Banner"
           className="h-[62px] w-auto"
-          style={{ imageRendering: 'crisp-edges' }}
+          style={{ imageRendering: isGif ? 'auto' : 'crisp-edges' }}
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-white font-bold px-2 text-shadow-lg text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
@@ -70,7 +72,7 @@ export function BannerDisplay({ bannerId, username, titleId, className = '' }: B
       src={bannerUrl}
       alt="Banner"
       className={`h-[65px] w-auto ${className}`}
-      style={{ imageRendering: 'crisp-edges' }}
+      style={{ imageRendering: isGif ? 'auto' : 'crisp-edges' }}
     />
   );
 }

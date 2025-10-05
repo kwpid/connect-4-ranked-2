@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { PlayerData, Banner } from '../../types/game';
+import React, { useState, useEffect, useMemo } from 'react';
+import { PlayerData, Banner, ItemRarity } from '../../types/game';
 import { TitleDisplay } from '../common/TitleDisplay';
 import { getTitleFromId } from '../../utils/titleManager';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { ItemCard } from '../ui/item-card';
+import { Input } from '../ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface InventoryScreenProps {
   playerData: PlayerData;
@@ -11,22 +17,46 @@ interface InventoryScreenProps {
   onBack: () => void;
 }
 
-type InventoryTab = 'banners' | 'chips' | 'titles';
+const rarityOrder: Record<ItemRarity, number> = {
+  'legacy': 1,
+  'blackmarket': 2,
+  'exotic': 3,
+  'deluxe': 4,
+  'special': 5,
+  'regular': 6,
+  'common': 7,
+};
 
 export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBack }: InventoryScreenProps) {
-  const [activeTab, setActiveTab] = useState<InventoryTab>('banners');
   const [selectedTitle, setSelectedTitle] = useState<string | null>(playerData.equippedTitle);
   const [selectedBanner, setSelectedBanner] = useState<number | null>(playerData.equippedBanner || 1);
   const [banners, setBanners] = useState<Banner[]>([]);
+  
+  const [bannerSearch, setBannerSearch] = useState('');
+  const [bannerRarityFilter, setBannerRarityFilter] = useState<string>('all');
+  const [bannerSortBy, setBannerSortBy] = useState<'alphabetical' | 'rarity'>('alphabetical');
+  
+  const [titleSearch, setTitleSearch] = useState('');
+  const [titleTypeFilter, setTitleTypeFilter] = useState<string>('all');
 
   useEffect(() => {
     loadBanners().then(setBanners);
   }, []);
 
-  // Get owned titles and sort them (ranked > tournament > leaderboard > grey)
-  const ownedTitles = playerData.ownedTitles
-    .map(titleId => getTitleFromId(titleId))
-    .sort((a, b) => {
+  const ownedTitles = useMemo(() => {
+    let titles = playerData.ownedTitles.map(titleId => getTitleFromId(titleId));
+    
+    if (titleSearch) {
+      titles = titles.filter(t => 
+        t.name.toLowerCase().includes(titleSearch.toLowerCase())
+      );
+    }
+    
+    if (titleTypeFilter !== 'all') {
+      titles = titles.filter(t => t.type === titleTypeFilter);
+    }
+    
+    titles.sort((a, b) => {
       const priorityMap: Record<string, number> = {
         'season': 1,
         'tournament': 2,
@@ -45,211 +75,261 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onBac
       }
       return a.name.localeCompare(b.name);
     });
+    
+    return titles;
+  }, [playerData.ownedTitles, titleSearch, titleTypeFilter]);
 
-  // Sort banners with default banner (ID 1) first
-  const ownedBanners = (playerData.ownedBanners || [])
-    .map(bannerId => getBannerById(bannerId, banners))
-    .filter((b): b is Banner => b !== undefined)
-    .sort((a, b) => {
+  const ownedBanners = useMemo(() => {
+    let filteredBanners = (playerData.ownedBanners || [])
+      .map(bannerId => getBannerById(bannerId, banners))
+      .filter((b): b is Banner => b !== undefined);
+    
+    if (bannerSearch) {
+      filteredBanners = filteredBanners.filter(b => 
+        b.bannerName.toLowerCase().includes(bannerSearch.toLowerCase())
+      );
+    }
+    
+    if (bannerRarityFilter !== 'all') {
+      filteredBanners = filteredBanners.filter(b => 
+        b.rarity === bannerRarityFilter || (!b.rarity && bannerRarityFilter === 'common')
+      );
+    }
+    
+    filteredBanners.sort((a, b) => {
       if (a.bannerId === 1) return -1;
       if (b.bannerId === 1) return 1;
-      return a.bannerId - b.bannerId;
+      
+      if (bannerSortBy === 'alphabetical') {
+        return a.bannerName.localeCompare(b.bannerName);
+      } else {
+        const rarityA = rarityOrder[a.rarity || 'common'];
+        const rarityB = rarityOrder[b.rarity || 'common'];
+        return rarityA - rarityB;
+      }
     });
-
-  const handleEquipTitle = () => {
-    onEquipTitle(selectedTitle);
-  };
-
-  const handleEquipBanner = () => {
-    onEquipBanner(selectedBanner);
-  };
+    
+    return filteredBanners;
+  }, [playerData.ownedBanners, banners, bannerSearch, bannerRarityFilter, bannerSortBy]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
-      <div className="max-w-4xl mx-auto h-screen flex flex-col">
+      <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <button
-            onClick={onBack}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-          >
+          <Button onClick={onBack} variant="outline">
             ← Back
-          </button>
-          <h2 className="text-3xl font-bold">Inventory</h2>
+          </Button>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+            Inventory
+          </h2>
           <div className="w-20"></div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 flex-shrink-0">
-          <button
-            onClick={() => setActiveTab('banners')}
-            className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
-              activeTab === 'banners'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700'
-            }`}
-          >
-            Banners
-          </button>
-          <button
-            onClick={() => setActiveTab('chips')}
-            className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
-              activeTab === 'chips'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700'
-            }`}
-          >
-            Chips
-          </button>
-          <button
-            onClick={() => setActiveTab('titles')}
-            className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
-              activeTab === 'titles'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700'
-            }`}
-          >
-            Titles
-          </button>
-        </div>
+        <Tabs defaultValue="banners" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="banners">Banners</TabsTrigger>
+            <TabsTrigger value="chips">Chips</TabsTrigger>
+            <TabsTrigger value="titles">Titles</TabsTrigger>
+          </TabsList>
 
-        {/* Banners Tab */}
-        {activeTab === 'banners' && (
-          <>
-            {/* Currently Equipped */}
-            <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-6 border border-gray-700 flex-shrink-0">
-              <p className="text-gray-400 text-sm mb-3">Currently Equipped Banner</p>
-              {playerData.equippedBanner && getBannerById(playerData.equippedBanner, banners) ? (
-                <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-4">
-                  <img
-                    src={getBannerImagePath(getBannerById(playerData.equippedBanner, banners)!.imageName)}
-                    alt={getBannerById(playerData.equippedBanner, banners)!.bannerName}
-                    className="h-[50px]"
-                    style={{ imageRendering: 'crisp-edges' }}
-                  />
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">No banner equipped</p>
-              )}
-            </div>
-
-            {/* Banner List */}
-            <div className="flex-1 overflow-y-auto mb-6 pr-2">
-              <div className="space-y-3">
-                {ownedBanners.map(banner => (
-                  <div
-                    key={banner.bannerId}
-                    onClick={() => setSelectedBanner(banner.bannerId)}
-                    className={`p-4 rounded-lg cursor-pointer transition-all ${
-                      selectedBanner === banner.bannerId
-                        ? 'bg-blue-600 border-2 border-blue-400'
-                        : 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-semibold">{banner.bannerName}</p>
-                      {banner.ranked && banner.season && (
-                        <span className="text-xs bg-yellow-600/20 text-yellow-400 px-2 py-1 rounded">
-                          S{banner.season} {banner.rank}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-3">
-                      <img
-                        src={getBannerImagePath(banner.imageName)}
-                        alt={banner.bannerName}
-                        className="h-[50px]"
-                        style={{ imageRendering: 'crisp-edges' }}
-                      />
-                    </div>
+          <TabsContent value="banners">
+            <div className="space-y-6">
+              <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
+                <p className="text-gray-400 text-sm mb-3">Currently Equipped</p>
+                {playerData.equippedBanner && getBannerById(playerData.equippedBanner, banners) ? (
+                  <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-4">
+                    <img
+                      src={getBannerImagePath(getBannerById(playerData.equippedBanner, banners)!.imageName)}
+                      alt={getBannerById(playerData.equippedBanner, banners)!.bannerName}
+                      className="h-[50px]"
+                    />
                   </div>
-                ))}
-
-                {ownedBanners.length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-gray-400 text-lg">No banners owned yet</p>
-                    <p className="text-gray-500 mt-2">Purchase banners from the shop or earn them through ranked seasons</p>
-                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">No banner equipped</p>
                 )}
               </div>
+
+              <div className="flex gap-4 flex-wrap">
+                <Input
+                  placeholder="Search banners..."
+                  value={bannerSearch}
+                  onChange={(e) => setBannerSearch(e.target.value)}
+                  className="flex-1 min-w-[200px] bg-gray-800 border-gray-700"
+                />
+                <Select value={bannerRarityFilter} onValueChange={setBannerRarityFilter}>
+                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Rarity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Rarities</SelectItem>
+                    <SelectItem value="common">Common</SelectItem>
+                    <SelectItem value="regular">Regular</SelectItem>
+                    <SelectItem value="special">Special</SelectItem>
+                    <SelectItem value="deluxe">Deluxe</SelectItem>
+                    <SelectItem value="exotic">Exotic</SelectItem>
+                    <SelectItem value="blackmarket">Black Market</SelectItem>
+                    <SelectItem value="legacy">Legacy</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={bannerSortBy} onValueChange={(v) => setBannerSortBy(v as 'alphabetical' | 'rarity')}>
+                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="alphabetical">Alphabetical</SelectItem>
+                    <SelectItem value="rarity">Rarity</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {ownedBanners.map(banner => (
+                  <TooltipProvider key={banner.bannerId}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <ItemCard
+                            rarity={banner.rarity}
+                            attributes={banner.attributes}
+                            selected={selectedBanner === banner.bannerId}
+                            onClick={() => setSelectedBanner(banner.bannerId)}
+                            className="aspect-square p-4"
+                          >
+                            <div className="flex flex-col items-center justify-center h-full">
+                              <img
+                                src={getBannerImagePath(banner.imageName)}
+                                alt={banner.bannerName}
+                                className="h-[40px] mb-2"
+                                style={{ imageRendering: banner.fileType === 'gif' ? 'auto' : 'crisp-edges' }}
+                              />
+                              <p className="text-xs text-center truncate w-full">{banner.bannerName}</p>
+                              {banner.ranked && banner.season && (
+                                <span className="text-[10px] bg-yellow-600/20 text-yellow-400 px-1 py-0.5 rounded mt-1">
+                                  S{banner.season}
+                                </span>
+                              )}
+                            </div>
+                          </ItemCard>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="space-y-1">
+                          <p className="font-semibold">{banner.bannerName}</p>
+                          {banner.description && <p className="text-xs text-gray-400">{banner.description}</p>}
+                          {banner.rarity && (
+                            <p className="text-xs">
+                              <span className="text-gray-400">Rarity:</span> {banner.rarity}
+                            </p>
+                          )}
+                          {banner.attributes && banner.attributes.length > 0 && (
+                            <p className="text-xs">
+                              <span className="text-gray-400">Attributes:</span> {banner.attributes.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
+
+              {ownedBanners.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">No banners found</p>
+                </div>
+              )}
+
+              <Button
+                onClick={() => onEquipBanner(selectedBanner)}
+                className="w-full"
+                size="lg"
+              >
+                Equip Selected Banner
+              </Button>
             </div>
+          </TabsContent>
 
-            {/* Equip Button */}
-            <button
-              onClick={handleEquipBanner}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors flex-shrink-0"
-            >
-              Equip Selected
-            </button>
-          </>
-        )}
-
-        {/* Chips Tab */}
-        {activeTab === 'chips' && (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-gray-400 text-2xl mb-4">🎮</p>
-              <p className="text-gray-400 text-lg">Chips Coming Soon</p>
-              <p className="text-gray-500 mt-2">Custom chips will be available in a future update</p>
+          <TabsContent value="chips">
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <p className="text-6xl mb-4">🎮</p>
+                <p className="text-2xl text-gray-400 mb-2">Chips Coming Soon</p>
+                <p className="text-gray-500">Custom chips will be available in a future update</p>
+              </div>
             </div>
-          </div>
-        )}
+          </TabsContent>
 
-        {/* Titles Tab */}
-        {activeTab === 'titles' && (
-          <>
-            {/* Currently Equipped */}
-            <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-6 border border-gray-700 flex-shrink-0">
-              <p className="text-gray-400 text-sm mb-2">Currently Equipped Title</p>
-              <TitleDisplay titleId={playerData.equippedTitle} />
-            </div>
+          <TabsContent value="titles">
+            <div className="space-y-6">
+              <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
+                <p className="text-gray-400 text-sm mb-2">Currently Equipped</p>
+                <TitleDisplay titleId={playerData.equippedTitle} />
+              </div>
 
-            {/* Title List */}
-            <div className="flex-1 overflow-y-auto mb-6 pr-2">
+              <div className="flex gap-4 flex-wrap">
+                <Input
+                  placeholder="Search titles..."
+                  value={titleSearch}
+                  onChange={(e) => setTitleSearch(e.target.value)}
+                  className="flex-1 min-w-[200px] bg-gray-800 border-gray-700"
+                />
+                <Select value={titleTypeFilter} onValueChange={setTitleTypeFilter}>
+                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="season">Season</SelectItem>
+                    <SelectItem value="tournament">Tournament</SelectItem>
+                    <SelectItem value="leaderboard">Leaderboard</SelectItem>
+                    <SelectItem value="grey">Shop</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-3">
-                {/* No Title Option */}
                 <div
                   onClick={() => setSelectedTitle(null)}
-                  className={`p-4 rounded-lg cursor-pointer transition-all ${
+                  className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                     selectedTitle === null
-                      ? 'bg-blue-600 border-2 border-blue-400'
-                      : 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
+                      ? 'bg-blue-600 border-blue-400'
+                      : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
                   }`}
                 >
-                  <p className="text-gray-400">No Title Equipped</p>
+                  <p className="text-gray-400 text-center">No Title Equipped</p>
                 </div>
 
                 {ownedTitles.map(title => (
                   <div
                     key={title.id}
                     onClick={() => setSelectedTitle(title.id)}
-                    className={`p-4 rounded-lg cursor-pointer transition-all ${
+                    className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                       selectedTitle === title.id
-                        ? 'bg-blue-600 border-2 border-blue-400'
-                        : 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
+                        ? 'bg-blue-600 border-blue-400'
+                        : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
                     }`}
                   >
                     <TitleDisplay title={title} />
                   </div>
                 ))}
-
-                {ownedTitles.length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-gray-400 text-lg">No titles owned yet</p>
-                    <p className="text-gray-500 mt-2">Purchase titles from the shop or earn them through seasons</p>
-                  </div>
-                )}
               </div>
-            </div>
 
-            {/* Equip Button */}
-            <button
-              onClick={handleEquipTitle}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors flex-shrink-0"
-            >
-              Equip Selected
-            </button>
-          </>
-        )}
+              {ownedTitles.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">No titles found</p>
+                </div>
+              )}
+
+              <Button
+                onClick={() => onEquipTitle(selectedTitle)}
+                className="w-full"
+                size="lg"
+              >
+                Equip Selected Title
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
