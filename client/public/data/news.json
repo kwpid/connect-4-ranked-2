@@ -1,5 +1,44 @@
 [
   {
+    "id": "pfp_system_v1",
+    "type": "update",
+    "version": "1.0.1",
+    "title": "Profile Pictures (PFPs) Now Available!",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": "Express yourself with the new Profile Picture system! PFPs are now available in the game, allowing you to customize your profile even further."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "How to Get PFPs"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Purchase PFPs from the shop (when available)",
+          "Unlock PFPs from crates",
+          "Special event rewards (coming soon)"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "Using Your PFP"
+      },
+      {
+        "type": "paragraph",
+        "content": "Your equipped PFP will appear on the left side of your banner on both the main menu and in-game. Visit the Inventory to browse and equip your PFPs from the new PFPs tab!"
+      },
+      {
+        "type": "paragraph",
+        "content": "PFPs come in various rarities and can have special attributes, just like banners and titles. Start collecting today!"
+      }
+    ],
+    "date": "10-05-2025"
+  },
+  {
     "id": "welcome_v1.0.0",
     "type": "update",
     "version": "1.0.0",
