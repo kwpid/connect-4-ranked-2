@@ -1,0 +1,14 @@
+[
+  {
+    "pfpId": 1,
+    "pfpName": "Default",
+    "imageName": "default.png",
+    "price": null,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "common",
+    "attributes": ["starter"]
+  }
+]

@@ -91,13 +91,13 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
     
     const result = await openCrate(selectedCrate, playerData.ownedBanners, playerData.ownedTitles);
     
-    const allPossibleItems: (Banner | Title)[] = [];
+    const allPossibleItems: (Banner | Title | Pfp)[] = [];
     for (const reward of selectedCrate.rewards) {
       const item = await getRewardPreview(reward);
       allPossibleItems.push(item);
     }
     
-    const rollingSequence: (Banner | Title)[] = [];
+    const rollingSequence: (Banner | Title | Pfp)[] = [];
     for (let i = 0; i < 20; i++) {
       const randomItem = allPossibleItems[Math.floor(Math.random() * allPossibleItems.length)];
       rollingSequence.push(randomItem);

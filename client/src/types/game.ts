@@ -44,6 +44,21 @@ export interface Banner {
   description?: string;
 }
 
+export interface Pfp {
+  pfpId: number;
+  pfpName: string;
+  imageName: string;
+  fileType?: 'png' | 'gif';
+  price: number | null;
+  ranked: boolean;
+  season: number | null;
+  rank: string | null;
+  offSale?: boolean;
+  rarity?: ItemRarity;
+  attributes?: ItemAttribute[];
+  description?: string;
+}
+
 export interface MatchHistoryEntry {
   result: 'win' | 'loss';
   score: string;
@@ -64,6 +79,8 @@ export interface PlayerData {
   ownedTitles: string[];
   equippedBanner: number | null;
   ownedBanners: number[];
+  equippedPfp: number | null;
+  ownedPfps: number[];
   wins: number;
   losses: number;
   totalGames: number;
@@ -105,6 +122,7 @@ export interface ShopItem {
   id: string;
   title?: Title;
   banner?: Banner;
+  pfp?: Pfp;
   price: number;
 }
 
@@ -112,13 +130,14 @@ export interface FeaturedItem {
   id: string;
   title?: Title;
   banner?: Banner;
+  pfp?: Pfp;
   price: number;
   expiresAt: number; // Timestamp when this item should be removed
   duration: string; // Human-readable duration like "24h", "7d", "2w"
 }
 
 export interface CrateReward {
-  type: 'banner' | 'title';
+  type: 'banner' | 'title' | 'pfp';
   id: number | string;
   dropRate: number;
 }
@@ -134,7 +153,7 @@ export interface Crate {
 
 export interface CrateOpenResult {
   reward: CrateReward;
-  item: Banner | Title;
+  item: Banner | Title | Pfp;
   isDuplicate: boolean;
   refundAmount: number;
 }

@@ -29,6 +29,13 @@ export function getPlayerData(): PlayerData {
       savePlayerData(player);
     }
     
+    // Migrate existing players to have PFP fields
+    if (player.equippedPfp === undefined) {
+      player.equippedPfp = null;
+      player.ownedPfps = [1]; // Default PFP
+      savePlayerData(player);
+    }
+    
     return player;
   }
   
@@ -43,6 +50,8 @@ export function getPlayerData(): PlayerData {
     ownedTitles: [],
     equippedBanner: 1,
     ownedBanners: [1],
+    equippedPfp: null,
+    ownedPfps: [1],
     wins: 0,
     losses: 0,
     totalGames: 0,

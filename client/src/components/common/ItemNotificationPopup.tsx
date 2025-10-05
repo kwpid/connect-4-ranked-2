@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Banner, Title } from '../../types/game';
+import { Banner, Title, Pfp } from '../../types/game';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
 import { getTitleFromId } from '../../utils/titleManager';
+import { loadPfps, getPfpById, getPfpImagePath } from '../../utils/pfpManager';
 
 export interface NewItem {
-  type: 'banner' | 'title';
+  type: 'banner' | 'title' | 'pfp';
   banner?: Banner;
   title?: Title;
+  pfp?: Pfp;
   titleId?: string;
 }
 
@@ -64,6 +66,8 @@ export function ItemNotificationPopup({
   const getItemName = () => {
     if (currentItem.type === 'banner') {
       return currentItem.banner?.bannerName || 'Unknown Banner';
+    } else if (currentItem.type === 'pfp') {
+      return currentItem.pfp?.pfpName || 'Unknown PFP';
     } else {
       const title = currentItem.titleId ? getTitleFromId(currentItem.titleId) : currentItem.title;
       return title?.name || 'Unknown Title';
@@ -150,7 +154,7 @@ export function ItemNotificationPopup({
         {/* Header */}
         <div className="p-8 border-b border-gray-700">
           <h2 className="text-3xl font-bold text-center text-yellow-400">
-            NEW ITEM: {getItemName()} ({currentItem.type === 'banner' ? 'BANNER' : 'TITLE'})
+            NEW ITEM: {getItemName()} ({currentItem.type === 'banner' ? 'BANNER' : currentItem.type === 'pfp' ? 'PFP' : 'TITLE'})
           </h2>
         </div>
 

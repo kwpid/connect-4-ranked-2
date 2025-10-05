@@ -575,10 +575,38 @@ function App() {
     } else {
       if ('bannerId' in item) {
         handlePurchaseBanner(item.bannerId, cratePrice);
+      } else if ('pfpId' in item) {
+        handlePurchasePfp(item.pfpId, cratePrice);
       } else {
         handlePurchaseTitle(item.id, cratePrice);
       }
     }
+  };
+
+  const handlePurchasePfp = async (pfpId: number, price: number) => {
+    if (playerData.coins >= price && !playerData.ownedPfps.includes(pfpId)) {
+      const updatedPlayer = {
+        ...playerData,
+        coins: playerData.coins - price,
+        ownedPfps: [...playerData.ownedPfps, pfpId]
+      };
+      setPlayerData(updatedPlayer);
+      savePlayerData(updatedPlayer);
+      
+      const { loadPfps } = await import('./utils/pfpManager');
+      const pfps = await loadPfps();
+      const pfp = pfps.find(p => p.pfpId === pfpId);
+      if (pfp) {
+        setNewItems([{ type: 'pfp', pfp }]);
+        setShowItemNotification(true);
+      }
+    }
+  };
+
+  const handleEquipPfp = (pfpId: number | null) => {
+    const updatedPlayer = { ...playerData, equippedPfp: pfpId };
+    setPlayerData(updatedPlayer);
+    savePlayerData(updatedPlayer);
   };
   
   const handleUsernameChange = (newUsername: string) => {
