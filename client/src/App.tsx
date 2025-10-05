@@ -563,6 +563,23 @@ function App() {
       }
     }
   };
+
+  const handleCratePurchase = (cratePrice: number, item: any, isDuplicate: boolean, refundAmount: number) => {
+    if (isDuplicate) {
+      const updatedPlayer = {
+        ...playerData,
+        coins: playerData.coins - cratePrice + refundAmount
+      };
+      setPlayerData(updatedPlayer);
+      savePlayerData(updatedPlayer);
+    } else {
+      if ('bannerId' in item) {
+        handlePurchaseBanner(item.bannerId, cratePrice);
+      } else {
+        handlePurchaseTitle(item.id, cratePrice);
+      }
+    }
+  };
   
   const handleUsernameChange = (newUsername: string) => {
     const updatedPlayer = { ...playerData, username: newUsername };
@@ -941,6 +958,7 @@ function App() {
           playerData={playerData}
           onPurchase={handlePurchaseTitle}
           onPurchaseBanner={handlePurchaseBanner}
+          onCratePurchase={handleCratePurchase}
           onBack={() => setScreen('menu')}
           lastRotation={shopRotationTime}
         />

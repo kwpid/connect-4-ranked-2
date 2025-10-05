@@ -13,11 +13,12 @@ interface ShopScreenProps {
   playerData: PlayerData;
   onPurchase: (titleId: string, price: number) => void;
   onPurchaseBanner: (bannerId: number, price: number) => void;
+  onCratePurchase: (cratePrice: number, item: Banner | Title, isDuplicate: boolean, refundAmount: number) => void;
   onBack: () => void;
   lastRotation: number;
 }
 
-export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, lastRotation }: ShopScreenProps) {
+export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePurchase, onBack, lastRotation }: ShopScreenProps) {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [featuredItems, setFeaturedItems] = useState<FeaturedItem[]>([]);
   const [crates, setCrates] = useState<Crate[]>([]);
@@ -113,19 +114,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
     const animateRoll = (index: number) => {
       if (index >= rollingSequence.length) {
         setCrateOpeningResult(result);
-        
-        if (result.isDuplicate) {
-          onPurchase('', selectedCrate.price - result.refundAmount);
-        } else {
-          if (result.reward.type === 'banner') {
-            const banner = result.item as Banner;
-            onPurchaseBanner(banner.bannerId, selectedCrate.price);
-          } else {
-            const title = result.item as Title;
-            onPurchase(title.id, selectedCrate.price);
-          }
-        }
-        
+        onCratePurchase(selectedCrate.price, result.item, result.isDuplicate, result.refundAmount);
         setIsOpening(false);
         return;
       }
