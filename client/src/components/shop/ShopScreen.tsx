@@ -26,6 +26,8 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
   const [cratePreviewOpen, setCratePreviewOpen] = useState(false);
   const [crateOpeningResult, setCrateOpeningResult] = useState<CrateOpenResult | null>(null);
   const [isOpening, setIsOpening] = useState(false);
+  const [rollingItems, setRollingItems] = useState<(Banner | Title)[]>([]);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   
   useEffect(() => {
     const loadItems = async () => {
@@ -86,22 +88,54 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
     setIsOpening(true);
     setCratePreviewOpen(false);
     
-    // Simulate opening animation delay
-    setTimeout(async () => {
-      const result = await openCrate(selectedCrate);
-      setCrateOpeningResult(result);
-      
-      // Always deduct coins and add item (purchase functions handle duplicates)
-      if (result.reward.type === 'banner') {
-        const banner = result.item as Banner;
-        onPurchaseBanner(banner.bannerId, selectedCrate.price);
-      } else {
-        const title = result.item as Title;
-        onPurchase(title.id, selectedCrate.price);
+    const result = await openCrate(selectedCrate, playerData.ownedBanners, playerData.ownedTitles);
+    
+    const allPossibleItems: (Banner | Title)[] = [];
+    for (const reward of selectedCrate.rewards) {
+      const item = await getRewardPreview(reward);
+      allPossibleItems.push(item);
+    }
+    
+    const rollingSequence: (Banner | Title)[] = [];
+    for (let i = 0; i < 20; i++) {
+      const randomItem = allPossibleItems[Math.floor(Math.random() * allPossibleItems.length)];
+      rollingSequence.push(randomItem);
+    }
+    rollingSequence.push(result.item);
+    
+    setRollingItems(rollingSequence);
+    setSelectedItemIndex(0);
+    
+    let currentIndex = 0;
+    const totalDuration = 3000;
+    const intervals = [100, 100, 100, 100, 150, 150, 200, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800];
+    
+    const animateRoll = (index: number) => {
+      if (index >= rollingSequence.length) {
+        setCrateOpeningResult(result);
+        
+        if (result.isDuplicate) {
+          onPurchase('', selectedCrate.price - result.refundAmount);
+        } else {
+          if (result.reward.type === 'banner') {
+            const banner = result.item as Banner;
+            onPurchaseBanner(banner.bannerId, selectedCrate.price);
+          } else {
+            const title = result.item as Title;
+            onPurchase(title.id, selectedCrate.price);
+          }
+        }
+        
+        setIsOpening(false);
+        return;
       }
       
-      setIsOpening(false);
-    }, 2000);
+      setSelectedItemIndex(index);
+      const delay = intervals[index] || 100;
+      setTimeout(() => animateRoll(index + 1), delay);
+    };
+    
+    animateRoll(0);
   };
   
   const renderItem = (item: ShopItem | FeaturedItem, isFeatured = false) => {
@@ -306,12 +340,50 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
           <DialogContent className="bg-gray-900 text-white border-purple-500/50">
             {isOpening ? (
               <div className="text-center py-12">
-                <div className="animate-spin text-6xl mb-4">📦</div>
-                <p className="text-xl">Opening crate...</p>
+                <div className="mb-6">
+                  <p className="text-xl mb-4">Opening crate...</p>
+                  <div className="relative h-32 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="absolute w-1 h-full bg-yellow-400 z-10 left-1/2 transform -translate-x-1/2 opacity-50"></div>
+                    </div>
+                    <div className="flex items-center h-full gap-4 px-4">
+                      {rollingItems.length > 0 && rollingItems.slice(Math.max(0, selectedItemIndex - 2), selectedItemIndex + 3).map((item, idx) => {
+                        const actualIdx = Math.max(0, selectedItemIndex - 2) + idx;
+                        const isBanner = 'bannerId' in item;
+                        const isSelected = actualIdx === selectedItemIndex;
+                        
+                        return (
+                          <div
+                            key={actualIdx}
+                            className={`flex-shrink-0 bg-gray-700 rounded-lg p-3 transition-all duration-200 ${
+                              isSelected ? 'scale-110 border-2 border-yellow-400' : 'opacity-50 scale-90'
+                            }`}
+                            style={{ width: '100px', height: '100px' }}
+                          >
+                            {isBanner ? (
+                              <div className="flex flex-col items-center justify-center h-full">
+                                <img
+                                  src={getBannerImagePath((item as Banner).imageName)}
+                                  alt={(item as Banner).bannerName}
+                                  className="h-12"
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center h-full">
+                                <p className="text-xs text-center" style={{ color: (item as Title).color }}>
+                                  {(item as Title).name}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : crateOpeningResult && (
               <div className="text-center py-8">
-                <h3 className="text-2xl font-bold mb-6 text-yellow-400">You got!</h3>
                 <div className="mb-6">
                   {crateOpeningResult.reward.type === 'banner' ? (
                     <div className="flex flex-col items-center">
@@ -321,11 +393,23 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onBack, l
                         className="h-[60px] mb-2"
                       />
                       <p className="text-lg">{(crateOpeningResult.item as Banner).bannerName}</p>
+                      {(crateOpeningResult.item as Banner).rarity && (
+                        <p className="text-sm text-gray-400 mt-1">
+                          {(crateOpeningResult.item as Banner).rarity}
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <TitleDisplay title={crateOpeningResult.item as Title} />
                   )}
                 </div>
+                {crateOpeningResult.isDuplicate && (
+                  <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-500/50 rounded-lg">
+                    <p className="text-yellow-400">
+                      ⚠️ Duplicate item! Refunded 💰 {crateOpeningResult.refundAmount} coins (85%)
+                    </p>
+                  </div>
+                )}
                 <Button onClick={() => setCrateOpeningResult(null)}>
                   Claim
                 </Button>
@@ -348,9 +432,14 @@ function CrateRewardPreview({ reward }: { reward: any }) {
   if (!item) return null;
   
   const isBanner = 'bannerId' in item;
+  const banner = isBanner ? (item as Banner) : undefined;
   
   return (
-    <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
+    <ItemCard
+      rarity={banner?.rarity}
+      attributes={banner?.attributes}
+      className="p-3"
+    >
       <div className="mb-2">
         {isBanner ? (
           <div className="flex items-center justify-center h-12">
@@ -371,6 +460,6 @@ function CrateRewardPreview({ reward }: { reward: any }) {
       <p className="text-xs text-gray-400 text-center">
         {reward.dropRate}% chance
       </p>
-    </div>
+    </ItemCard>
   );
 }

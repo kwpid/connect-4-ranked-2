@@ -24,7 +24,7 @@ export function getCrateById(crateId: number, crates: Crate[]): Crate | undefine
   return crates.find(c => c.crateId === crateId);
 }
 
-export async function openCrate(crate: Crate): Promise<CrateOpenResult> {
+export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitles: string[]): Promise<CrateOpenResult> {
   const totalRate = crate.rewards.reduce((sum, reward) => sum + reward.dropRate, 0);
   const roll = Math.random() * totalRate;
   
@@ -44,6 +44,7 @@ export async function openCrate(crate: Crate): Promise<CrateOpenResult> {
   }
   
   let item: Banner | Title;
+  let isDuplicate = false;
   
   if (selectedReward.type === 'banner') {
     const banners = await loadBanners();
@@ -52,13 +53,19 @@ export async function openCrate(crate: Crate): Promise<CrateOpenResult> {
       throw new Error('Banner not found');
     }
     item = banner;
+    isDuplicate = ownedBanners.includes(banner.bannerId);
   } else {
     item = getTitleFromId(selectedReward.id as string);
+    isDuplicate = ownedTitles.includes((item as Title).id);
   }
+  
+  const refundAmount = isDuplicate ? Math.floor(crate.price * 0.85) : 0;
   
   return {
     reward: selectedReward,
-    item
+    item,
+    isDuplicate,
+    refundAmount
   };
 }
 

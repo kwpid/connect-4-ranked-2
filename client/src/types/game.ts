@@ -135,6 +135,8 @@ export interface Crate {
 export interface CrateOpenResult {
   reward: CrateReward;
   item: Banner | Title;
+  isDuplicate: boolean;
+  refundAmount: number;
 }
 
 export interface MatchState {
