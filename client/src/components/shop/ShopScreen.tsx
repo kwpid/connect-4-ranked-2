@@ -345,8 +345,8 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
                 <p className="text-xl mb-4">Opening crate...</p>
                 <div className="relative h-40 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500 flex items-center justify-center">
                   <div className="absolute w-1 h-full bg-yellow-400 z-10 opacity-75 left-1/2 transform -translate-x-1/2"></div>
-                  <div className="flex items-center h-full gap-4 absolute" style={{ 
-                    transform: `translateX(calc(50% - 50px - ${selectedItemIndex * 116}px))`,
+                  <div className="flex items-center h-full gap-4 absolute left-1/2" style={{ 
+                    transform: `translateX(calc(-50px - ${selectedItemIndex * 116}px))`,
                     transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
                   }}>
                     {rollingItems.map((item, idx) => {
