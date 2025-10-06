@@ -148,6 +148,31 @@
         "type": "pfp",
         "id": 6,
         "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 14,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 15,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 16,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 28,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 29,
+        "dropRate": 1
       }
     ]
   }

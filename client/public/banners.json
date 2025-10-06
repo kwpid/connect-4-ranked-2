@@ -322,5 +322,29 @@
     "offSale": false,
     "rarity": "special",
     "attributes": []
+  },
+  {
+    "bannerId": 28,
+    "bannerName": "Blue Techy",
+    "imageName": "blue_techy.png",
+    "price": 75,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "regular",
+    "attributes": []
+  },
+  {
+    "bannerId": 29,
+    "bannerName": "Green Techy",
+    "imageName": "green_techy.png",
+    "price": 75,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "regular",
+    "attributes": []
   }
 ]
