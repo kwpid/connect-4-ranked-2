@@ -279,20 +279,19 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
   };
   
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-      <div className="bg-slate-800/95 backdrop-blur rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col border border-gray-700 shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-8">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="p-6 border-b border-gray-700">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-3xl font-bold text-white">Shop</h2>
-            <div className="flex items-center gap-4">
-              <div className="text-yellow-400 font-semibold text-lg">💰 {playerData.coins}</div>
-              <button
-                onClick={onBack}
-                className="text-gray-400 hover:text-white text-2xl font-bold px-3 py-1 hover:bg-gray-700 rounded transition-colors"
-              >
-                ×
-              </button>
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <Button onClick={onBack} variant="outline">
+              ← Back
+            </Button>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+              Shop
+            </h2>
+            <div className="text-right">
+              <p className="text-yellow-400 font-semibold text-lg">💰 {playerData.coins}</p>
             </div>
           </div>
           
@@ -303,7 +302,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
               className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 selectedTab === 'daily' 
                   ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
               Daily Shop
@@ -313,7 +312,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
               className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 selectedTab === 'featured' 
                   ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
               Featured
@@ -323,7 +322,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
               className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 selectedTab === 'crates' 
                   ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
               Crates
@@ -331,226 +330,223 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
           </div>
         </div>
         
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {/* Daily Shop Tab */}
-          {selectedTab === 'daily' && (
-            <>
-              <div className="bg-blue-600/20 backdrop-blur rounded-xl p-4 mb-6 border border-blue-600/50">
-                <p className="text-center text-blue-400">
-                  🔄 Next rotation: {timeUntilRotation}
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map(item => renderItem(item))}
-              </div>
-            </>
-          )}
-          
-          {/* Featured Items Tab */}
-          {selectedTab === 'featured' && (
-            <>
-              {featuredItems.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {featuredItems.map(item => renderItem(item, true))}
-                </div>
-              ) : (
-                <div className="text-center text-gray-400 py-12">
-                  <p>No featured items available right now</p>
-                </div>
-              )}
-            </>
-          )}
-          
-          {/* Crates Tab */}
-          {selectedTab === 'crates' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {crates.map(crate => (
-                <div
-                  key={crate.crateId}
-                  onClick={() => handleCrateClick(crate)}
-                  className="bg-gray-700/50 backdrop-blur rounded-xl p-6 border-2 border-purple-500/50 cursor-pointer hover:bg-gray-700/70 transition-all hover:border-purple-400"
-                >
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="w-32 h-32 bg-purple-900/30 rounded-lg flex items-center justify-center">
-                      <span className="text-6xl">📦</span>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-center mb-2">{crate.crateName}</h3>
-                  <p className="text-sm text-gray-400 text-center mb-4">{crate.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-yellow-400 font-bold text-lg">💰 {crate.price}</span>
-                    <Button 
-                      variant="default"
-                      size="sm"
-                    >
-                      View
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Crate Preview Dialog */}
-      <Dialog open={cratePreviewOpen} onOpenChange={setCratePreviewOpen}>
-        <DialogContent className="bg-gray-900 text-white border-purple-500/50">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">{selectedCrate?.crateName}</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              {selectedCrate?.description}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <h4 className="font-semibold text-lg">Possible Rewards:</h4>
-            <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto">
-              {selectedCrate?.rewards.map((reward, idx) => (
-                <CrateRewardPreview key={idx} reward={reward} />
-              ))}
+        {/* Daily Shop Tab */}
+        {selectedTab === 'daily' && (
+          <>
+            <div className="bg-blue-600/20 backdrop-blur rounded-xl p-4 mb-6 border border-blue-600/50">
+              <p className="text-center text-blue-400">
+                🔄 Next rotation: {timeUntilRotation}
+              </p>
             </div>
             
-            <div className="flex justify-between items-center pt-4 border-t border-gray-700">
-              <span className="text-yellow-400 font-bold text-xl">
-                💰 {selectedCrate?.price}
-              </span>
-              <Button
-                onClick={handleShowCratePurchaseConfirm}
-                disabled={!selectedCrate || !canAfford(selectedCrate.price)}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                {canAfford(selectedCrate?.price || 0) ? 'Purchase' : 'Not enough coins'}
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {items.map(item => renderItem(item))}
             </div>
+          </>
+        )}
+        
+        {/* Featured Items Tab */}
+        {selectedTab === 'featured' && (
+          <>
+            {featuredItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {featuredItems.map(item => renderItem(item, true))}
+              </div>
+            ) : (
+              <div className="text-center text-gray-400 py-12">
+                <p>No featured items available right now</p>
+              </div>
+            )}
+          </>
+        )}
+        
+        {/* Crates Tab */}
+        {selectedTab === 'crates' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {crates.map(crate => (
+              <div
+                key={crate.crateId}
+                onClick={() => handleCrateClick(crate)}
+                className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border-2 border-purple-500/50 cursor-pointer hover:scale-105 transition-transform"
+              >
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-32 h-32 bg-purple-900/30 rounded-lg flex items-center justify-center">
+                    <span className="text-6xl">📦</span>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-center mb-2">{crate.crateName}</h3>
+                <p className="text-sm text-gray-400 text-center mb-4">{crate.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-yellow-400 font-bold text-lg">💰 {crate.price}</span>
+                  <Button 
+                    variant="default"
+                    size="sm"
+                  >
+                    View
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Crate Opening Animation */}
-      <Dialog open={isOpening} onOpenChange={() => {}}>
-        <DialogContent hideCloseButton className="bg-gray-900 text-white border-purple-500/50" aria-describedby="crate-opening-description" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle className="sr-only">Crate Opening</DialogTitle>
-            <DialogDescription id="crate-opening-description" className="sr-only">
-              Opening crate and revealing items
-            </DialogDescription>
-          </DialogHeader>
-          <div className="text-center py-12">
-            <div className="mb-6">
-              <p className="text-xl mb-4">Opening crate...</p>
-              <div className="relative h-40 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500 flex items-center justify-center">
-                <div className="absolute w-1 h-full bg-yellow-400 z-10 opacity-75 left-1/2 transform -translate-x-1/2"></div>
-                <div className="flex items-center h-full gap-4 absolute left-1/2" style={{ 
-                  transform: `translateX(calc(-50px - ${selectedItemIndex * 116}px))`,
-                  transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                }}>
-                  {rollingItems.map((item, idx) => {
-                    const isBanner = 'bannerId' in item;
-                    const isPfp = 'pfpId' in item;
-                    const isSelected = idx === selectedItemIndex;
-                    
-                    return (
-                      <div
-                        key={idx}
-                        className={`flex-shrink-0 bg-gray-700 rounded-lg p-3 transition-all duration-200 ${
-                          isSelected ? 'scale-110 border-2 border-yellow-400' : 'opacity-50 scale-90'
-                        }`}
-                        style={{ width: '100px', height: '120px' }}
-                      >
-                        {isBanner ? (
-                          <div className="flex flex-col items-center justify-center h-full">
-                            <img
-                              src={getBannerImagePath((item as Banner).imageName)}
-                              alt={(item as Banner).bannerName}
-                              className="max-h-16 w-auto object-contain"
-                            />
-                          </div>
-                        ) : isPfp ? (
-                          <div className="flex items-center justify-center h-full">
-                            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-500">
+        )}
+        
+        {/* Crate Preview Dialog */}
+        <Dialog open={cratePreviewOpen} onOpenChange={setCratePreviewOpen}>
+          <DialogContent className="bg-gray-900 text-white border-purple-500/50">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">{selectedCrate?.crateName}</DialogTitle>
+              <DialogDescription className="text-gray-400">
+                {selectedCrate?.description}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <h4 className="font-semibold text-lg">Possible Rewards:</h4>
+              <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+                {selectedCrate?.rewards.map((reward, idx) => (
+                  <CrateRewardPreview key={idx} reward={reward} />
+                ))}
+              </div>
+              
+              <div className="flex justify-between items-center pt-4 border-t border-gray-700">
+                <span className="text-yellow-400 font-bold text-xl">
+                  💰 {selectedCrate?.price}
+                </span>
+                <Button
+                  onClick={handleShowCratePurchaseConfirm}
+                  disabled={!selectedCrate || !canAfford(selectedCrate.price)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {canAfford(selectedCrate?.price || 0) ? 'Purchase' : 'Not enough coins'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Crate Opening Animation */}
+        <Dialog open={isOpening} onOpenChange={() => {}}>
+          <DialogContent hideCloseButton className="bg-gray-900 text-white border-purple-500/50" aria-describedby="crate-opening-description" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+            <DialogHeader>
+              <DialogTitle className="sr-only">Crate Opening</DialogTitle>
+              <DialogDescription id="crate-opening-description" className="sr-only">
+                Opening crate and revealing items
+              </DialogDescription>
+            </DialogHeader>
+            <div className="text-center py-12">
+              <div className="mb-6">
+                <p className="text-xl mb-4">Opening crate...</p>
+                <div className="relative h-40 overflow-hidden bg-gray-800 rounded-lg border-2 border-purple-500 flex items-center justify-center">
+                  <div className="absolute w-1 h-full bg-yellow-400 z-10 opacity-75 left-1/2 transform -translate-x-1/2"></div>
+                  <div className="flex items-center h-full gap-4 absolute left-1/2" style={{ 
+                    transform: `translateX(calc(-50px - ${selectedItemIndex * 116}px))`,
+                    transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                  }}>
+                    {rollingItems.map((item, idx) => {
+                      const isBanner = 'bannerId' in item;
+                      const isPfp = 'pfpId' in item;
+                      const isSelected = idx === selectedItemIndex;
+                      
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex-shrink-0 bg-gray-700 rounded-lg p-3 transition-all duration-200 ${
+                            isSelected ? 'scale-110 border-2 border-yellow-400' : 'opacity-50 scale-90'
+                          }`}
+                          style={{ width: '100px', height: '120px' }}
+                        >
+                          {isBanner ? (
+                            <div className="flex flex-col items-center justify-center h-full">
                               <img
-                                src={getPfpImagePath((item as Pfp).imageName)}
-                                alt={(item as Pfp).pfpName}
-                                className="w-full h-full object-cover"
+                                src={getBannerImagePath((item as Banner).imageName)}
+                                alt={(item as Banner).bannerName}
+                                className="max-h-16 w-auto object-contain"
                               />
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <p className="text-xs text-center" style={{ color: (item as Title).color }}>
-                              {(item as Title).name}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          ) : isPfp ? (
+                            <div className="flex items-center justify-center h-full">
+                              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-500">
+                                <img
+                                  src={getPfpImagePath((item as Pfp).imageName)}
+                                  alt={(item as Pfp).pfpName}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center h-full">
+                              <p className="text-xs text-center" style={{ color: (item as Title).color }}>
+                                {(item as Title).name}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Shop Item Purchase Confirmation */}
-      <Dialog open={confirmPurchaseOpen} onOpenChange={setConfirmPurchaseOpen}>
-        <DialogContent className="bg-gray-900 text-white border-blue-500/50">
-          <DialogHeader>
-            <DialogTitle className="text-2xl text-center">Confirm Purchase</DialogTitle>
-            <DialogDescription className="text-gray-400 text-center">
-              Are you sure you want to purchase this item for 💰 {pendingPurchase?.price} coins?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-4 mt-4">
-            <Button
-              onClick={() => {
-                setConfirmPurchaseOpen(false);
-                setPendingPurchase(null);
-              }}
-              variant="outline"
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmPurchase}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-            >
-              Confirm
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Crate Purchase Confirmation */}
-      <Dialog open={confirmCratePurchaseOpen} onOpenChange={setConfirmCratePurchaseOpen}>
-        <DialogContent className="bg-gray-900 text-white border-purple-500/50">
-          <DialogHeader>
-            <DialogTitle className="text-2xl text-center">Confirm Purchase</DialogTitle>
-            <DialogDescription className="text-gray-400 text-center">
-              Are you sure you want to purchase {selectedCrate?.crateName} for 💰 {selectedCrate?.price} coins?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-4 mt-4">
-            <Button
-              onClick={() => setConfirmCratePurchaseOpen(false)}
-              variant="outline"
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handlePurchaseCrate}
-              className="flex-1 bg-purple-600 hover:bg-purple-700"
-            >
-              Confirm
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Shop Item Purchase Confirmation */}
+        <Dialog open={confirmPurchaseOpen} onOpenChange={setConfirmPurchaseOpen}>
+          <DialogContent className="bg-gray-900 text-white border-blue-500/50">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-center">Confirm Purchase</DialogTitle>
+              <DialogDescription className="text-gray-400 text-center">
+                Are you sure you want to purchase this item for 💰 {pendingPurchase?.price} coins?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-4 mt-4">
+              <Button
+                onClick={() => {
+                  setConfirmPurchaseOpen(false);
+                  setPendingPurchase(null);
+                }}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmPurchase}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                Confirm
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Crate Purchase Confirmation */}
+        <Dialog open={confirmCratePurchaseOpen} onOpenChange={setConfirmCratePurchaseOpen}>
+          <DialogContent className="bg-gray-900 text-white border-purple-500/50">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-center">Confirm Purchase</DialogTitle>
+              <DialogDescription className="text-gray-400 text-center">
+                Are you sure you want to purchase {selectedCrate?.crateName} for 💰 {selectedCrate?.price} coins?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-4 mt-4">
+              <Button
+                onClick={() => setConfirmCratePurchaseOpen(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handlePurchaseCrate}
+                className="flex-1 bg-purple-600 hover:bg-purple-700"
+              >
+                Confirm
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
