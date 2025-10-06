@@ -78,6 +78,14 @@ The project has been successfully imported from GitHub and configured for the Re
 
 ### Recent Updates
 
+**October 6, 2025 - UI/UX Enhancements & AI Cosmetics**
+- AI opponents now use profile pictures based on their trophy count (similar to banner system)
+- Shop displays clear item type labels (PFP, Title, Banner) on all cosmetic items
+- Crate buttons changed to "View" (always enabled) with purchase option in preview dialog
+- PFP previews now shown in item notifications and crate opening animations
+- Fixed inventory highlight bug - now updates immediately when equipping items (no navigation required)
+- Enhanced cosmetic consistency across all UI components
+
 **October 6, 2025 - Season System & Shop Updates**
 - Changed season duration from 2 weeks to 1 week (every Wednesday at 12PM EST)
 - Added seasonal rank titles for all ranks: S# BRONZE, S# SILVER, S# GOLD, S# PLATINUM, S# DIAMOND, S# CHAMPION (grey color)
