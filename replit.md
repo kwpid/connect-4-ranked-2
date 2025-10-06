@@ -80,6 +80,7 @@ The project has been successfully imported from GitHub and configured for the Re
 
 **October 6, 2025 - UI/UX Enhancements & AI Cosmetics**
 - AI opponents now use profile pictures based on their trophy count (similar to banner system)
+- All AI opponents guaranteed to have at least the default PFP (no more missing PFPs)
 - Shop displays clear item type labels (PFP, Title, Banner) on all cosmetic items
 - Crate buttons changed to "View" (always enabled) with purchase option in preview dialog
 - PFP previews now shown in item notifications and crate opening animations

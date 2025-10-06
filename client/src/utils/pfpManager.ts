@@ -131,7 +131,7 @@ export function getAIPfp(
   pfps: Pfp[],
   aiTrophies: number,
   currentSeason: number
-): number | null {
+): number {
   const rankOrder = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Champion', 'Grand Champion', 'Connect Legend'];
   
   const getRankTierFromTrophies = (trophies: number): string | null => {
@@ -147,7 +147,7 @@ export function getAIPfp(
   };
 
   const aiRankTier = getRankTierFromTrophies(aiTrophies);
-  if (!aiRankTier) return null;
+  if (!aiRankTier) return 1;
 
   const shopPfpIds = getShopPfps(pfps).map(p => p.pfpId);
   
@@ -168,14 +168,14 @@ export function getAIPfp(
     if (availableRankedPfps.length > 0) {
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
     }
-    possiblePfps.push(null as any);
+    possiblePfps.push(1);
   } else if (aiTrophies < 401) {
     if (availableRankedPfps.length > 0) {
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
     }
     possiblePfps.push(...shopPfpIds);
-    possiblePfps.push(null as any);
+    possiblePfps.push(1);
   } else {
     if (availableRankedPfps.length > 0) {
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
@@ -183,13 +183,13 @@ export function getAIPfp(
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
     }
     possiblePfps.push(...shopPfpIds);
-    possiblePfps.push(null as any);
+    possiblePfps.push(1);
   }
 
   if (possiblePfps.length === 0) {
-    return null;
+    return 1;
   }
 
   const randomIndex = Math.floor(Math.random() * possiblePfps.length);
-  return possiblePfps[randomIndex] || null;
+  return possiblePfps[randomIndex] || 1;
 }

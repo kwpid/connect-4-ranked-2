@@ -152,7 +152,7 @@ export function GameScreen({
   });
   
   const [opponentBannerId, setOpponentBannerId] = useState<number | null>(null);
-  const [opponentPfpId, setOpponentPfpId] = useState<number | null>(null);
+  const [opponentPfpId, setOpponentPfpId] = useState<number>(1);
   
   useEffect(() => {
     const loadOpponentCosmetics = async () => {
