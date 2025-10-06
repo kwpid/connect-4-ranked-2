@@ -11,22 +11,24 @@ interface QueueScreenProps {
 }
 
 export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenProps) {
-  const estimatedTime = calculateQueueTime(playerData.trophies);
-  const [actualMatchTime] = useState(() => {
-    const base = estimatedTime;
-    const variance = Math.max(1, Math.floor(base * 0.15));
+  const [queueTimes] = useState(() => {
+    const estimated = calculateQueueTime(playerData.trophies);
+    const variance = Math.max(1, Math.floor(estimated * 0.15));
     
     const offset = Math.random() < 0.5 
       ? -Math.floor(Math.random() * variance + 1)
       : Math.floor(Math.random() * variance + 1);
-    let actual = Math.max(1, base + offset);
+    let actual = Math.max(1, estimated + offset);
     
-    if (actual === estimatedTime) {
-      actual = estimatedTime + 1;
+    if (actual === estimated) {
+      actual = estimated + 1;
     }
     
-    return actual;
+    return { estimated, actual };
   });
+  
+  const estimatedTime = queueTimes.estimated;
+  const actualMatchTime = queueTimes.actual;
   const [elapsed, setElapsed] = useState(0);
   const [dots, setDots] = useState('.');
   const [matchFound, setMatchFound] = useState(false);
