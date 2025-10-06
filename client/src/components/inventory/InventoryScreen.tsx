@@ -4,7 +4,6 @@ import { TitleDisplay } from '../common/TitleDisplay';
 import { getTitleFromId } from '../../utils/titleManager';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
 import { loadPfps, getPfpById, getPfpImagePath } from '../../utils/pfpManager';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ItemCard } from '../ui/item-card';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -35,6 +34,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
   const [selectedPfp, setSelectedPfp] = useState<number | null>(playerData.equippedPfp);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [pfps, setPfps] = useState<Pfp[]>([]);
+  const [selectedTab, setSelectedTab] = useState<'banners' | 'pfps' | 'chips' | 'titles'>('banners');
   
   const [bannerSearch, setBannerSearch] = useState('');
   const [bannerRarityFilter, setBannerRarityFilter] = useState<string>('all');
@@ -164,30 +164,71 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
   }, [playerData.ownedPfps, pfps, pfpSearch, pfpRarityFilter, pfpSortBy]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <Button onClick={onBack} variant="outline">
-            ← Back
-          </Button>
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-            Inventory
-          </h2>
-          <div className="w-20"></div>
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+      <div className="bg-slate-800/95 backdrop-blur rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col border border-gray-700 shadow-2xl">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-3xl font-bold text-white">Inventory</h2>
+            <button
+              onClick={onBack}
+              className="text-gray-400 hover:text-white text-2xl font-bold px-3 py-1 hover:bg-gray-700 rounded transition-colors"
+            >
+              ×
+            </button>
+          </div>
+          
+          {/* Tabs */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedTab('banners')}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                selectedTab === 'banners' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              }`}
+            >
+              Banners
+            </button>
+            <button
+              onClick={() => setSelectedTab('pfps')}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                selectedTab === 'pfps' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              }`}
+            >
+              PFPs
+            </button>
+            <button
+              onClick={() => setSelectedTab('chips')}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                selectedTab === 'chips' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              }`}
+            >
+              Chips
+            </button>
+            <button
+              onClick={() => setSelectedTab('titles')}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                selectedTab === 'titles' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              }`}
+            >
+              Titles
+            </button>
+          </div>
         </div>
 
-        <Tabs defaultValue="banners" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="banners">Banners</TabsTrigger>
-            <TabsTrigger value="pfps">PFPs</TabsTrigger>
-            <TabsTrigger value="chips">Chips</TabsTrigger>
-            <TabsTrigger value="titles">Titles</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="banners">
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {selectedTab === 'banners' && (
             <div className="space-y-6">
-              <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
-                <p className="text-gray-400 text-sm mb-3">Currently Equipped</p>
+              <div className="bg-gray-700/50 backdrop-blur rounded-xl p-6 border border-gray-600">
+                <p className="text-gray-300 text-sm mb-3 font-semibold">Currently Equipped</p>
                 {playerData.equippedBanner && getBannerById(playerData.equippedBanner, banners) ? (
                   <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-4">
                     <img
@@ -206,10 +247,10 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
                   placeholder="Search banners..."
                   value={bannerSearch}
                   onChange={(e) => setBannerSearch(e.target.value)}
-                  className="flex-1 min-w-[200px] bg-gray-800 border-gray-700"
+                  className="flex-1 min-w-[200px] bg-gray-700 border-gray-600 text-white"
                 />
                 <Select value={bannerRarityFilter} onValueChange={setBannerRarityFilter}>
-                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Rarity" />
                   </SelectTrigger>
                   <SelectContent>
@@ -224,7 +265,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
                   </SelectContent>
                 </Select>
                 <Select value={bannerSortBy} onValueChange={(v) => setBannerSortBy(v as 'alphabetical' | 'rarity')}>
-                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -292,12 +333,12 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
               )}
 
             </div>
-          </TabsContent>
+          )}
 
-          <TabsContent value="pfps">
+          {selectedTab === 'pfps' && (
             <div className="space-y-6">
-              <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
-                <p className="text-gray-400 text-sm mb-3">Currently Equipped</p>
+              <div className="bg-gray-700/50 backdrop-blur rounded-xl p-6 border border-gray-600">
+                <p className="text-gray-300 text-sm mb-3 font-semibold">Currently Equipped</p>
                 {playerData.equippedPfp && getPfpById(playerData.equippedPfp, pfps) ? (
                   <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-4">
                     <div className="w-[80px] h-[80px] rounded-full overflow-hidden border-2 border-gray-600">
@@ -318,10 +359,10 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
                   placeholder="Search PFPs..."
                   value={pfpSearch}
                   onChange={(e) => setPfpSearch(e.target.value)}
-                  className="flex-1 min-w-[200px] bg-gray-800 border-gray-700"
+                  className="flex-1 min-w-[200px] bg-gray-700 border-gray-600 text-white"
                 />
                 <Select value={pfpRarityFilter} onValueChange={setPfpRarityFilter}>
-                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Rarity" />
                   </SelectTrigger>
                   <SelectContent>
@@ -336,7 +377,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
                   </SelectContent>
                 </Select>
                 <Select value={pfpSortBy} onValueChange={(v) => setPfpSortBy(v as 'alphabetical' | 'rarity')}>
-                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -400,22 +441,22 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
               )}
 
             </div>
-          </TabsContent>
+          )}
 
-          <TabsContent value="chips">
+          {selectedTab === 'chips' && (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <p className="text-6xl mb-4">🎮</p>
-                <p className="text-2xl text-gray-400 mb-2">Chips Coming Soon</p>
+                <p className="text-2xl text-gray-300 mb-2">Chips Coming Soon</p>
                 <p className="text-gray-500">Custom chips will be available in a future update</p>
               </div>
             </div>
-          </TabsContent>
+          )}
 
-          <TabsContent value="titles">
+          {selectedTab === 'titles' && (
             <div className="space-y-6">
-              <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
-                <p className="text-gray-400 text-sm mb-2">Currently Equipped</p>
+              <div className="bg-gray-700/50 backdrop-blur rounded-xl p-6 border border-gray-600">
+                <p className="text-gray-300 text-sm mb-2 font-semibold">Currently Equipped</p>
                 <TitleDisplay titleId={playerData.equippedTitle} />
               </div>
 
@@ -424,10 +465,10 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
                   placeholder="Search titles..."
                   value={titleSearch}
                   onChange={(e) => setTitleSearch(e.target.value)}
-                  className="flex-1 min-w-[200px] bg-gray-800 border-gray-700"
+                  className="flex-1 min-w-[200px] bg-gray-700 border-gray-600 text-white"
                 />
                 <Select value={titleTypeFilter} onValueChange={setTitleTypeFilter}>
-                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -446,10 +487,10 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
                   className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                     selectedTitle === null
                       ? 'bg-blue-600 border-blue-400'
-                      : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
+                      : 'bg-gray-700/50 border-gray-600 hover:border-gray-500'
                   }`}
                 >
-                  <p className="text-gray-400 text-center">No Title Equipped</p>
+                  <p className="text-gray-300 text-center">No Title Equipped</p>
                 </div>
 
                 {ownedTitles.map(title => (
@@ -459,7 +500,7 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
                     className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                       selectedTitle === title.id
                         ? 'bg-blue-600 border-blue-400'
-                        : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
+                        : 'bg-gray-700/50 border-gray-600 hover:border-gray-500'
                     }`}
                   >
                     <TitleDisplay title={title} />
@@ -474,8 +515,8 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
               )}
 
             </div>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
     </div>
   );
