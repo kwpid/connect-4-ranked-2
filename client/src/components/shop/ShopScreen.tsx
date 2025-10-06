@@ -31,6 +31,9 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
   const [isOpening, setIsOpening] = useState(false);
   const [rollingItems, setRollingItems] = useState<(Banner | Title | Pfp)[]>([]);
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const [confirmPurchaseOpen, setConfirmPurchaseOpen] = useState(false);
+  const [pendingPurchase, setPendingPurchase] = useState<{ type: 'banner' | 'title' | 'pfp'; id: number | string; price: number } | null>(null);
+  const [confirmCratePurchaseOpen, setConfirmCratePurchaseOpen] = useState(false);
   
   useEffect(() => {
     const loadItems = async () => {
@@ -86,9 +89,35 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
     setCratePreviewOpen(true);
   };
   
+  const handleShowPurchaseConfirm = (type: 'banner' | 'title' | 'pfp', id: number | string, price: number) => {
+    setPendingPurchase({ type, id, price });
+    setConfirmPurchaseOpen(true);
+  };
+  
+  const handleConfirmPurchase = () => {
+    if (!pendingPurchase) return;
+    
+    if (pendingPurchase.type === 'banner') {
+      onPurchaseBanner(pendingPurchase.id as number, pendingPurchase.price);
+    } else if (pendingPurchase.type === 'pfp') {
+      onPurchasePfp(pendingPurchase.id as number, pendingPurchase.price);
+    } else {
+      onPurchase(pendingPurchase.id as string, pendingPurchase.price);
+    }
+    
+    setConfirmPurchaseOpen(false);
+    setPendingPurchase(null);
+  };
+  
+  const handleShowCratePurchaseConfirm = () => {
+    if (!selectedCrate || !canAfford(selectedCrate.price)) return;
+    setConfirmCratePurchaseOpen(true);
+  };
+  
   const handlePurchaseCrate = async () => {
     if (!selectedCrate || !canAfford(selectedCrate.price)) return;
     
+    setConfirmCratePurchaseOpen(false);
     setIsOpening(true);
     setCratePreviewOpen(false);
     
@@ -232,11 +261,11 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
             <Button
               onClick={() => {
                 if (isBanner) {
-                  onPurchaseBanner(item.banner!.bannerId, item.price);
+                  handleShowPurchaseConfirm('banner', item.banner!.bannerId, item.price);
                 } else if (isPfp) {
-                  onPurchasePfp(item.pfp!.pfpId, item.price);
+                  handleShowPurchaseConfirm('pfp', item.pfp!.pfpId, item.price);
                 } else {
-                  onPurchase(item.title!.id, item.price);
+                  handleShowPurchaseConfirm('title', item.title!.id, item.price);
                 }
               }}
               disabled={!affordable}
@@ -355,7 +384,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
                   💰 {selectedCrate?.price}
                 </span>
                 <Button
-                  onClick={handlePurchaseCrate}
+                  onClick={handleShowCratePurchaseConfirm}
                   disabled={!selectedCrate || !canAfford(selectedCrate.price)}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
@@ -428,6 +457,63 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
                   </div>
                 </div>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Shop Item Purchase Confirmation */}
+        <Dialog open={confirmPurchaseOpen} onOpenChange={setConfirmPurchaseOpen}>
+          <DialogContent className="bg-gray-900 text-white border-blue-500/50">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-center">Confirm Purchase</DialogTitle>
+              <DialogDescription className="text-gray-400 text-center">
+                Are you sure you want to purchase this item for 💰 {pendingPurchase?.price} coins?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-4 mt-4">
+              <Button
+                onClick={() => {
+                  setConfirmPurchaseOpen(false);
+                  setPendingPurchase(null);
+                }}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmPurchase}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                Confirm
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Crate Purchase Confirmation */}
+        <Dialog open={confirmCratePurchaseOpen} onOpenChange={setConfirmCratePurchaseOpen}>
+          <DialogContent className="bg-gray-900 text-white border-purple-500/50">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-center">Confirm Purchase</DialogTitle>
+              <DialogDescription className="text-gray-400 text-center">
+                Are you sure you want to purchase {selectedCrate?.crateName} for 💰 {selectedCrate?.price} coins?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-4 mt-4">
+              <Button
+                onClick={() => setConfirmCratePurchaseOpen(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handlePurchaseCrate}
+                className="flex-1 bg-purple-600 hover:bg-purple-700"
+              >
+                Confirm
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
