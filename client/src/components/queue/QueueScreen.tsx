@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlayerData } from '../../types/game';
-import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
+import { getRankByTrophies, getTierColor, getRankImagePath } from '../../utils/rankSystem';
 import { calculateQueueTime } from '../../utils/queueSystem';
 import { Button } from '../ui/button';
 
@@ -36,6 +36,7 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
   
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
+  const rankImagePath = getRankImagePath(rank.name);
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -110,15 +111,20 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
           </div>
           
           <div className="bg-background border border-border rounded-xl p-4 mb-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
+            <div className="flex items-center justify-center gap-4">
+              <img 
+                src={rankImagePath} 
+                alt={rank.name} 
+                className="w-16 h-16 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <div className="text-left">
                 <p className="text-gray-400 text-xs mb-1">Your Rank</p>
-                <p className="font-bold text-sm" style={{ color: tierColor }}>
+                <p className="font-bold text-lg" style={{ color: tierColor }}>
                   {rank.name}
                 </p>
-              </div>
-              <div className="text-center">
-                <p className="text-gray-400 text-xs mb-1">Trophies</p>
                 <p className="font-bold text-sm text-yellow-400">
                   🏆 {playerData.trophies}
                 </p>

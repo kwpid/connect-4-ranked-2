@@ -80,13 +80,13 @@ export function PlayMenuScreen({
             
             <button
               onClick={onPractice}
-              className="relative overflow-hidden bg-gradient-to-br from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 rounded-2xl p-8 transition-all duration-300 ease-in-out shadow-2xl hover:shadow-purple-500/30 transform hover:scale-[1.02] border-2 border-purple-500/40"
+              className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 rounded-2xl p-8 transition-all duration-300 ease-in-out shadow-2xl hover:shadow-blue-500/30 transform hover:scale-[1.02] border-2 border-blue-500/40"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent"></div>
               <div className="relative flex flex-col items-center gap-3">
                 <div className="text-4xl">🎯</div>
                 <div className="text-2xl font-bold">Practice</div>
-                <div className="text-sm text-purple-200 opacity-80">Sharpen your skills</div>
+                <div className="text-sm text-blue-200 opacity-80">Sharpen your skills</div>
               </div>
             </button>
           </div>
@@ -94,9 +94,9 @@ export function PlayMenuScreen({
           {currentTournament && (
             <button
               onClick={onTournament}
-              className="relative w-full overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 rounded-2xl p-8 transition-all duration-300 ease-in-out shadow-2xl hover:shadow-yellow-500/30 transform hover:scale-[1.02] border-2 border-yellow-500/40"
+              className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 rounded-2xl p-8 transition-all duration-300 ease-in-out shadow-2xl hover:shadow-blue-500/30 transform hover:scale-[1.02] border-2 border-blue-500/40"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent"></div>
               <div className="relative flex flex-col md:flex-row items-center justify-center gap-4">
                 <div className="text-4xl">🏆</div>
                 <div className="text-center md:text-left">
