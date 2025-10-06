@@ -80,20 +80,27 @@ export function BannerDisplay({ bannerId, username, titleId, pfpId, className = 
             </span>
             {title && (
               <div className="flex items-center gap-1">
-                {title.type === 'tournament' && title.rankImage && (() => {
+                {title.type === 'tournament' && title.rankImage ? (() => {
                   // Parse the rank to get the image path
                   const rank = title.rankImage;
                   let rankPath = '';
                   
                   if (rank === 'CONNECT LEGEND') {
                     rankPath = getRankImagePath('Connect Legend');
-                  } else if (rank.includes(' III')) {
-                    // e.g., "BRONZE III" -> "Bronze III"
-                    const rankName = rank.replace(' III', '').toLowerCase()
-                      .split(' ')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ') + ' III';
-                    rankPath = getRankImagePath(rankName);
+                  } else if (rank === 'GRAND CHAMPION') {
+                    rankPath = getRankImagePath('Grand Champion III');
+                  } else if (rank === 'CHAMPION') {
+                    rankPath = getRankImagePath('Champion III');
+                  } else if (rank === 'DIAMOND') {
+                    rankPath = getRankImagePath('Diamond III');
+                  } else if (rank === 'PLATINUM') {
+                    rankPath = getRankImagePath('Platinum III');
+                  } else if (rank === 'GOLD') {
+                    rankPath = getRankImagePath('Gold III');
+                  } else if (rank === 'SILVER') {
+                    rankPath = getRankImagePath('Silver III');
+                  } else if (rank === 'BRONZE') {
+                    rankPath = getRankImagePath('Bronze III');
                   }
                   
                   // Extract season number from title name
@@ -134,8 +141,7 @@ export function BannerDisplay({ bannerId, username, titleId, pfpId, className = 
                       </span>
                     </>
                   );
-                })()}
-                {title.type !== 'tournament' && (
+                })() : (
                   <p 
                     className="text-xs font-bold leading-tight"
                     style={{ 

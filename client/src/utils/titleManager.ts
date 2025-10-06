@@ -37,8 +37,8 @@ export function getTitleFromId(titleId: string): Title {
       type: 'season',
       color,
       glow,
-      season: parseInt(seasonNum),
-      rankImage: rank // Store rank for image lookup (will use Division III)
+      season: parseInt(seasonNum)
+      // NOTE: No rankImage for normal ranked titles - only tournament titles have rank images
     };
   }
   
