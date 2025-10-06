@@ -52,6 +52,18 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
     loadPfps().then(setPfps);
   }, []);
 
+  useEffect(() => {
+    setSelectedTitle(playerData.equippedTitle);
+  }, [playerData.equippedTitle]);
+
+  useEffect(() => {
+    setSelectedBanner(playerData.equippedBanner || 1);
+  }, [playerData.equippedBanner]);
+
+  useEffect(() => {
+    setSelectedPfp(playerData.equippedPfp);
+  }, [playerData.equippedPfp]);
+
   const ownedTitles = useMemo(() => {
     let titles = playerData.ownedTitles.map(titleId => getTitleFromId(titleId));
     
