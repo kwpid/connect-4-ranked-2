@@ -1,9 +1,25 @@
-import { Crate, CrateReward, CrateOpenResult, Banner, Title, Pfp } from '../types/game';
+import { Crate, CrateReward, CrateOpenResult, Banner, Title, Pfp, ItemAttribute } from '../types/game';
 import { loadBanners, getBannerById } from './bannerManager';
 import { getTitleFromId } from './titleManager';
 import { loadPfps, getPfpById } from './pfpManager';
 
 let cratesCache: Crate[] | null = null;
+
+function assignRandomAttributes(): ItemAttribute[] {
+  const attributes: ItemAttribute[] = [];
+  
+  const certifiedRoll = Math.random() * 100;
+  if (certifiedRoll < 4) {
+    attributes.push('certified');
+  }
+  
+  const winTrackerRoll = Math.random() * 100;
+  if (winTrackerRoll < 2.5) {
+    attributes.push('win_tracker');
+  }
+  
+  return attributes;
+}
 
 export async function loadCrates(): Promise<Crate[]> {
   if (cratesCache) {
@@ -53,16 +69,32 @@ export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitle
     if (!banner) {
       throw new Error('Banner not found');
     }
-    item = banner;
     isDuplicate = ownedBanners.includes(banner.bannerId);
+    
+    const newAttributes = assignRandomAttributes();
+    const existingAttributes = banner.attributes || [];
+    const combinedAttributes = [...new Set([...existingAttributes, ...newAttributes])];
+    
+    item = {
+      ...banner,
+      attributes: combinedAttributes
+    };
   } else if (selectedReward.type === 'pfp') {
     const pfps = await loadPfps();
     const pfp = getPfpById(selectedReward.id as number, pfps);
     if (!pfp) {
       throw new Error('PFP not found');
     }
-    item = pfp;
     isDuplicate = ownedPfps.includes(pfp.pfpId);
+    
+    const newAttributes = assignRandomAttributes();
+    const existingAttributes = pfp.attributes || [];
+    const combinedAttributes = [...new Set([...existingAttributes, ...newAttributes])];
+    
+    item = {
+      ...pfp,
+      attributes: combinedAttributes
+    };
   } else {
     item = getTitleFromId(selectedReward.id as string);
     isDuplicate = ownedTitles.includes((item as Title).id);
