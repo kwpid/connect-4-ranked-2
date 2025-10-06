@@ -70,6 +70,7 @@ import {
   addDynamicNews,
   type NewsItem
 } from './utils/newsManager';
+import { MobileTestingPanel } from './components/debug/MobileTestingPanel';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('menu');
@@ -93,6 +94,7 @@ function App() {
   const [showItemNotification, setShowItemNotification] = useState(false);
   const [refundAmount, setRefundAmount] = useState<number>(0);
   const [showRefundNotification, setShowRefundNotification] = useState(false);
+  const [showMobileTestPanel, setShowMobileTestPanel] = useState(true); // Set to false to disable
   
   // Catch up AI competitors on initial load (simulates grinding while player was away)
   useEffect(() => {
@@ -639,6 +641,17 @@ function App() {
     savePlayerData(updatedPlayer);
   };
   
+  const handleMobileTestUpdate = (updates: { trophies?: number; wins?: number; losses?: number }) => {
+    const updatedPlayer = {
+      ...playerData,
+      ...(updates.trophies !== undefined && { trophies: updates.trophies }),
+      ...(updates.wins !== undefined && { wins: updates.wins }),
+      ...(updates.losses !== undefined && { losses: updates.losses })
+    };
+    setPlayerData(updatedPlayer);
+    savePlayerData(updatedPlayer);
+  };
+  
   // Tournament handlers
   const handleTournamentRegister = () => {
     if (currentTournament) {
@@ -1058,6 +1071,14 @@ function App() {
           playerData={playerData}
           onUsernameChange={handleUsernameChange}
           onBack={() => setScreen('menu')}
+        />
+      )}
+      
+      {showMobileTestPanel && (
+        <MobileTestingPanel
+          playerData={playerData}
+          onUpdate={handleMobileTestUpdate}
+          onClose={() => setShowMobileTestPanel(false)}
         />
       )}
       
