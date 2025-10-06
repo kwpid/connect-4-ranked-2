@@ -9,6 +9,7 @@ import { getCurrentSeasonData } from '../../utils/seasonManager';
 import { BannerDisplay } from '../common/BannerDisplay';
 import { loadBanners, getAIBanner } from '../../utils/bannerManager';
 import { loadPfps, getAIPfp } from '../../utils/pfpManager';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
 interface GameScreenProps {
   playerData: PlayerData;
@@ -185,6 +186,7 @@ export function GameScreen({
   const [totalMoves, setTotalMoves] = useState(0);
   const [winningCells, setWinningCells] = useState<Array<[number, number]>>([]);
   const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
+  const [showResultDialog, setShowResultDialog] = useState(false);
   const [coachingHint, setCoachingHint] = useState<{ column: number; reason: string } | null>(null);
   const [bestMoveColumn, setBestMoveColumn] = useState<number | undefined>(undefined);
   
@@ -250,6 +252,13 @@ export function GameScreen({
       });
     }
   }, [match.currentPlayer, match.winner, match.matchWinner]);
+  
+  // Show result dialog when match ends
+  useEffect(() => {
+    if (match.matchWinner) {
+      setShowResultDialog(true);
+    }
+  }, [match.matchWinner]);
   
   const handleTimeOut = () => {
     // Make random move for current player
@@ -356,7 +365,17 @@ export function GameScreen({
         totalMoves
       );
       const matchScore = `${match.playerWins}-${match.aiWins}`;
+      setShowResultDialog(false);
       onMatchEnd(won, trophyChange, opponent.name, opponent.trophies, matchScore);
+    }
+  };
+  
+  const handleCloseResultDialog = () => {
+    setShowResultDialog(false);
+    if (isPracticeMode) {
+      onBack();
+    } else {
+      handleEndMatch();
     }
   };
   
@@ -490,60 +509,7 @@ export function GameScreen({
         
         {/* Status */}
         <div className="text-center">
-          {match.matchWinner ? (
-            <div className="space-y-4">
-              <h3 className="text-3xl font-bold">
-                {match.matchWinner === 'player' ? '🎉 Victory!' : '😞 Defeat'}
-              </h3>
-              <p className="text-xl text-gray-300">
-                Match Score: {match.playerWins} - {match.aiWins}
-              </p>
-              {!isPracticeMode && (() => {
-                const won = match.matchWinner === 'player';
-                const trophyChange = calculateNewTrophyChange(
-                  won, 
-                  playerData.trophies, 
-                  opponent.trophies, 
-                  playerData.winStreak,
-                  totalMoves
-                );
-                const oldRank = getRankByTrophies(playerData.trophies);
-                const newTrophies = Math.max(0, playerData.trophies + trophyChange);
-                const newRank = getRankByTrophies(newTrophies);
-                const rankedUp = oldRank.name !== newRank.name && newRank.minTrophies > oldRank.minTrophies;
-                
-                return (
-                  <>
-                    <div className={`text-2xl font-bold ${trophyChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {trophyChange >= 0 ? '+' : ''}{trophyChange} 🏆 Trophies
-                    </div>
-                    
-                    {rankedUp ? (
-                      <div className="mt-6 p-6 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg border-2 border-yellow-500/50 animate-pulse">
-                        <p className="text-2xl font-bold text-yellow-400 mb-2">🎊 RANK UP! 🎊</p>
-                        <p className="text-lg text-gray-300">
-                          {oldRank.name} → <span style={{ color: newRank.tier === 'legend' ? '#FFFFFF' : newRank.tier === 'grand_champion' ? '#FF0000' : newRank.tier === 'champion' ? '#FF6B9D' : newRank.tier === 'diamond' ? '#B9F2FF' : newRank.tier === 'platinum' ? '#E5E4E2' : newRank.tier === 'gold' ? '#FFD700' : newRank.tier === 'silver' ? '#C0C0C0' : '#CD7F32' }} className="font-bold">{newRank.name}</span>
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="mt-4">
-                        <p className="text-lg text-gray-400">Current Rank</p>
-                        <p className="text-2xl font-bold" style={{ color: newRank.tier === 'legend' ? '#FFFFFF' : newRank.tier === 'grand_champion' ? '#FF0000' : newRank.tier === 'champion' ? '#FF6B9D' : newRank.tier === 'diamond' ? '#B9F2FF' : newRank.tier === 'platinum' ? '#E5E4E2' : newRank.tier === 'gold' ? '#FFD700' : newRank.tier === 'silver' ? '#C0C0C0' : '#CD7F32' }}>
-                          {newRank.name}
-                        </p>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-              <button
-                onClick={isPracticeMode ? onBack : handleEndMatch}
-                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors mt-4"
-              >
-                Continue
-              </button>
-            </div>
-          ) : match.winner ? (
+          {match.winner ? (
             <p className="text-2xl">
               {match.winner === 'player' ? '🎉 You won this game!' : 
                match.winner === 'ai' ? `😞 ${opponent.name} won this game` : 
@@ -590,6 +556,69 @@ export function GameScreen({
           </div>
         </div>
       )}
+      
+      {/* Match Result Dialog */}
+      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
+        <DialogContent className="bg-gray-900 text-white border-blue-500/50">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold text-center">
+              {match.matchWinner === 'player' ? '🎉 Victory!' : '😞 Defeat'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <p className="text-xl text-gray-300 text-center">
+              Match Score: {match.playerWins} - {match.aiWins}
+            </p>
+            
+            {!isPracticeMode && match.matchWinner && (() => {
+              const won = match.matchWinner === 'player';
+              const trophyChange = calculateNewTrophyChange(
+                won, 
+                playerData.trophies, 
+                opponent.trophies, 
+                playerData.winStreak,
+                totalMoves
+              );
+              const oldRank = getRankByTrophies(playerData.trophies);
+              const newTrophies = Math.max(0, playerData.trophies + trophyChange);
+              const newRank = getRankByTrophies(newTrophies);
+              const rankedUp = oldRank.name !== newRank.name && newRank.minTrophies > oldRank.minTrophies;
+              
+              return (
+                <>
+                  <div className={`text-2xl font-bold text-center ${trophyChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {trophyChange >= 0 ? '+' : ''}{trophyChange} 🏆 Trophies
+                  </div>
+                  
+                  {rankedUp ? (
+                    <div className="mt-6 p-6 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg border-2 border-yellow-500/50 animate-pulse">
+                      <p className="text-2xl font-bold text-yellow-400 mb-2 text-center">🎊 RANK UP! 🎊</p>
+                      <p className="text-lg text-gray-300 text-center">
+                        {oldRank.name} → <span style={{ color: newRank.tier === 'legend' ? '#FFFFFF' : newRank.tier === 'grand_champion' ? '#FF0000' : newRank.tier === 'champion' ? '#FF6B9D' : newRank.tier === 'diamond' ? '#B9F2FF' : newRank.tier === 'platinum' ? '#E5E4E2' : newRank.tier === 'gold' ? '#FFD700' : newRank.tier === 'silver' ? '#C0C0C0' : '#CD7F32' }} className="font-bold">{newRank.name}</span>
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <p className="text-lg text-gray-400 text-center">Current Rank</p>
+                      <p className="text-2xl font-bold text-center" style={{ color: newRank.tier === 'legend' ? '#FFFFFF' : newRank.tier === 'grand_champion' ? '#FF0000' : newRank.tier === 'champion' ? '#FF6B9D' : newRank.tier === 'diamond' ? '#B9F2FF' : newRank.tier === 'platinum' ? '#E5E4E2' : newRank.tier === 'gold' ? '#FFD700' : newRank.tier === 'silver' ? '#C0C0C0' : '#CD7F32' }}>
+                        {newRank.name}
+                      </p>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+            
+            <button
+              onClick={handleCloseResultDialog}
+              className="w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors mt-4"
+            >
+              Continue
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
