@@ -464,7 +464,7 @@ export function GameScreen({
                 className="scale-100"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>
+            {!isPracticeMode && !isTournamentMode && <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>}
             <p className={`text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>{match.playerWins}</p>
           </div>
           <div className="text-4xl font-bold text-gray-500">-</div>
@@ -478,7 +478,7 @@ export function GameScreen({
                 className="scale-100"
               />
             </div>
-            {!isPracticeMode && <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>}
+            {!isPracticeMode && !isTournamentMode && <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>}
             <p className={`text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-red-400' : 'text-blue-400'}`}>{match.aiWins}</p>
           </div>
         </div>
