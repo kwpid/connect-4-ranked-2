@@ -62,12 +62,13 @@ export function MenuScreen({
             </div>
           </div>
           
-          <button
+          <Button
             onClick={onInventory}
-            className="w-full mb-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm font-semibold"
+            className="w-full mb-4"
+            variant="default"
           >
             Inventory
-          </button>
+          </Button>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
@@ -91,46 +92,55 @@ export function MenuScreen({
         
         {/* Main Play Button */}
         <div className="space-y-4 mb-8">
-          <button
+          <Button
             onClick={onPlay}
-            className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl text-2xl font-bold transition-all transform hover:scale-105 shadow-lg"
+            className="w-full h-16 text-2xl font-bold transform hover:scale-105"
+            size="lg"
           >
             Play
-          </button>
+          </Button>
           
           {/* Shop and Leaderboard */}
           <div className="grid grid-cols-2 gap-4">
-            <button
+            <Button
               onClick={onShop}
-              className="py-4 bg-yellow-600 hover:bg-yellow-700 rounded-lg transition-colors font-semibold text-lg"
+              className="py-4 h-auto text-lg"
+              variant="default"
             >
               Shop
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onLeaderboard}
-              className="py-4 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold text-lg"
+              className="py-4 h-auto text-lg"
+              variant="default"
             >
               Leaderboard
-            </button>
+            </Button>
           </div>
           
           {/* CSL, Stats, Settings, News */}
           <div className="grid grid-cols-4 gap-4">
-            <button
+            <Button
               onClick={onCSL}
-              className="py-3 bg-cyan-600 hover:bg-cyan-700 rounded-lg text-sm font-semibold transition-colors"
+              className="py-3 h-auto"
+              variant="secondary"
+              size="sm"
             >
               CSL
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onStats}
-              className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
+              className="py-3 h-auto"
+              variant="secondary"
+              size="sm"
             >
               Stats
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onNews}
-              className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold relative"
+              className="py-3 h-auto relative"
+              variant="secondary"
+              size="sm"
             >
               News
               {unreadNewsCount > 0 && (
@@ -138,13 +148,15 @@ export function MenuScreen({
                   {unreadNewsCount > 9 ? '9+' : unreadNewsCount}
                 </span>
               )}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onSettings}
-              className="py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
+              className="py-3 h-auto"
+              variant="secondary"
+              size="sm"
             >
               Settings
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -91,6 +91,8 @@ function App() {
   const [newsAutoOpened, setNewsAutoOpened] = useState(false);
   const [newItems, setNewItems] = useState<NewItem[]>([]);
   const [showItemNotification, setShowItemNotification] = useState(false);
+  const [refundAmount, setRefundAmount] = useState<number>(0);
+  const [showRefundNotification, setShowRefundNotification] = useState(false);
   
   // Catch up AI competitors on initial load (simulates grinding while player was away)
   useEffect(() => {
@@ -427,7 +429,15 @@ function App() {
       ownedTitles: newTitles,
       ownedBanners: newBanners,
       ownedPfps: newPfps,
-      currentSeasonWins: 0
+      tournamentStats: {
+        ...(playerData.tournamentStats || {
+          tournamentsWon: 0,
+          tournamentsPlayed: 0,
+          currentSeasonWins: 0,
+          lastTournamentLeft: null
+        }),
+        currentSeasonWins: 0
+      }
     };
     
     setPlayerData(updatedPlayer);
@@ -573,14 +583,17 @@ function App() {
     }
   };
 
-  const handleCratePurchase = (cratePrice: number, item: any, isDuplicate: boolean, refundAmount: number) => {
+  const handleCratePurchase = (cratePrice: number, item: any, isDuplicate: boolean, refundAmountValue: number) => {
     if (isDuplicate) {
       const updatedPlayer = {
         ...playerData,
-        coins: playerData.coins - cratePrice + refundAmount
+        coins: playerData.coins - cratePrice + refundAmountValue
       };
       setPlayerData(updatedPlayer);
       savePlayerData(updatedPlayer);
+      
+      setRefundAmount(refundAmountValue);
+      setShowRefundNotification(true);
     } else {
       if ('bannerId' in item) {
         handlePurchaseBanner(item.bannerId, cratePrice);
@@ -884,11 +897,40 @@ function App() {
           username={playerData.username}
           currentBannerId={playerData.equippedBanner || 1}
           currentTitleId={playerData.equippedTitle}
+          currentPfpId={playerData.equippedPfp || null}
           onClose={() => {
             setShowItemNotification(false);
             setNewItems([]);
           }}
         />
+      )}
+      
+      {showRefundNotification && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl max-w-md w-full border-2 border-yellow-500 shadow-2xl shadow-yellow-500/20">
+            <div className="p-8 border-b border-gray-700">
+              <h2 className="text-3xl font-bold text-center text-yellow-400">
+                DUPLICATE ITEM
+              </h2>
+            </div>
+            <div className="p-12 text-center">
+              <p className="text-xl text-gray-300 mb-4">
+                You already own this item!
+              </p>
+              <p className="text-2xl font-bold text-green-400">
+                💰 Refunded: {refundAmount} coins
+              </p>
+            </div>
+            <div className="p-6 border-t border-gray-700 bg-gray-900/50">
+              <button
+                onClick={() => setShowRefundNotification(false)}
+                className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold text-white"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       
       {screen === 'playMenu' && (

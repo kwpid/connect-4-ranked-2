@@ -17,6 +17,7 @@ interface ItemNotificationPopupProps {
   username: string;
   currentBannerId: number;
   currentTitleId: string | null;
+  currentPfpId: number | null;
   onClose: () => void;
 }
 
@@ -25,6 +26,7 @@ export function ItemNotificationPopup({
   username, 
   currentBannerId, 
   currentTitleId,
+  currentPfpId,
   onClose 
 }: ItemNotificationPopupProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,6 +44,14 @@ export function ItemNotificationPopup({
           setBannerUrl(getBannerImagePath(banner.imageName));
         }
       });
+      if (currentPfpId) {
+        loadPfps().then(pfps => {
+          const pfp = getPfpById(currentPfpId, pfps);
+          if (pfp) {
+            setPfpUrl(getPfpImagePath(pfp.imageName));
+          }
+        });
+      }
     } else if (currentItem.type === 'title' && currentBannerId !== null && currentBannerId !== undefined) {
       loadBanners().then(banners => {
         const banner = getBannerById(currentBannerId, banners);
@@ -49,6 +59,14 @@ export function ItemNotificationPopup({
           setBannerUrl(getBannerImagePath(banner.imageName));
         }
       });
+      if (currentPfpId) {
+        loadPfps().then(pfps => {
+          const pfp = getPfpById(currentPfpId, pfps);
+          if (pfp) {
+            setPfpUrl(getPfpImagePath(pfp.imageName));
+          }
+        });
+      }
     } else if (currentItem.type === 'pfp' && currentItem.pfp) {
       loadPfps().then(pfps => {
         const pfp = getPfpById(currentItem.pfp!.pfpId, pfps);
@@ -63,7 +81,7 @@ export function ItemNotificationPopup({
         }
       });
     }
-  }, [currentItem, currentBannerId]);
+  }, [currentItem, currentBannerId, currentPfpId]);
 
   const handleNext = () => {
     if (isLastItem) {
@@ -103,22 +121,33 @@ export function ItemNotificationPopup({
             className="h-[62px] w-auto"
             style={{ imageRendering: 'crisp-edges' }}
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-white font-bold px-2 text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-              {username}
-            </span>
-            {title && (
-              <p 
-                className="text-xs font-bold mt-0.5 px-1 leading-tight"
-                style={{ 
-                  color: title.color, 
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
-                  ...glowStyle 
-                }}
-              >
-                {title.name.toUpperCase()}
-              </p>
+          <div className="absolute inset-0 flex items-center pl-2">
+            {pfpUrl && (
+              <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
+                <img
+                  src={pfpUrl}
+                  alt="Profile Picture"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             )}
+            <div className={`flex flex-col justify-center ${pfpUrl ? 'ml-2' : ''}`}>
+              <span className="text-white font-bold px-2 text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+                {username}
+              </span>
+              {title && (
+                <p 
+                  className="text-xs font-bold mt-0.5 px-1 leading-tight"
+                  style={{ 
+                    color: title.color, 
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                    ...glowStyle 
+                  }}
+                >
+                  {title.name.toUpperCase()}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       );
@@ -140,20 +169,31 @@ export function ItemNotificationPopup({
               style={{ imageRendering: 'crisp-edges' }}
             />
           )}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-white font-bold px-2 text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-              {username}
-            </span>
-            <p 
-              className="text-sm font-bold mt-0.5 px-1 leading-tight"
-              style={{ 
-                color: title.color, 
-                textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
-                ...glowStyle 
-              }}
-            >
-              {title.name.toUpperCase()}
-            </p>
+          <div className="absolute inset-0 flex items-center pl-2">
+            {pfpUrl && (
+              <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
+                <img
+                  src={pfpUrl}
+                  alt="Profile Picture"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div className={`flex flex-col justify-center ${pfpUrl ? 'ml-2' : ''}`}>
+              <span className="text-white font-bold px-2 text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+                {username}
+              </span>
+              <p 
+                className="text-sm font-bold mt-0.5 px-1 leading-tight"
+                style={{ 
+                  color: title.color, 
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                  ...glowStyle 
+                }}
+              >
+                {title.name.toUpperCase()}
+              </p>
+            </div>
           </div>
         </div>
       );
