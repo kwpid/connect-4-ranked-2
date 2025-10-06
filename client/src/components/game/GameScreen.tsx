@@ -398,15 +398,15 @@ export function GameScreen({
       // Total can be up to 7 trophies (5 base + 2 streak + 1 fast win, capped at 7)
       return Math.min(7, baseTrophies + streakBonus + fastWinBonus);
     } else {
-      // Loss penalties based on opponent rank
+      // Loss penalties based on opponent rank (min 5, max 8)
       const trophyDiff = opponentTrophies - playerTrophies;
       
       if (trophyDiff <= -30) {
-        return -4; // Lost to much lower rank (hurts more)
+        return -8; // Lost to much lower rank (hurts most)
       } else if (trophyDiff <= -10) {
-        return -3; // Lost to lower rank
+        return -7; // Lost to lower rank
       } else {
-        return -2; // Lost to equal or higher rank
+        return -5; // Lost to equal or higher rank (minimum)
       }
     }
   };
