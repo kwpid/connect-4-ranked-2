@@ -386,6 +386,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
                   }}>
                     {rollingItems.map((item, idx) => {
                       const isBanner = 'bannerId' in item;
+                      const isPfp = 'pfpId' in item;
                       const isSelected = idx === selectedItemIndex;
                       
                       return (
@@ -403,6 +404,16 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
                                 alt={(item as Banner).bannerName}
                                 className="max-h-16 w-auto object-contain"
                               />
+                            </div>
+                          ) : isPfp ? (
+                            <div className="flex items-center justify-center h-full">
+                              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-500">
+                                <img
+                                  src={getPfpImagePath((item as Pfp).imageName)}
+                                  alt={(item as Pfp).pfpName}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
                             </div>
                           ) : (
                             <div className="flex items-center justify-center h-full">
@@ -437,11 +448,12 @@ function CrateRewardPreview({ reward }: { reward: any }) {
   const isBanner = 'bannerId' in item;
   const isPfp = 'pfpId' in item;
   const banner = isBanner ? (item as Banner) : undefined;
+  const pfp = isPfp ? (item as Pfp) : undefined;
   
   return (
     <ItemCard
-      rarity={banner?.rarity}
-      attributes={banner?.attributes}
+      rarity={banner?.rarity || pfp?.rarity}
+      attributes={banner?.attributes || pfp?.attributes}
       className="p-3"
     >
       <div className="mb-2">
@@ -452,6 +464,16 @@ function CrateRewardPreview({ reward }: { reward: any }) {
               alt={(item as Banner).bannerName}
               className="h-10"
             />
+          </div>
+        ) : isPfp ? (
+          <div className="flex items-center justify-center h-12">
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-600">
+              <img
+                src={getPfpImagePath((item as Pfp).imageName)}
+                alt={(item as Pfp).pfpName}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         ) : (
           <div className="text-center">
