@@ -27,6 +27,7 @@ export interface Title {
   glow: string;
   season?: number;
   price?: number;
+  rankImage?: string;
 }
 
 export interface Banner {

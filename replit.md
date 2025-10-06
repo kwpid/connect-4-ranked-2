@@ -78,6 +78,12 @@ The project has been successfully imported from GitHub and configured for the Re
 
 ### Recent Updates
 
+**October 6, 2025 - Tournament Title Updates with Rank Images**
+- Tournament titles now use highest division for each rank (Gold III, Diamond III, etc.)
+- Tournament titles display as "S# [rank image] TOURNAMENT WINNER" with inline rank badge
+- Rank images are sized to fit within text and gracefully hide if PNG not available
+- Updated tournament title generation logic to always use division III ranks
+
 **October 6, 2025 - UI/UX Enhancements & AI Cosmetics**
 - AI opponents now use profile pictures based on their trophy count (similar to banner system)
 - All AI opponents guaranteed to have at least the default PFP (no more missing PFPs)

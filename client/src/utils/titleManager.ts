@@ -103,7 +103,7 @@ export function getTitleFromId(titleId: string): Title {
       if (rank === 'CONNECT LEGEND') {
         color = '#FF69B4'; // Pink for multi-win Legend
         glow = '#FF69B4';
-      } else if (rank === 'GRAND CHAMPION') {
+      } else if (rank.startsWith('GRAND CHAMPION')) {
         color = '#FFD700'; // Gold for multi-win GC
         glow = '#FFD700';
       } else {
@@ -115,7 +115,7 @@ export function getTitleFromId(titleId: string): Title {
       if (rank === 'CONNECT LEGEND') {
         color = '#FFFFFF'; // White for Legend
         glow = '#FFFFFF';
-      } else if (rank === 'GRAND CHAMPION') {
+      } else if (rank.startsWith('GRAND CHAMPION')) {
         color = '#FF0000'; // Red for GC
         glow = '#FF0000';
       } else {
@@ -132,7 +132,8 @@ export function getTitleFromId(titleId: string): Title {
       type: 'tournament',
       color,
       glow,
-      season: parseInt(seasonNum)
+      season: parseInt(seasonNum),
+      rankImage: rank // Store rank for image lookup
     };
   }
   

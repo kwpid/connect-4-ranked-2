@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
 import { getTitleFromId } from '../../utils/titleManager';
 import { loadPfps, getPfpById, getPfpImagePath } from '../../utils/pfpManager';
+import { getRankImagePath } from '../../utils/rankSystem';
 
 interface BannerDisplayProps {
   bannerId: number | null;
@@ -78,16 +79,75 @@ export function BannerDisplay({ bannerId, username, titleId, pfpId, className = 
               {username}
             </span>
             {title && (
-              <p 
-                className="text-xs font-bold leading-tight"
-                style={{ 
-                  color: title.color, 
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
-                  ...glowStyle 
-                }}
-              >
-                {title.name.toUpperCase()}
-              </p>
+              <div className="flex items-center gap-1">
+                {title.type === 'tournament' && title.rankImage && (() => {
+                  // Parse the rank to get the image path
+                  const rank = title.rankImage;
+                  let rankPath = '';
+                  
+                  if (rank === 'CONNECT LEGEND') {
+                    rankPath = getRankImagePath('Connect Legend');
+                  } else if (rank.includes(' III')) {
+                    // e.g., "BRONZE III" -> "Bronze III"
+                    const rankName = rank.replace(' III', '').toLowerCase()
+                      .split(' ')
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ') + ' III';
+                    rankPath = getRankImagePath(rankName);
+                  }
+                  
+                  // Extract season number from title name
+                  const seasonMatch = title.name.match(/^S(\d+)\s/);
+                  const seasonNum = seasonMatch ? seasonMatch[1] : '';
+                  
+                  return (
+                    <>
+                      <span 
+                        className="text-xs font-bold leading-tight"
+                        style={{ 
+                          color: title.color, 
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                          ...glowStyle 
+                        }}
+                      >
+                        {seasonNum && `S${seasonNum} `}
+                      </span>
+                      {rankPath && (
+                        <img 
+                          src={rankPath} 
+                          alt={rank} 
+                          className="h-3 w-auto object-contain inline-block"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <span 
+                        className="text-xs font-bold leading-tight"
+                        style={{ 
+                          color: title.color, 
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                          ...glowStyle 
+                        }}
+                      >
+                        TOURNAMENT WINNER
+                      </span>
+                    </>
+                  );
+                })()}
+                {title.type !== 'tournament' && (
+                  <p 
+                    className="text-xs font-bold leading-tight"
+                    style={{ 
+                      color: title.color, 
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                      ...glowStyle 
+                    }}
+                  >
+                    {title.name.toUpperCase()}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>

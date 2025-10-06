@@ -97,18 +97,18 @@ function generateAITournamentTitle(trophies: number, currentSeasonNumber: number
   const titleChance = Math.min(0.3 + (trophies / 1000) * 0.5, 0.8);
   if (Math.random() > titleChance) return null;
   
-  // Determine rank tier
+  // Determine rank tier - use highest division (III) for each rank
   let rankName = '';
   let tier = '';
   
-  if (trophies >= 701) { rankName = 'CONNECT LEGEND'; tier = 'legend'; }
-  else if (trophies >= 599) { rankName = 'GRAND CHAMPION'; tier = 'grand_champion'; }
-  else if (trophies >= 497) { rankName = 'CHAMPION'; tier = 'champion'; }
-  else if (trophies >= 396) { rankName = 'DIAMOND'; tier = 'diamond'; }
-  else if (trophies >= 297) { rankName = 'PLATINUM'; tier = 'platinum'; }
-  else if (trophies >= 198) { rankName = 'GOLD'; tier = 'gold'; }
-  else if (trophies >= 99) { rankName = 'SILVER'; tier = 'silver'; }
-  else { rankName = 'BRONZE'; tier = 'bronze'; }
+  if (trophies >= 701) { rankName = 'CONNECT LEGEND'; tier = 'connect_legend'; }
+  else if (trophies >= 599) { rankName = 'GRAND CHAMPION III'; tier = 'grand_champion_iii'; }
+  else if (trophies >= 497) { rankName = 'CHAMPION III'; tier = 'champion_iii'; }
+  else if (trophies >= 396) { rankName = 'DIAMOND III'; tier = 'diamond_iii'; }
+  else if (trophies >= 297) { rankName = 'PLATINUM III'; tier = 'platinum_iii'; }
+  else if (trophies >= 198) { rankName = 'GOLD III'; tier = 'gold_iii'; }
+  else if (trophies >= 99) { rankName = 'SILVER III'; tier = 'silver_iii'; }
+  else { rankName = 'BRONZE III'; tier = 'bronze_iii'; }
   
   // Determine season (current or previous)
   const season = currentSeasonNumber === 1 ? 1 : 
