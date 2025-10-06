@@ -40,6 +40,8 @@ import {
   getTournamentTitle
 } from './utils/tournamentManager';
 import { loadBanners, getRankBannersForPlayer } from './utils/bannerManager';
+import { loadPfps } from './utils/pfpManager';
+import { getSeasonalRewardsForPlayer, extractBannerIds, extractPfpIds } from './utils/rewardManager';
 
 // Screens
 import { MenuScreen } from './components/menu/MenuScreen';
@@ -355,12 +357,13 @@ function App() {
         .filter(Boolean) as string[]
     );
     
-    // Award ranked banners
+    // Award seasonal rewards (banners or PFPs based on availability)
     const newBanners = [...playerData.ownedBanners];
+    const newPfps = [...playerData.ownedPfps];
     const rank = getRankByTrophies(playerData.trophies);
     
-    // Map tier to banner rank name
-    const tierToBannerName: Record<string, string> = {
+    // Map tier to rank name
+    const tierToRankName: Record<string, string> = {
       'legend': 'Connect Legend',
       'grand_champion': 'Grand Champion',
       'champion': 'Champion',
@@ -371,19 +374,25 @@ function App() {
       'bronze': 'Bronze'
     };
     
-    const finalRankName = tierToBannerName[rank.tier] || '';
+    const finalRankName = tierToRankName[rank.tier] || '';
     
     if (finalRankName) {
-      const banners = await loadBanners();
-      const earnedBannerIds = getRankBannersForPlayer(banners, finalRankName, currentSeason.seasonNumber);
+      // Get seasonal rewards (tries banners first, falls back to PFPs if not available)
+      const rewards = await getSeasonalRewardsForPlayer(finalRankName, currentSeason.seasonNumber);
       
-      // Add banners that player doesn't already own
-      earnedBannerIds.forEach(bannerId => {
-        if (!newBanners.includes(bannerId)) {
-          newBanners.push(bannerId);
-          const banner = banners.find(b => b.bannerId === bannerId);
-          if (banner) {
+      // Process rewards
+      rewards.forEach(reward => {
+        if (reward.type === 'banner') {
+          const banner = reward.item as any;
+          if (!newBanners.includes(banner.bannerId)) {
+            newBanners.push(banner.bannerId);
             earnedItems.push({ type: 'banner', banner });
+          }
+        } else if (reward.type === 'pfp') {
+          const pfp = reward.item as any;
+          if (!newPfps.includes(pfp.pfpId)) {
+            newPfps.push(pfp.pfpId);
+            earnedItems.push({ type: 'pfp', pfp });
           }
         }
       });
@@ -396,6 +405,7 @@ function App() {
       coins: playerData.coins + coinsReward,
       ownedTitles: newTitles,
       ownedBanners: newBanners,
+      ownedPfps: newPfps,
       currentSeasonWins: 0
     };
     
@@ -431,28 +441,37 @@ function App() {
     const leveledUp = newLevel > playerData.level;
     const levelUpCoins = leveledUp ? (newLevel - playerData.level) * 100 : 0;
     
-    // Award rank-based titles if player won and is in Grand Champion or Legend rank
+    // Award rank-based seasonal titles when player reaches each tier
     const newTitles = [...playerData.ownedTitles];
     const currentSeason = getCurrentSeasonData();
     const earnedItems: NewItem[] = [];
     
-    if (won && newTrophies >= 551) {
-      // Connect Legend title (701+)
-      if (newTrophies >= 701) {
-        const legendTitle = `S${currentSeason.seasonNumber} CONNECT LEGEND`;
-        if (!newTitles.includes(legendTitle)) {
-          newTitles.push(legendTitle);
-          earnedItems.push({ type: 'title', titleId: legendTitle });
-        }
-      }
+    if (won) {
+      // Determine which seasonal rank title to award based on trophy count
+      const rankTitleMap = [
+        { min: 701, title: 'CONNECT LEGEND' },
+        { min: 551, title: 'GRAND CHAMPION' },
+        { min: 401, title: 'CHAMPION' },
+        { min: 276, title: 'DIAMOND' },
+        { min: 176, title: 'PLATINUM' },
+        { min: 101, title: 'GOLD' },
+        { min: 51, title: 'SILVER' },
+        { min: 0, title: 'BRONZE' }
+      ];
       
-      // Grand Champion title (551+) - always add if in range, even if they already have Legend
-      if (newTrophies >= 551) {
-        const gcTitle = `S${currentSeason.seasonNumber} GRAND CHAMPION`;
-        if (!newTitles.includes(gcTitle)) {
-          newTitles.push(gcTitle);
-          earnedItems.push({ type: 'title', titleId: gcTitle });
-        }
+      // Award titles for current rank and all lower ranks
+      const currentRankEntry = rankTitleMap.find(r => newTrophies >= r.min);
+      if (currentRankEntry) {
+        const currentRankIndex = rankTitleMap.indexOf(currentRankEntry);
+        const ranksToAward = rankTitleMap.slice(currentRankIndex);
+        
+        ranksToAward.forEach(({ title }) => {
+          const seasonalTitle = `S${currentSeason.seasonNumber} ${title}`;
+          if (!newTitles.includes(seasonalTitle)) {
+            newTitles.push(seasonalTitle);
+            earnedItems.push({ type: 'title', titleId: seasonalTitle });
+          }
+        });
       }
     }
     
@@ -520,14 +539,12 @@ function App() {
     const updatedPlayer = { ...playerData, equippedTitle: titleId };
     setPlayerData(updatedPlayer);
     savePlayerData(updatedPlayer);
-    setScreen('menu');
   };
 
   const handleEquipBanner = (bannerId: number | null) => {
     const updatedPlayer = { ...playerData, equippedBanner: bannerId };
     setPlayerData(updatedPlayer);
     savePlayerData(updatedPlayer);
-    setScreen('menu');
   };
   
   const handlePurchaseTitle = (titleId: string, price: number) => {
@@ -987,6 +1004,7 @@ function App() {
           playerData={playerData}
           onPurchase={handlePurchaseTitle}
           onPurchaseBanner={handlePurchaseBanner}
+          onPurchasePfp={handlePurchasePfp}
           onCratePurchase={handleCratePurchase}
           onBack={() => setScreen('menu')}
           lastRotation={shopRotationTime}

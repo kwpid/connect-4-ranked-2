@@ -4,6 +4,7 @@ import { generateShopItems, shouldRotateShop, getShopRotationSeed, getFeaturedIt
 import { loadCrates, openCrate, getCrateImagePath, getRewardPreview } from '../../utils/crateManager';
 import { TitleDisplay } from '../common/TitleDisplay';
 import { getBannerImagePath } from '../../utils/bannerManager';
+import { getPfpImagePath } from '../../utils/pfpManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ItemCard } from '../ui/item-card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
@@ -13,12 +14,13 @@ interface ShopScreenProps {
   playerData: PlayerData;
   onPurchase: (titleId: string, price: number) => void;
   onPurchaseBanner: (bannerId: number, price: number) => void;
-  onCratePurchase: (cratePrice: number, item: Banner | Title, isDuplicate: boolean, refundAmount: number) => void;
+  onPurchasePfp: (pfpId: number, price: number) => void;
+  onCratePurchase: (cratePrice: number, item: Banner | Title | Pfp, isDuplicate: boolean, refundAmount: number) => void;
   onBack: () => void;
   lastRotation: number;
 }
 
-export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePurchase, onBack, lastRotation }: ShopScreenProps) {
+export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchasePfp, onCratePurchase, onBack, lastRotation }: ShopScreenProps) {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [featuredItems, setFeaturedItems] = useState<FeaturedItem[]>([]);
   const [crates, setCrates] = useState<Crate[]>([]);
@@ -27,7 +29,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
   const [cratePreviewOpen, setCratePreviewOpen] = useState(false);
   const [crateOpeningResult, setCrateOpeningResult] = useState<CrateOpenResult | null>(null);
   const [isOpening, setIsOpening] = useState(false);
-  const [rollingItems, setRollingItems] = useState<(Banner | Title)[]>([]);
+  const [rollingItems, setRollingItems] = useState<(Banner | Title | Pfp)[]>([]);
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   
   useEffect(() => {
@@ -77,6 +79,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
   const canAfford = (price: number) => playerData.coins >= price;
   const titleAlreadyOwned = (titleId: string) => playerData.ownedTitles.includes(titleId);
   const bannerAlreadyOwned = (bannerId: number) => playerData.ownedBanners.includes(bannerId);
+  const pfpAlreadyOwned = (pfpId: number) => playerData.ownedPfps.includes(pfpId);
   
   const handleCrateClick = (crate: Crate) => {
     setSelectedCrate(crate);
@@ -136,8 +139,13 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
   
   const renderItem = (item: ShopItem | FeaturedItem, isFeatured = false) => {
     const isBanner = !!item.banner;
+    const isPfp = !!item.pfp;
+    const isTitle = !!item.title;
+    
     const owned = isBanner 
       ? bannerAlreadyOwned(item.banner!.bannerId)
+      : isPfp
+      ? pfpAlreadyOwned(item.pfp!.pfpId)
       : titleAlreadyOwned(item.title!.id);
     const affordable = canAfford(item.price);
     
@@ -145,8 +153,16 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
     const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60));
     const minutesRemaining = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
     
-    const itemRarity = isBanner && item.banner?.rarity ? item.banner.rarity : undefined;
-    const itemAttributes = isBanner && item.banner?.attributes ? item.banner.attributes : undefined;
+    const itemRarity = isBanner 
+      ? item.banner?.rarity 
+      : isPfp 
+      ? item.pfp?.rarity 
+      : undefined;
+    const itemAttributes = isBanner 
+      ? item.banner?.attributes 
+      : isPfp 
+      ? item.pfp?.attributes 
+      : undefined;
     
     return (
       <ItemCard
@@ -174,6 +190,19 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
                 />
               </div>
             </>
+          ) : isPfp ? (
+            <>
+              <p className="text-sm text-gray-300 mb-2">{item.pfp!.pfpName}</p>
+              <div className="flex items-center justify-center bg-gray-900/50 rounded-lg p-3">
+                <div className="w-[60px] h-[60px] rounded-full overflow-hidden border-2 border-gray-600">
+                  <img
+                    src={getPfpImagePath(item.pfp!.imageName)}
+                    alt={item.pfp!.pfpName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </>
           ) : (
             <TitleDisplay title={item.title!} />
           )}
@@ -199,6 +228,8 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onCratePu
               onClick={() => {
                 if (isBanner) {
                   onPurchaseBanner(item.banner!.bannerId, item.price);
+                } else if (isPfp) {
+                  onPurchasePfp(item.pfp!.pfpId, item.price);
                 } else {
                   onPurchase(item.title!.id, item.price);
                 }

@@ -14,13 +14,14 @@ export function getTitleFromId(titleId: string): Title {
     };
   }
   
-  // Rank-based titles (S# CHAMPION, S# GRAND CHAMPION, S# CONNECT LEGEND)
-  const rankBasedMatch = titleId.match(/^S(\d+)\s+(CHAMPION|GRAND CHAMPION|CONNECT LEGEND)$/);
+  // Rank-based titles (S# BRONZE, S# SILVER, S# GOLD, S# PLATINUM, S# DIAMOND, S# CHAMPION, S# GRAND CHAMPION, S# CONNECT LEGEND)
+  const rankBasedMatch = titleId.match(/^S(\d+)\s+(BRONZE|SILVER|GOLD|PLATINUM|DIAMOND|CHAMPION|GRAND CHAMPION|CONNECT LEGEND)$/);
   if (rankBasedMatch) {
     const [, seasonNum, rank] = rankBasedMatch;
-    let color = '#FF6B9D'; // Pink for Champion
+    let color = '#9CA3AF'; // Grey for most ranks
     let glow = 'none';
     
+    // Only Grand Champion and Connect Legend have special colors
     if (rank === 'GRAND CHAMPION') {
       color = '#FF0000'; // Red for Grand Champion
       glow = '#FF0000';
@@ -28,6 +29,7 @@ export function getTitleFromId(titleId: string): Title {
       color = '#FFFFFF'; // White for Connect Legend
       glow = '#FFFFFF';
     }
+    // All other ranks (BRONZE, SILVER, GOLD, PLATINUM, DIAMOND, CHAMPION) use grey
     
     return {
       id: titleId,

@@ -1,5 +1,6 @@
-import { Title, ShopItem, Banner, FeaturedItem } from '../types/game';
+import { Title, ShopItem, Banner, FeaturedItem, Pfp } from '../types/game';
 import { loadBanners, getShopBanners, generateShopBannerRotation } from './bannerManager';
+import { loadPfps, generateShopPfpRotation } from './pfpManager';
 
 const FEATURED_ITEMS_KEY = 'connect_ranked_featured_items';
 
@@ -70,9 +71,9 @@ export async function generateShopItems(seed: number): Promise<ShopItem[]> {
     });
   }
   
-  // Load and add 3 banners (only shop banners, not ranked ones)
+  // Load and add 2 banners (only shop banners, not ranked ones)
   const banners = await loadBanners();
-  const shopBanners = generateShopBannerRotation(banners, seed, 3);
+  const shopBanners = generateShopBannerRotation(banners, seed, 2);
   
   shopBanners.forEach(banner => {
     // Only add if it has a valid price (ranked banners have null price)
@@ -81,6 +82,21 @@ export async function generateShopItems(seed: number): Promise<ShopItem[]> {
         id: `shop_banner_${banner.bannerId}`,
         banner,
         price: banner.price
+      });
+    }
+  });
+
+  // Load and add 2 PFPs (only shop PFPs, not ranked ones)
+  const pfps = await loadPfps();
+  const shopPfps = generateShopPfpRotation(pfps, seed, 2);
+  
+  shopPfps.forEach(pfp => {
+    // Only add if it has a valid price (ranked pfps have null price)
+    if (pfp.price !== null && pfp.price > 0) {
+      items.push({
+        id: `shop_pfp_${pfp.pfpId}`,
+        pfp,
+        price: pfp.price
       });
     }
   });
@@ -113,6 +129,7 @@ export async function getFeaturedItems(): Promise<FeaturedItem[]> {
     
     const simpleItems: SimpleFeaturedItem[] = await response.json();
     const banners = await loadBanners();
+    const pfps = await loadPfps();
     const now = Date.now();
     
     // Expand and filter items
@@ -127,8 +144,22 @@ export async function getFeaturedItems(): Promise<FeaturedItem[]> {
       
       const itemId = item.itemId.toLowerCase();
       
+      // Check if it's a PFP
+      if (itemId.startsWith('pfp_')) {
+        const pfpId = parseInt(itemId.replace('pfp_', ''));
+        const pfp = pfps.find(p => p.pfpId === pfpId);
+        if (pfp) {
+          expandedItems.push({
+            id: `featured_pfp_${pfpId}_${item.addedAt}`,
+            pfp: pfp,
+            price: pfp.price || 500,
+            expiresAt,
+            duration: item.duration
+          });
+        }
+      }
       // Check if it's a banner
-      if (itemId.startsWith('banner_') || !isNaN(Number(itemId))) {
+      else if (itemId.startsWith('banner_') || !isNaN(Number(itemId))) {
         const bannerId = itemId.startsWith('banner_') 
           ? parseInt(itemId.replace('banner_', ''))
           : parseInt(itemId);

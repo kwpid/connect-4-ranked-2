@@ -39,8 +39,8 @@ function getEasternTimeInUTC(year: number, month: number, day: number, hour: num
 }
 
 export function getCurrentSeasonData(): SeasonData {
-  // Season 1 ended on Oct 1, 2025 at 11:59 PM Eastern (Wed)
-  // All seasons last exactly 2 weeks and end on Wednesdays at 11:59 PM Eastern
+  // Season 1 ended on Oct 1, 2025 at 12:00 PM Eastern (Wed)
+  // All seasons last exactly 1 week and end on Wednesdays at 12:00 PM Eastern
   // Starting season number is 2
   
   const now = Date.now();
@@ -52,23 +52,23 @@ export function getCurrentSeasonData(): SeasonData {
   let seasonNumber = 2;
   
   // Find current season by iterating through season boundaries
-  // Each season spans exactly 14 calendar days in Eastern time
+  // Each season spans exactly 7 calendar days in Eastern time
   while (true) {
-    // Calculate when this season ends (14 days after it started)
+    // Calculate when this season ends (7 days after it started)
     const startDate = new Date(seasonStartYear, seasonStartMonth - 1, seasonStartDay);
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 14);
+    endDate.setDate(startDate.getDate() + 7);
     
     const endYear = endDate.getFullYear();
     const endMonth = endDate.getMonth() + 1;
     const endDay = endDate.getDate();
     
-    // Convert end boundary to UTC using Eastern timezone rules
-    const seasonEndUTC = getEasternTimeInUTC(endYear, endMonth, endDay, 23, 59);
+    // Convert end boundary to UTC using Eastern timezone rules (12:00 PM noon)
+    const seasonEndUTC = getEasternTimeInUTC(endYear, endMonth, endDay, 12, 0);
     
     // If we haven't reached this season's end yet, this is our current season
     if (now < seasonEndUTC) {
-      const seasonStartUTC = getEasternTimeInUTC(seasonStartYear, seasonStartMonth, seasonStartDay, 23, 59);
+      const seasonStartUTC = getEasternTimeInUTC(seasonStartYear, seasonStartMonth, seasonStartDay, 12, 0);
       return {
         seasonNumber,
         startDate: seasonStartUTC,
