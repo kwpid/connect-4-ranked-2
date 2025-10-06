@@ -178,7 +178,7 @@
     "content": [
       {
         "type": "paragraph",
-        "content": "Season 3 is here! Based off your performance in season 2, you earned banner rewards, and new title rewards! Starting from this season on, each rank will have a title reward, where Grand Champion and Connect Legend will have special glow effects."
+        "content": "Season 3 is here! Based off your performance in season 2, you earned PFP rewards, and new title rewards! Starting from this season on, each rank will have a title reward, where Grand Champion and Connect Legend will have special glow effects."
       },
       {
         "type": "heading",
@@ -187,19 +187,19 @@
       },
       {
         "type": "paragraph",
-        "content": "Below is the list of banner rewards youll recieve based off where you ended up in season 2. Note, you also get every banner below your rank, so if your Diamond for example, you get all the rewards from below diamond as well. Banners are sorted from lowest rank to highest (starting at Bronze)"
+        "content": "Below is the list of PFP rewards youll recieve based off where you ended up in season 2. Note, you also get every banner below your rank, so if your Diamond for example, you get all the rewards from below diamond as well. Banners are sorted from lowest rank to highest (starting at Bronze)"
       },
       {
         "type": "image",
         "imageUrl": "/images/season_2_rewards.png",
-        "imageAlt": "Connect Ranked promotional banner"
+        "imageAlt": "Connect Ranked PFPs"
       },
       {
         "type": "paragraph",
         "content": "We hope you'll stick around for season 3!"
       }
     ],
-    "date": "10-15-2025",
-    "releaseDate": "10-15-2025"
+    "date": "10-8-2025",
+    "releaseDate": "10-8-2025"
   }
 ]
