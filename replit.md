@@ -78,6 +78,17 @@ The project has been successfully imported from GitHub and configured for the Re
 
 ### Recent Updates
 
+**October 6, 2025 - Complete UI Overhaul & Enhanced Features (v1.0.2)**
+- Comprehensive UI redesign with modern dark theme and unified blue color palette
+- All screens updated: Menu, Play Menu, Queue, Leaderboard, Rank Info, Settings, and Stats
+- Enhanced match history: Expanded to 10 matches (scrollable), now tracks trophy values before/after each match
+- Queue screen improvements: Added time elapsed counter, estimated wait time, and visual progress bar
+- Dialog component updated: Added `hideCloseButton` prop for better control of dialog UX
+- Crate opening animation: Removed close button during reveal to prevent accidental skips
+- Rank system simplified: Reduced divisions from 5 to 3 per rank for clearer progression
+- Tournament titles now display rank images inline with text
+- Created comprehensive v1.0.2 news article documenting all improvements
+
 **October 6, 2025 - Tournament Title Updates with Rank Images**
 - Tournament titles now use highest division for each rank (Gold III, Diamond III, etc.)
 - Tournament titles display as "S# [rank image] TOURNAMENT WINNER" with inline rank badge
