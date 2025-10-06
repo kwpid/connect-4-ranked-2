@@ -73,7 +73,7 @@ export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitle
     
     const newAttributes = assignRandomAttributes();
     const existingAttributes = banner.attributes || [];
-    const combinedAttributes = [...new Set([...existingAttributes, ...newAttributes])];
+    const combinedAttributes = Array.from(new Set([...existingAttributes, ...newAttributes]));
     
     item = {
       ...banner,
@@ -89,7 +89,7 @@ export async function openCrate(crate: Crate, ownedBanners: number[], ownedTitle
     
     const newAttributes = assignRandomAttributes();
     const existingAttributes = pfp.attributes || [];
-    const combinedAttributes = [...new Set([...existingAttributes, ...newAttributes])];
+    const combinedAttributes = Array.from(new Set([...existingAttributes, ...newAttributes]));
     
     item = {
       ...pfp,
