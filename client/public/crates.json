@@ -81,11 +81,6 @@
     "rewards": [
       {
         "type": "banner",
-        "id": 1,
-        "dropRate": 1
-      },
-      {
-        "type": "banner",
         "id": 2,
         "dropRate": 1
       },
@@ -127,11 +122,6 @@
       {
         "type": "banner",
         "id": 27,
-        "dropRate": 1
-      },
-      {
-        "type": "pfp",
-        "id": 1,
         "dropRate": 1
       },
       {
