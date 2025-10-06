@@ -116,7 +116,7 @@ export function BannerDisplay({ bannerId, username, titleId, pfpId, className = 
                         <img 
                           src={rankPath} 
                           alt={rank} 
-                          className="h-3 w-auto object-contain inline-block"
+                          className="h-4 w-auto object-contain inline-block"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
