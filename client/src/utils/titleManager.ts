@@ -37,7 +37,8 @@ export function getTitleFromId(titleId: string): Title {
       type: 'season',
       color,
       glow,
-      season: parseInt(seasonNum)
+      season: parseInt(seasonNum),
+      rankImage: rank // Store rank for image lookup (will use Division III)
     };
   }
   

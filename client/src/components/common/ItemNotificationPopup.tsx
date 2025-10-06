@@ -3,6 +3,7 @@ import { Banner, Title, Pfp } from '../../types/game';
 import { loadBanners, getBannerById, getBannerImagePath } from '../../utils/bannerManager';
 import { getTitleFromId } from '../../utils/titleManager';
 import { loadPfps, getPfpById, getPfpImagePath } from '../../utils/pfpManager';
+import { getRankImagePath } from '../../utils/rankSystem';
 
 export interface NewItem {
   type: 'banner' | 'title' | 'pfp';
@@ -159,6 +160,29 @@ export function ItemNotificationPopup({
         ? { textShadow: `0 0 10px ${title.glow}, 0 0 20px ${title.glow}, 0 0 30px ${title.glow}` }
         : {};
 
+      // Get rank image path if title has a rankImage
+      let rankImagePath = null;
+      if (title.rankImage) {
+        const rank = title.rankImage;
+        if (rank === 'CONNECT LEGEND') {
+          rankImagePath = getRankImagePath('Connect Legend');
+        } else if (rank === 'GRAND CHAMPION') {
+          rankImagePath = getRankImagePath('Grand Champion III');
+        } else if (rank === 'CHAMPION') {
+          rankImagePath = getRankImagePath('Champion III');
+        } else if (rank === 'DIAMOND') {
+          rankImagePath = getRankImagePath('Diamond III');
+        } else if (rank === 'PLATINUM') {
+          rankImagePath = getRankImagePath('Platinum III');
+        } else if (rank === 'GOLD') {
+          rankImagePath = getRankImagePath('Gold III');
+        } else if (rank === 'SILVER') {
+          rankImagePath = getRankImagePath('Silver III');
+        } else if (rank === 'BRONZE') {
+          rankImagePath = getRankImagePath('Bronze III');
+        }
+      }
+
       return (
         <div className="relative inline-block scale-150">
           {bannerUrl && (
@@ -183,16 +207,61 @@ export function ItemNotificationPopup({
               <span className="text-white font-bold px-2 text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
                 {username}
               </span>
-              <p 
-                className="text-sm font-bold mt-0.5 px-1 leading-tight"
-                style={{ 
-                  color: title.color, 
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
-                  ...glowStyle 
-                }}
-              >
-                {title.name.toUpperCase()}
-              </p>
+              {rankImagePath && (title.type === 'season' || title.type === 'tournament') ? (
+                <div className="flex items-center gap-0.5 px-1 mt-0.5">
+                  {(() => {
+                    const seasonMatch = title.name.match(/^S(\d+)\s/);
+                    const seasonNum = seasonMatch ? seasonMatch[1] : '';
+                    const restOfTitle = title.name.replace(/^S\d+\s/, '').replace(title.rankImage!, '').trim();
+                    
+                    return (
+                      <>
+                        <span
+                          className="text-xs font-bold leading-tight"
+                          style={{
+                            color: title.color,
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                            ...glowStyle
+                          }}
+                        >
+                          {seasonNum && `S${seasonNum} `}
+                        </span>
+                        <img
+                          src={rankImagePath}
+                          alt={title.rankImage}
+                          className="h-3 w-auto object-contain inline-block"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        {restOfTitle && (
+                          <span
+                            className="text-xs font-bold leading-tight"
+                            style={{
+                              color: title.color,
+                              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                              ...glowStyle
+                            }}
+                          >
+                            {restOfTitle}
+                          </span>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <p 
+                  className="text-sm font-bold mt-0.5 px-1 leading-tight"
+                  style={{ 
+                    color: title.color, 
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
+                    ...glowStyle 
+                  }}
+                >
+                  {title.name.toUpperCase()}
+                </p>
+              )}
             </div>
           </div>
         </div>
