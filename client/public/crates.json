@@ -71,5 +71,94 @@
         "dropRate": 25
       }
     ]
+  },
+  {
+    "crateId": 3,
+    "crateName": "Main Crate",
+    "crateImage": "starter_crate.png",
+    "price": 100,
+    "description": "Contains all available banners and PFPs (excluding ranked and limited items)",
+    "rewards": [
+      {
+        "type": "banner",
+        "id": 1,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 2,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 3,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 4,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 14,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 15,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 16,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 17,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 26,
+        "dropRate": 1
+      },
+      {
+        "type": "banner",
+        "id": 27,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 1,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 2,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 3,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 4,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 5,
+        "dropRate": 1
+      },
+      {
+        "type": "pfp",
+        "id": 6,
+        "dropRate": 1
+      }
+    ]
   }
 ]
