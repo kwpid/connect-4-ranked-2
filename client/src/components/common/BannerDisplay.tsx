@@ -63,9 +63,9 @@ export function BannerDisplay({ bannerId, username, titleId, pfpId, className = 
           className="h-[62px] w-auto"
           style={{ imageRendering: isGif ? 'auto' : 'crisp-edges' }}
         />
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center pl-2">
           {pfpUrl && (
-            <div className="absolute left-2 w-[45px] h-[45px] rounded-full overflow-hidden border-2 border-white shadow-lg">
+            <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
               <img
                 src={pfpUrl}
                 alt="Profile Picture"
@@ -73,13 +73,13 @@ export function BannerDisplay({ bannerId, username, titleId, pfpId, className = 
               />
             </div>
           )}
-          <div className={`flex flex-col items-center justify-center ${pfpUrl ? 'ml-6' : ''}`}>
-            <span className="text-white font-bold px-2 text-shadow-lg text-base" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+          <div className={`flex flex-col justify-center ${pfpUrl ? 'ml-2' : ''}`}>
+            <span className="text-white font-bold text-shadow-lg text-base leading-tight" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
               {username}
             </span>
             {title && (
               <p 
-                className="text-xs font-bold mt-0.5 px-1 leading-tight"
+                className="text-xs font-bold leading-tight"
                 style={{ 
                   color: title.color, 
                   textShadow: '2px 2px 4px rgba(0,0,0,0.8)', 
