@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { calculateQueueTime } from '../../utils/queueSystem';
+import { Button } from '../ui/button';
 
 interface QueueScreenProps {
   playerData: PlayerData;
@@ -40,7 +41,6 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
   useEffect(() => {
     if (elapsed >= queueTime) {
       setMatchFound(true);
-      // Send notification if user is not viewing the tab
       if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
         new Notification('Connect Ranked', {
           body: 'Match found! Your game is ready.',
@@ -51,49 +51,70 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
     }
   }, [elapsed, queueTime, onMatchFound]);
   
-  // Request notification permission on mount
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
   }, []);
   
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-6 flex items-center justify-center">
       <div className="max-w-md w-full">
-        <div className="bg-gray-800/50 backdrop-blur rounded-xl p-8 border border-gray-700">
-          {/* Searching Animation */}
+        <div className="bg-card border border-border rounded-2xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <h2 className={`text-3xl font-bold mb-2 ${matchFound ? 'text-green-400 animate-pulse' : ''}`}>
+            <h2 className={`text-3xl font-bold mb-3 ${matchFound ? 'text-green-400 animate-pulse' : ''}`}>
               {matchFound ? 'Match Found!' : `Searching for opponent${dots}`}
             </h2>
+            {!matchFound && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-4">
+                  <span className="text-gray-400 text-sm">Time Elapsed</span>
+                  <span className="text-blue-400 font-bold">{formatTime(elapsed)}</span>
+                </div>
+                <div className="flex justify-between items-center px-4">
+                  <span className="text-gray-400 text-sm">Est. Time</span>
+                  <span className="text-gray-400 font-bold">{formatTime(queueTime)}</span>
+                </div>
+                <div className="bg-background rounded-full h-2 overflow-hidden mx-4">
+                  <div
+                    className="bg-primary h-full transition-all duration-1000"
+                    style={{ width: `${Math.min(100, (elapsed / queueTime) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
           
-          {/* Player Info */}
-          <div className="bg-gray-900/50 rounded-lg p-4 mb-6">
+          <div className="bg-background border border-border rounded-xl p-4 mb-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
-                <p className="text-gray-400 text-sm">Your Rank</p>
-                <p className="font-bold text-lg" style={{ color: tierColor }}>
+                <p className="text-gray-400 text-xs mb-1">Your Rank</p>
+                <p className="font-bold text-sm" style={{ color: tierColor }}>
                   {rank.name}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-gray-400 text-sm">Trophies</p>
-                <p className="font-bold text-lg text-yellow-400">
-                  {playerData.trophies}
+                <p className="text-gray-400 text-xs mb-1">Trophies</p>
+                <p className="font-bold text-sm text-yellow-400">
+                  🏆 {playerData.trophies}
                 </p>
               </div>
             </div>
           </div>
           
-          {/* Cancel Button */}
-          <button
+          <Button
             onClick={onCancel}
-            className="w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition-colors"
+            className="w-full"
+            variant="destructive"
           >
             Cancel Queue
-          </button>
+          </Button>
         </div>
       </div>
     </div>

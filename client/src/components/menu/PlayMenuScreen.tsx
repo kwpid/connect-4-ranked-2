@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PlayerData, TournamentData } from '../../types/game';
 import { getRankByTrophies, getTierColor, getRankImagePath } from '../../utils/rankSystem';
 import { getTimeUntilTournament } from '../../utils/tournamentManager';
+import { Button } from '../ui/button';
 
 interface PlayMenuScreenProps {
   playerData: PlayerData;
@@ -39,21 +40,21 @@ export function PlayMenuScreen({
   const rankImagePath = getRankImagePath(rank.name);
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-bold mb-1 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
             Play
           </h1>
-          <p className="text-gray-400">Choose your game mode</p>
+          <p className="text-gray-400 text-sm">Choose your game mode</p>
         </div>
         
-        <div className="space-y-4 mb-8">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-3 mb-6">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={onQueue}
               disabled={isRegistered}
-              className={`w-full h-32 ${isRegistered ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'} rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg flex flex-col items-center justify-center`}
+              className={`h-32 ${isRegistered ? 'bg-gray-700 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'} rounded-2xl text-lg font-bold transition-all shadow-xl flex flex-col items-center justify-center border ${isRegistered ? 'border-border' : 'border-blue-600/50'}`}
             >
               <span>{isRegistered ? 'Registered for Tournament' : 'Queue Ranked'}</span>
               {!isRegistered && (
@@ -61,13 +62,12 @@ export function PlayMenuScreen({
                   <img 
                     src={rankImagePath} 
                     alt={rank.name} 
-                    className="w-8 h-8 object-contain"
+                    className="w-7 h-7 object-contain"
                     onError={(e) => {
-                      // Hide image if it fails to load
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
                   />
-                  <span className="text-sm font-normal opacity-80">
+                  <span className="text-xs font-normal opacity-80">
                     <span style={{ color: tierColor }} className="font-bold">{rank.name}</span>
                     {' • '}
                     <span className="text-yellow-400 font-bold">🏆 {playerData.trophies}</span>
@@ -78,7 +78,7 @@ export function PlayMenuScreen({
             
             <button
               onClick={onPractice}
-              className="w-full h-32 bg-green-600 hover:bg-green-700 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
+              className="h-32 bg-primary hover:bg-primary/90 rounded-2xl text-lg font-bold transition-all shadow-xl border border-blue-600/50"
             >
               Practice
             </button>
@@ -87,10 +87,10 @@ export function PlayMenuScreen({
           {currentTournament && (
             <button
               onClick={onTournament}
-              className="w-full py-5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg"
+              className="w-full py-5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-2xl text-lg font-bold transition-all shadow-xl border border-yellow-500/50"
             >
               Tournament
-              <span className="text-sm block mt-1">
+              <span className="text-xs block mt-1 opacity-90">
                 {currentTournament.status === 'registration' 
                   ? `Registration: ${getTimeUntilTournament(currentTime, nextTournamentTime)}`
                   : 'In Progress'}
@@ -99,12 +99,13 @@ export function PlayMenuScreen({
           )}
         </div>
         
-        <button
+        <Button
           onClick={onBack}
-          className="w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors font-semibold"
+          className="w-full"
+          variant="secondary"
         >
           ← Back to Menu
-        </button>
+        </Button>
       </div>
     </div>
   );

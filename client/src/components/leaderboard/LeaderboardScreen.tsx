@@ -3,6 +3,7 @@ import { LeaderboardEntry, PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { getSeasonRewardCoins } from '../../utils/rankSystem';
 import { getCurrentSeasonData, getTimeUntilSeasonEnd } from '../../utils/seasonManager';
+import { Button } from '../ui/button';
 
 interface LeaderboardScreenProps {
   leaderboard: LeaderboardEntry[];
@@ -37,91 +38,81 @@ export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBac
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <button
-            onClick={onBack}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-          >
+          <Button onClick={onBack} variant="secondary" size="sm">
             ← Back
-          </button>
-          <h2 className="text-3xl font-bold">Top 100 Leaderboard</h2>
-          <button
-            onClick={onRankInfo}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-          >
+          </Button>
+          <h2 className="text-3xl font-bold">Leaderboard</h2>
+          <Button onClick={onRankInfo} size="sm">
             📋 Ranks
-          </button>
+          </Button>
         </div>
         
-        {/* Season Info Section */}
-        <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur rounded-xl p-6 mb-6 border border-purple-500/50">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-card border border-border rounded-2xl p-5 mb-4 shadow-xl">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div className="text-center">
-              <p className="text-gray-400 text-sm mb-1">Season</p>
-              <p className="text-2xl font-bold text-purple-400">#{seasonData.seasonNumber}</p>
+              <p className="text-gray-400 text-xs mb-1">Season</p>
+              <p className="text-xl font-bold text-blue-400">#{seasonData.seasonNumber}</p>
             </div>
             <div className="text-center">
-              <p className="text-gray-400 text-sm mb-1">Time Remaining</p>
-              <p className="text-2xl font-bold text-blue-400">{timeRemaining}</p>
+              <p className="text-gray-400 text-xs mb-1">Time Remaining</p>
+              <p className="text-xl font-bold text-blue-400">{timeRemaining}</p>
             </div>
             <div className="text-center">
-              <p className="text-gray-400 text-sm mb-1">Your Rank</p>
-              <p className="text-2xl font-bold" style={{ color: tierColor }}>{playerRank.name}</p>
+              <p className="text-gray-400 text-xs mb-1">Your Rank</p>
+              <p className="text-xl font-bold" style={{ color: tierColor }}>{playerRank.name}</p>
             </div>
             <div className="text-center">
-              <p className="text-gray-400 text-sm mb-1">Your Trophies</p>
-              <p className="text-2xl font-bold text-yellow-400">🏆 {playerData.trophies}</p>
+              <p className="text-gray-400 text-xs mb-1">Your Trophies</p>
+              <p className="text-xl font-bold text-yellow-400">🏆 {playerData.trophies}</p>
             </div>
           </div>
           
-          {/* AI Update Countdown */}
-          <div className="mt-4 pt-4 border-t border-purple-500/30 text-center">
-            <p className="text-gray-400 text-sm mb-1">Next Leaderboard Update</p>
-            <p className="text-xl font-bold text-cyan-400">⏱️ {getAIUpdateCountdown()}</p>
+          <div className="pt-4 border-t border-border text-center">
+            <p className="text-gray-400 text-xs mb-1">Next Update</p>
+            <p className="text-lg font-bold text-cyan-400">⏱️ {getAIUpdateCountdown()}</p>
           </div>
           
           {playerInTop100 && (
-            <div className="mt-4 pt-4 border-t border-purple-500/30 text-center">
-              <p className="text-yellow-400 font-semibold">
-                🎯 Leaderboard Position: #{playerInTop100.rank}
+            <div className="mt-4 pt-4 border-t border-border text-center">
+              <p className="text-yellow-400 font-semibold text-sm">
+                🎯 Position: #{playerInTop100.rank}
               </p>
             </div>
           )}
         </div>
         
-        {/* Player Status */}
         {playerInTop100 ? (
-          <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-800/20 backdrop-blur rounded-xl p-4 mb-6 border border-yellow-600/50">
-            <p className="text-center text-yellow-400 font-semibold">
+          <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-800/20 backdrop-blur rounded-2xl p-4 mb-4 border border-yellow-600/50">
+            <p className="text-center text-yellow-400 font-semibold text-sm">
               🏆 You're #{playerInTop100.rank} with {playerInTop100.trophies} trophies!
             </p>
-            <p className="text-center text-gray-300 text-sm mt-1">
+            <p className="text-center text-gray-300 text-xs mt-1">
               Season Reward: {getSeasonRewardCoins(playerData.trophies)} coins
             </p>
           </div>
         ) : (
-          <div className="bg-gray-800/50 backdrop-blur rounded-xl p-4 mb-6 border border-gray-700">
-            <p className="text-center text-gray-400">
+          <div className="bg-card border border-border rounded-2xl p-4 mb-4">
+            <p className="text-center text-gray-400 text-sm">
               Keep playing to climb the leaderboard!
             </p>
-            <p className="text-center text-gray-500 text-sm mt-1">
+            <p className="text-center text-gray-500 text-xs mt-1">
               Current: {playerData.trophies} trophies
             </p>
           </div>
         )}
         
-        {/* Leaderboard */}
-        <div className="bg-gray-800/30 backdrop-blur rounded-xl border border-gray-700 overflow-hidden">
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
           <div className="overflow-y-auto max-h-[600px]">
             <table className="w-full">
-              <thead className="bg-gray-900/50 sticky top-0">
+              <thead className="bg-background sticky top-0">
                 <tr>
-                  <th className="px-4 py-3 text-left">Rank</th>
-                  <th className="px-4 py-3 text-left">Player</th>
-                  <th className="px-4 py-3 text-right">Trophies</th>
-                  <th className="px-4 py-3 text-right">Reward</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Rank</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Player</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">Trophies</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">Reward</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,7 +122,6 @@ export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBac
                   const isPlayer = entry.isPlayer;
                   
                   let rewardText = '';
-                  // Top 50 get titles based on placement, top 100 get coin rewards
                   if (entry.rank === 1) rewardText = '10,000 coins + 👑 TOP CHAMPION';
                   else if (entry.rank && entry.rank <= 10) rewardText = '5,000 coins + 🏅 TOP 10';
                   else if (entry.rank && entry.rank <= 25) rewardText = '3,000 coins + ⭐ TOP 25';
@@ -141,24 +131,24 @@ export function LeaderboardScreen({ leaderboard, playerData, nextAIUpdate, onBac
                   return (
                     <tr
                       key={index}
-                      className={`border-t border-gray-700 ${
-                        isPlayer ? 'bg-blue-600/20' : 'hover:bg-gray-700/30'
+                      className={`border-t border-border ${
+                        isPlayer ? 'bg-blue-600/20' : 'hover:bg-muted/50'
                       } transition-colors`}
                     >
                       <td className="px-4 py-3">
-                        <span className="font-bold">#{entry.rank}</span>
+                        <span className="font-bold text-sm">#{entry.rank}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={isPlayer ? 'font-bold text-blue-400' : ''}>
+                        <span className={`text-sm ${isPlayer ? 'font-bold text-blue-400' : ''}`}>
                           {entry.username} {isPlayer && '(You)'}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className="font-semibold" style={{ color: tierColor }}>
+                        <span className="font-semibold text-sm" style={{ color: tierColor }}>
                           🏆 {entry.trophies}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right text-sm text-yellow-400">
+                      <td className="px-4 py-3 text-right text-xs text-yellow-400">
                         {rewardText}
                       </td>
                     </tr>

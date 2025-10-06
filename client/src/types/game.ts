@@ -67,6 +67,8 @@ export interface MatchHistoryEntry {
   opponentName: string;
   opponentTrophies: number;
   timestamp: number;
+  trophyBefore?: number;
+  trophyAfter?: number;
 }
 
 export interface PlayerData {

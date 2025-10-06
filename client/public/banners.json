@@ -20,7 +20,7 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "common",
+    "rarity": "regular",
     "attributes": ["classic"]
   },
   {
@@ -32,7 +32,7 @@
     "season": null,
     "rank": null,
     "offSale": false,
-    "rarity": "common",
+    "rarity": "regular",
     "attributes": ["classic"]
   },
   {
