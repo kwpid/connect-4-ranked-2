@@ -13,57 +13,38 @@
       },
       {
         "type": "banner",
-        "id": 2,
-        "dropRate": 40
+        "id": 26,
+        "dropRate": 10
+      },
+      {
+        "type": "banner",
+        "id": 15,
+        "dropRate": 15
       },
       {
         "type": "banner",
         "id": 3,
-        "dropRate": 35
+        "dropRate": 15
       },
       {
-        "type": "title",
-        "id": "grey_novice",
-        "dropRate": 25
+        "type": "banner",
+        "id": 27,
+        "dropRate": 15
+      },
+      {
+        "type": "banner",
+        "id": 2,
+        "dropRate": 20
       },
       {
         "type": "pfp",
         "id": 2,
-        "dropRate": 25
-      }
-    ]
-  },
-  {
-    "crateId": 2,
-    "crateName": "Premium Crate",
-    "crateImage": "premium_crate.png",
-    "price": 500,
-    "description": "A premium crate with rare items",
-    "rewards": [
-      {
-        "type": "banner",
-        "id": 2,
-        "dropRate": 25
-      },
-      {
-        "type": "banner",
-        "id": 3,
-        "dropRate": 25
-      },
-      {
-        "type": "banner",
-        "id": 4,
-        "dropRate": 30
-      },
-      {
-        "type": "pfp",
-        "id": 4,
         "dropRate": 20
       }
     ]
   },
   {
-    "crateId": 3,
+    "crateId": 2,
     "crateName": "PFP Crate",
     "crateImage": "premium_crate.png",
     "price": 50,
