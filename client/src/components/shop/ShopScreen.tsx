@@ -322,9 +322,8 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
                     <Button 
                       variant="default"
                       size="sm"
-                      disabled={!canAfford(crate.price)}
                     >
-                      {canAfford(crate.price) ? 'Preview' : 'No coins'}
+                      View
                     </Button>
                   </div>
                 </div>
@@ -360,7 +359,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
                   disabled={!selectedCrate || !canAfford(selectedCrate.price)}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
-                  Open Crate
+                  {canAfford(selectedCrate?.price || 0) ? 'Purchase' : 'Not enough coins'}
                 </Button>
               </div>
             </div>
