@@ -433,29 +433,29 @@ export function GameScreen({
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={() => setShowForfeitConfirm(true)}
-            className="px-4 py-2 bg-red-700 hover:bg-red-600 rounded-lg transition-colors"
+            className="px-3 md:px-4 py-2 bg-red-700 hover:bg-red-600 rounded-lg transition-colors text-sm md:text-base"
           >
             {isPracticeMode ? '← Back' : '⚠️ Forfeit'}
           </button>
           <div className="text-center">
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-xl md:text-2xl font-bold">
               {isPracticeMode ? 'Practice Mode' : `Game ${match.currentGame} of 3`}
             </h2>
-            <p className="text-gray-400">{isPracticeMode ? practiceDifficulty?.toUpperCase() : 'Best of 3'}</p>
+            <p className="text-gray-400 text-sm">{isPracticeMode ? practiceDifficulty?.toUpperCase() : 'Best of 3'}</p>
           </div>
           <div className="text-right">
-            <p className="text-lg">Time: {timeLeft}s</p>
+            <p className="text-base md:text-lg">Time: {timeLeft}s</p>
           </div>
         </div>
         
         {/* Score */}
-        <div className="flex justify-center gap-8 mb-8">
+        <div className="flex justify-center gap-4 md:gap-8 mb-8">
           <div className="text-center">
             <div className="flex flex-col items-center justify-center mb-1">
               <BannerDisplay 
@@ -463,13 +463,13 @@ export function GameScreen({
                 username={playerData.username}
                 titleId={playerData.equippedTitle}
                 pfpId={playerData.equippedPfp}
-                className="scale-100"
+                className="scale-75 md:scale-100"
               />
             </div>
             {!isPracticeMode && !isTournamentMode && <p className="text-xs text-gray-500 mt-1">🏆 {playerData.trophies}</p>}
-            <p className={`text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>{match.playerWins}</p>
+            <p className={`text-2xl md:text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>{match.playerWins}</p>
           </div>
-          <div className="text-4xl font-bold text-gray-500">-</div>
+          <div className="text-3xl md:text-4xl font-bold text-gray-500">-</div>
           <div className="text-center">
             <div className="flex flex-col items-center justify-center mb-1">
               <BannerDisplay 
@@ -477,11 +477,11 @@ export function GameScreen({
                 username={opponent.name}
                 titleId={opponent.titleId}
                 pfpId={opponentPfpId}
-                className="scale-100"
+                className="scale-75 md:scale-100"
               />
             </div>
             {!isPracticeMode && !isTournamentMode && <p className="text-xs text-gray-500 mt-1">🏆 {opponent.trophies}</p>}
-            <p className={`text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-red-400' : 'text-blue-400'}`}>{match.aiWins}</p>
+            <p className={`text-2xl md:text-3xl font-bold mt-1 ${playerColor === 'blue' ? 'text-red-400' : 'text-blue-400'}`}>{match.aiWins}</p>
           </div>
         </div>
         
