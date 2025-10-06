@@ -94,7 +94,7 @@ export function GameScreen({
       } else {
         titleId = `S${getValidSeasonNum()} CONNECT LEGEND`;
       }
-    } else if (trophies >= 551) {
+    } else if (trophies >= 599) {
       // Grand Champion - only GRAND CHAMPION titles (NO leaderboard titles)
       const rand = Math.random();
       if (rand < 0.2) {
@@ -102,7 +102,7 @@ export function GameScreen({
       } else {
         titleId = `S${getValidSeasonNum()} GRAND CHAMPION`;
       }
-    } else if (trophies >= 401) {
+    } else if (trophies >= 497) {
       // Champion - can use CHAMPION or leaderboard titles
       const rand = Math.random();
       if (rand < 0.3) {
@@ -114,7 +114,7 @@ export function GameScreen({
         const leaderboardTitles = ['TOP 30', 'TOP 10', 'TOP CHAMPION'];
         titleId = `S${getValidSeasonNum()} ${leaderboardTitles[Math.floor(Math.random() * leaderboardTitles.length)]}`;
       }
-    } else if (trophies >= 176) {
+    } else if (trophies >= 297) {
       // Mid-tier ranks - mix of grey and leaderboard titles
       const rand = Math.random();
       if (rand < 0.3) {
@@ -253,10 +253,12 @@ export function GameScreen({
     }
   }, [match.currentPlayer, match.winner, match.matchWinner]);
   
-  // Show result dialog when match ends
+  // Show result dialog when match ends (with delay)
   useEffect(() => {
     if (match.matchWinner) {
-      setShowResultDialog(true);
+      setTimeout(() => {
+        setShowResultDialog(true);
+      }, 1000);
     }
   }, [match.matchWinner]);
   
@@ -559,7 +561,7 @@ export function GameScreen({
       
       {/* Match Result Dialog */}
       <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
-        <DialogContent className="bg-gray-900 text-white border-blue-500/50">
+        <DialogContent className="bg-gray-900 text-white border-blue-500/50 [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="text-3xl font-bold text-center">
               {match.matchWinner === 'player' ? '🎉 Victory!' : '😞 Defeat'}

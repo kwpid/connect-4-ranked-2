@@ -136,12 +136,12 @@ export function getAIPfp(
   
   const getRankTierFromTrophies = (trophies: number): string | null => {
     if (trophies >= 701) return 'Connect Legend';
-    if (trophies >= 551) return 'Grand Champion';
-    if (trophies >= 401) return 'Champion';
-    if (trophies >= 276) return 'Diamond';
-    if (trophies >= 176) return 'Platinum';
-    if (trophies >= 101) return 'Gold';
-    if (trophies >= 51) return 'Silver';
+    if (trophies >= 599) return 'Grand Champion';
+    if (trophies >= 497) return 'Champion';
+    if (trophies >= 396) return 'Diamond';
+    if (trophies >= 297) return 'Platinum';
+    if (trophies >= 198) return 'Gold';
+    if (trophies >= 99) return 'Silver';
     if (trophies >= 0) return 'Bronze';
     return null;
   };
@@ -163,13 +163,13 @@ export function getAIPfp(
 
   const possiblePfps: number[] = [];
   
-  if (aiTrophies < 176) {
+  if (aiTrophies < 297) {
     possiblePfps.push(...shopPfpIds);
     if (availableRankedPfps.length > 0) {
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
     }
     possiblePfps.push(1);
-  } else if (aiTrophies < 401) {
+  } else if (aiTrophies < 497) {
     if (availableRankedPfps.length > 0) {
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
       possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));

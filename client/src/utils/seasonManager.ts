@@ -144,59 +144,45 @@ export function generateAICompetitors(count: number = 6865): AICompetitor[] {
   const seasonProgress = Math.min(1, Math.max(0, timeElapsed / seasonDuration));
   
   // Per-division quotas: Bronze I highest, bell curve in middle, Connect Legend ~50 (lowest)
-  // Trophy ranges match RANKS array exactly
+  // Trophy ranges match new 3-division RANKS array
   const divisionQuotas: { [key: string]: number } = {
-    // Bronze ranks (0-50): Start very high at Bronze I
-    'bronze_0_10': 400,      // Bronze I - Most players (beginners/inactive)
-    'bronze_11_20': 300,     // Bronze II
-    'bronze_21_30': 250,     // Bronze III
-    'bronze_31_40': 200,     // Bronze IV
-    'bronze_41_50': 180,     // Bronze V
+    // Bronze ranks (0-98): Start very high at Bronze I
+    'bronze_I': 600,      // Bronze I (0-32) - Most players (beginners/inactive)
+    'bronze_II': 450,     // Bronze II (33-65)
+    'bronze_III': 350,    // Bronze III (66-98)
     
-    // Silver ranks (51-100): Building up
-    'silver_51_60': 160,     // Silver I
-    'silver_61_70': 180,     // Silver II
-    'silver_71_80': 200,     // Silver III
-    'silver_81_90': 220,     // Silver IV
-    'silver_91_100': 240,    // Silver V
+    // Silver ranks (99-197): Building up
+    'silver_I': 300,      // Silver I (99-131)
+    'silver_II': 350,     // Silver II (132-164)
+    'silver_III': 400,    // Silver III (165-197)
     
-    // Gold ranks (101-175): Approaching peak
-    'gold_101_115': 260,     // Gold I
-    'gold_116_130': 280,     // Gold II
-    'gold_131_145': 300,     // Gold III - Peak starts
-    'gold_146_160': 280,     // Gold IV
-    'gold_161_175': 260,     // Gold V
+    // Gold ranks (198-296): Approaching peak
+    'gold_I': 450,        // Gold I (198-230)
+    'gold_II': 500,       // Gold II (231-263)
+    'gold_III': 520,      // Gold III (264-296) - Peak starts
     
-    // Platinum ranks (176-275): Peak of bell curve
-    'plat_176_195': 240,     // Platinum I
-    'plat_196_215': 220,     // Platinum II
-    'plat_216_235': 200,     // Platinum III
-    'plat_236_255': 180,     // Platinum IV
-    'plat_256_275': 160,     // Platinum V
+    // Platinum ranks (297-395): Peak of bell curve
+    'plat_I': 500,        // Platinum I (297-329)
+    'plat_II': 450,       // Platinum II (330-362)
+    'plat_III': 400,      // Platinum III (363-395)
     
-    // Diamond ranks (276-400): Declining
-    'dia_276_300': 150,      // Diamond I
-    'dia_301_325': 140,      // Diamond II
-    'dia_326_350': 130,      // Diamond III
-    'dia_351_375': 120,      // Diamond IV
-    'dia_376_400': 110,      // Diamond V
+    // Diamond ranks (396-496): Declining
+    'dia_I': 350,         // Diamond I (396-428)
+    'dia_II': 300,        // Diamond II (429-462)
+    'dia_III': 250,       // Diamond III (463-496)
     
-    // Champion ranks (401-550): Continuing decline
-    'champ_401_430': 100,    // Champion I
-    'champ_431_460': 90,     // Champion II
-    'champ_461_490': 80,     // Champion III
-    'champ_491_520': 70,     // Champion IV
-    'champ_521_550': 60,     // Champion V
+    // Champion ranks (497-598): Continuing decline
+    'champ_I': 200,       // Champion I (497-530)
+    'champ_II': 150,      // Champion II (531-564)
+    'champ_III': 120,     // Champion III (565-598)
     
-    // Grand Champion ranks (551-700): Sharp decline
-    'gc_551_580': 300,       // Grand Champion I
-    'gc_581_610': 280,       // Grand Champion II
-    'gc_611_640': 250,       // Grand Champion III
-    'gc_641_670': 150,       // Grand Champion IV
-    'gc_671_700': 75,        // Grand Champion V
+    // Grand Champion ranks (599-700): Sharp decline
+    'gc_I': 450,          // Grand Champion I (599-632)
+    'gc_II': 350,         // Grand Champion II (633-666)
+    'gc_III': 200,        // Grand Champion III (667-700)
     
     // Connect Legend (701+): Minimum
-    'legend_701': 50         // Connect Legend - Lowest count
+    'legend': 50          // Connect Legend - Lowest count
   };
   
   // Create array of division assignments
@@ -241,50 +227,36 @@ export function generateAICompetitors(count: number = 6865): AICompetitor[] {
     let trophies: number;
     const division = divisionAssignments[i];
     
-    // Map division key to trophy range
-    if (division === 'bronze_0_10') trophies = 0 + Math.floor(Math.random() * 11);
-    else if (division === 'bronze_11_20') trophies = 11 + Math.floor(Math.random() * 10);
-    else if (division === 'bronze_21_30') trophies = 21 + Math.floor(Math.random() * 10);
-    else if (division === 'bronze_31_40') trophies = 31 + Math.floor(Math.random() * 10);
-    else if (division === 'bronze_41_50') trophies = 41 + Math.floor(Math.random() * 10);
+    // Map division key to trophy range (new 3-division structure)
+    if (division === 'bronze_I') trophies = 0 + Math.floor(Math.random() * 33);
+    else if (division === 'bronze_II') trophies = 33 + Math.floor(Math.random() * 33);
+    else if (division === 'bronze_III') trophies = 66 + Math.floor(Math.random() * 33);
     
-    else if (division === 'silver_51_60') trophies = 51 + Math.floor(Math.random() * 10);
-    else if (division === 'silver_61_70') trophies = 61 + Math.floor(Math.random() * 10);
-    else if (division === 'silver_71_80') trophies = 71 + Math.floor(Math.random() * 10);
-    else if (division === 'silver_81_90') trophies = 81 + Math.floor(Math.random() * 10);
-    else if (division === 'silver_91_100') trophies = 91 + Math.floor(Math.random() * 10);
+    else if (division === 'silver_I') trophies = 99 + Math.floor(Math.random() * 33);
+    else if (division === 'silver_II') trophies = 132 + Math.floor(Math.random() * 33);
+    else if (division === 'silver_III') trophies = 165 + Math.floor(Math.random() * 33);
     
-    else if (division === 'gold_101_115') trophies = 101 + Math.floor(Math.random() * 15);
-    else if (division === 'gold_116_130') trophies = 116 + Math.floor(Math.random() * 15);
-    else if (division === 'gold_131_145') trophies = 131 + Math.floor(Math.random() * 15);
-    else if (division === 'gold_146_160') trophies = 146 + Math.floor(Math.random() * 15);
-    else if (division === 'gold_161_175') trophies = 161 + Math.floor(Math.random() * 15);
+    else if (division === 'gold_I') trophies = 198 + Math.floor(Math.random() * 33);
+    else if (division === 'gold_II') trophies = 231 + Math.floor(Math.random() * 33);
+    else if (division === 'gold_III') trophies = 264 + Math.floor(Math.random() * 33);
     
-    else if (division === 'plat_176_195') trophies = 176 + Math.floor(Math.random() * 20);
-    else if (division === 'plat_196_215') trophies = 196 + Math.floor(Math.random() * 20);
-    else if (division === 'plat_216_235') trophies = 216 + Math.floor(Math.random() * 20);
-    else if (division === 'plat_236_255') trophies = 236 + Math.floor(Math.random() * 20);
-    else if (division === 'plat_256_275') trophies = 256 + Math.floor(Math.random() * 20);
+    else if (division === 'plat_I') trophies = 297 + Math.floor(Math.random() * 33);
+    else if (division === 'plat_II') trophies = 330 + Math.floor(Math.random() * 33);
+    else if (division === 'plat_III') trophies = 363 + Math.floor(Math.random() * 33);
     
-    else if (division === 'dia_276_300') trophies = 276 + Math.floor(Math.random() * 25);
-    else if (division === 'dia_301_325') trophies = 301 + Math.floor(Math.random() * 25);
-    else if (division === 'dia_326_350') trophies = 326 + Math.floor(Math.random() * 25);
-    else if (division === 'dia_351_375') trophies = 351 + Math.floor(Math.random() * 25);
-    else if (division === 'dia_376_400') trophies = 376 + Math.floor(Math.random() * 25);
+    else if (division === 'dia_I') trophies = 396 + Math.floor(Math.random() * 33);
+    else if (division === 'dia_II') trophies = 429 + Math.floor(Math.random() * 34);
+    else if (division === 'dia_III') trophies = 463 + Math.floor(Math.random() * 34);
     
-    else if (division === 'champ_401_430') trophies = 401 + Math.floor(Math.random() * 30);
-    else if (division === 'champ_431_460') trophies = 431 + Math.floor(Math.random() * 30);
-    else if (division === 'champ_461_490') trophies = 461 + Math.floor(Math.random() * 30);
-    else if (division === 'champ_491_520') trophies = 491 + Math.floor(Math.random() * 30);
-    else if (division === 'champ_521_550') trophies = 521 + Math.floor(Math.random() * 30);
+    else if (division === 'champ_I') trophies = 497 + Math.floor(Math.random() * 34);
+    else if (division === 'champ_II') trophies = 531 + Math.floor(Math.random() * 34);
+    else if (division === 'champ_III') trophies = 565 + Math.floor(Math.random() * 34);
     
-    else if (division === 'gc_551_580') trophies = 551 + Math.floor(Math.random() * 30);
-    else if (division === 'gc_581_610') trophies = 581 + Math.floor(Math.random() * 30);
-    else if (division === 'gc_611_640') trophies = 611 + Math.floor(Math.random() * 30);
-    else if (division === 'gc_641_670') trophies = 641 + Math.floor(Math.random() * 30);
-    else if (division === 'gc_671_700') trophies = 671 + Math.floor(Math.random() * 30);
+    else if (division === 'gc_I') trophies = 599 + Math.floor(Math.random() * 34);
+    else if (division === 'gc_II') trophies = 633 + Math.floor(Math.random() * 34);
+    else if (division === 'gc_III') trophies = 667 + Math.floor(Math.random() * 34);
     
-    else if (division === 'legend_701') trophies = 701 + Math.floor(Math.random() * (100 + seasonProgress * 200));
+    else if (division === 'legend') trophies = 701 + Math.floor(Math.random() * (100 + seasonProgress * 200));
     else trophies = 0; // Fallback
     
     // Grind rate: how many trophies they gain per hour
@@ -557,42 +529,28 @@ export function resetAICompetitorsForSeason(competitors: AICompetitor[], top100A
 }
 
 function getSeasonResetTrophiesForAI(currentTrophies: number): number {
-  // Use similar logic to player season reset with new rank thresholds
+  // Use new 3-division rank structure for season reset
   if (currentTrophies >= 701) return 701; // Connect Legend
-  if (currentTrophies >= 671) return 671; // Grand Champion V
-  if (currentTrophies >= 641) return 641; // Grand Champion IV
-  if (currentTrophies >= 611) return 611; // Grand Champion III
-  if (currentTrophies >= 581) return 581; // Grand Champion II
-  if (currentTrophies >= 551) return 551; // Grand Champion I
-  if (currentTrophies >= 521) return 521; // Champion V
-  if (currentTrophies >= 491) return 491; // Champion IV
-  if (currentTrophies >= 461) return 461; // Champion III
-  if (currentTrophies >= 431) return 431; // Champion II
-  if (currentTrophies >= 401) return 401; // Champion I
-  if (currentTrophies >= 376) return 376; // Diamond V
-  if (currentTrophies >= 351) return 351; // Diamond IV
-  if (currentTrophies >= 326) return 326; // Diamond III
-  if (currentTrophies >= 301) return 301; // Diamond II
-  if (currentTrophies >= 276) return 276; // Diamond I
-  if (currentTrophies >= 256) return 256; // Platinum V
-  if (currentTrophies >= 236) return 236; // Platinum IV
-  if (currentTrophies >= 216) return 216; // Platinum III
-  if (currentTrophies >= 196) return 196; // Platinum II
-  if (currentTrophies >= 176) return 176; // Platinum I
-  if (currentTrophies >= 161) return 161; // Gold V
-  if (currentTrophies >= 146) return 146; // Gold IV
-  if (currentTrophies >= 131) return 131; // Gold III
-  if (currentTrophies >= 116) return 116; // Gold II
-  if (currentTrophies >= 101) return 101; // Gold I
-  if (currentTrophies >= 91) return 91; // Silver V
-  if (currentTrophies >= 81) return 81; // Silver IV
-  if (currentTrophies >= 71) return 71; // Silver III
-  if (currentTrophies >= 61) return 61; // Silver II
-  if (currentTrophies >= 51) return 51; // Silver I
-  if (currentTrophies >= 41) return 41; // Bronze V
-  if (currentTrophies >= 31) return 31; // Bronze IV
-  if (currentTrophies >= 21) return 21; // Bronze III
-  if (currentTrophies >= 11) return 11; // Bronze II
+  if (currentTrophies >= 667) return 667; // Grand Champion III
+  if (currentTrophies >= 633) return 633; // Grand Champion II
+  if (currentTrophies >= 599) return 599; // Grand Champion I
+  if (currentTrophies >= 565) return 565; // Champion III
+  if (currentTrophies >= 531) return 531; // Champion II
+  if (currentTrophies >= 497) return 497; // Champion I
+  if (currentTrophies >= 463) return 463; // Diamond III
+  if (currentTrophies >= 429) return 429; // Diamond II
+  if (currentTrophies >= 396) return 396; // Diamond I
+  if (currentTrophies >= 363) return 363; // Platinum III
+  if (currentTrophies >= 330) return 330; // Platinum II
+  if (currentTrophies >= 297) return 297; // Platinum I
+  if (currentTrophies >= 264) return 264; // Gold III
+  if (currentTrophies >= 231) return 231; // Gold II
+  if (currentTrophies >= 198) return 198; // Gold I
+  if (currentTrophies >= 165) return 165; // Silver III
+  if (currentTrophies >= 132) return 132; // Silver II
+  if (currentTrophies >= 99) return 99; // Silver I
+  if (currentTrophies >= 66) return 66; // Bronze III
+  if (currentTrophies >= 33) return 33; // Bronze II
   return 0; // Bronze I
 }
 
@@ -601,8 +559,8 @@ function getRandomAITitle(trophies: number, currentSeasonNum: number): string | 
   // Ensure season numbers are valid (1 to current season, not future seasons)
   const getValidSeasonNum = () => Math.max(1, currentSeasonNum - Math.floor(Math.random() * 3));
   
-  // Lower ranks (< 176 trophies) - 50% chance of grey title, 50% no title
-  if (trophies < 176) {
+  // Lower ranks (< 297 trophies) - 50% chance of grey title, 50% no title
+  if (trophies < 297) {
     if (Math.random() < 0.5) return null;
     
     const greyTitles = [
@@ -613,8 +571,8 @@ function getRandomAITitle(trophies: number, currentSeasonNum: number): string | 
     return greyTitles[Math.floor(Math.random() * greyTitles.length)];
   }
   
-  // Mid ranks (176-400) - mix of grey and old season titles
-  if (trophies < 401) {
+  // Mid ranks (297-496) - mix of grey and old season titles
+  if (trophies < 497) {
     const rand = Math.random();
     if (rand < 0.3) return null;
     if (rand < 0.6) {
@@ -629,8 +587,8 @@ function getRandomAITitle(trophies: number, currentSeasonNum: number): string | 
     return `S${getValidSeasonNum()} TOP 30`;
   }
   
-  // Champion ranks (401-550) - Can use CHAMPION or leaderboard titles
-  if (trophies < 551) {
+  // Champion ranks (497-598) - Can use CHAMPION or leaderboard titles
+  if (trophies < 599) {
     const rand = Math.random();
     if (rand < 0.3) {
       // Grey titles still possible

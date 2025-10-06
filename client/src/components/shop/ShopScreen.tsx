@@ -150,11 +150,9 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
     const animateRoll = (index: number) => {
       if (index > 20) {
         onCratePurchase(selectedCrate.price, result.item, result.isDuplicate, result.refundAmount);
-        setTimeout(() => {
-          setIsOpening(false);
-          setRollingItems([]);
-          setSelectedItemIndex(0);
-        }, 2000);
+        setIsOpening(false);
+        setRollingItems([]);
+        setSelectedItemIndex(0);
         return;
       }
       

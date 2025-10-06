@@ -136,12 +136,12 @@ export function getAIBanner(
   
   const getRankTierFromTrophies = (trophies: number): string | null => {
     if (trophies >= 701) return 'Connect Legend';
-    if (trophies >= 551) return 'Grand Champion';
-    if (trophies >= 401) return 'Champion';
-    if (trophies >= 276) return 'Diamond';
-    if (trophies >= 176) return 'Platinum';
-    if (trophies >= 101) return 'Gold';
-    if (trophies >= 51) return 'Silver';
+    if (trophies >= 599) return 'Grand Champion';
+    if (trophies >= 497) return 'Champion';
+    if (trophies >= 396) return 'Diamond';
+    if (trophies >= 297) return 'Platinum';
+    if (trophies >= 198) return 'Gold';
+    if (trophies >= 99) return 'Silver';
     if (trophies >= 0) return 'Bronze';
     return null;
   };
@@ -164,13 +164,13 @@ export function getAIBanner(
 
   const possibleBanners: number[] = [];
   
-  if (aiTrophies < 176) {
+  if (aiTrophies < 297) {
     possibleBanners.push(...shopBannerIds);
     if (availableRankedBanners.length > 0) {
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
     }
     possibleBanners.push(defaultBannerId);
-  } else if (aiTrophies < 401) {
+  } else if (aiTrophies < 497) {
     if (availableRankedBanners.length > 0) {
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));
       possibleBanners.push(...availableRankedBanners.map(b => b.bannerId));

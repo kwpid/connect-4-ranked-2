@@ -313,21 +313,42 @@ function App() {
     const updatedNews = await loadNews();
     setNews(updatedNews);
     
+    // Capture final trophies before reset for title awarding
+    const finalTrophies = playerData.trophies;
+    
     // Award season rewards
-    const coinsReward = getSeasonRewardCoins(playerData.trophies);
-    const resetTrophies = getSeasonResetTrophies(playerData.trophies);
+    const coinsReward = getSeasonRewardCoins(finalTrophies);
+    const resetTrophies = getSeasonResetTrophies(finalTrophies);
     
     // Collect new items for notification
     const earnedItems: NewItem[] = [];
     
-    // Generate season title if eligible
+    // Award season title based on final rank
     const newTitles = [...playerData.ownedTitles];
-    if (playerData.trophies >= 401) {
-      const rank = playerData.trophies >= 701 ? 'CONNECT LEGEND' : 
-                   playerData.trophies >= 551 ? 'GRAND CHAMPION' : 'CHAMPION';
-      const seasonTitle = `S${currentSeason.seasonNumber} ${rank}`;
-      newTitles.push(seasonTitle);
-      earnedItems.push({ type: 'title', titleId: seasonTitle });
+    const rankTitleMap = [
+      { min: 701, title: 'CONNECT LEGEND' },
+      { min: 599, title: 'GRAND CHAMPION' },
+      { min: 497, title: 'CHAMPION' },
+      { min: 396, title: 'DIAMOND' },
+      { min: 297, title: 'PLATINUM' },
+      { min: 198, title: 'GOLD' },
+      { min: 99, title: 'SILVER' },
+      { min: 0, title: 'BRONZE' }
+    ];
+    
+    // Award title for current rank and all lower ranks based on FINAL trophies
+    const currentRankEntry = rankTitleMap.find(r => finalTrophies >= r.min);
+    if (currentRankEntry) {
+      const currentRankIndex = rankTitleMap.indexOf(currentRankEntry);
+      const ranksToAward = rankTitleMap.slice(currentRankIndex);
+      
+      ranksToAward.forEach(({ title }) => {
+        const seasonTitle = `S${currentSeason.seasonNumber} ${title}`;
+        if (!newTitles.includes(seasonTitle)) {
+          newTitles.push(seasonTitle);
+          earnedItems.push({ type: 'title', titleId: seasonTitle });
+        }
+      });
     }
     
     // Check leaderboard position and extract top 100 AI IDs
@@ -360,7 +381,7 @@ function App() {
     // Award seasonal rewards (banners or PFPs based on availability)
     const newBanners = [...playerData.ownedBanners];
     const newPfps = [...playerData.ownedPfps];
-    const rank = getRankByTrophies(playerData.trophies);
+    const rank = getRankByTrophies(finalTrophies);
     
     // Map tier to rank name
     const tierToRankName: Record<string, string> = {
@@ -429,6 +450,7 @@ function App() {
   };
   
   const handleMatchEnd = (won: boolean, trophyChange: number = 0, opponentName?: string, opponentTrophies?: number, matchScore?: string) => {
+    const currentSeason = getCurrentSeasonData();
     const newTrophies = Math.max(0, playerData.trophies + trophyChange);
     const newWinStreak = won ? playerData.winStreak + 1 : 0;
     const newLosingStreak = won ? 0 : playerData.losingStreak + 1;
@@ -441,39 +463,9 @@ function App() {
     const leveledUp = newLevel > playerData.level;
     const levelUpCoins = leveledUp ? (newLevel - playerData.level) * 100 : 0;
     
-    // Award rank-based seasonal titles when player reaches each tier
+    // Season titles are now awarded at the end of the season based on final rank
     const newTitles = [...playerData.ownedTitles];
-    const currentSeason = getCurrentSeasonData();
     const earnedItems: NewItem[] = [];
-    
-    if (won) {
-      // Determine which seasonal rank title to award based on trophy count
-      const rankTitleMap = [
-        { min: 701, title: 'CONNECT LEGEND' },
-        { min: 551, title: 'GRAND CHAMPION' },
-        { min: 401, title: 'CHAMPION' },
-        { min: 276, title: 'DIAMOND' },
-        { min: 176, title: 'PLATINUM' },
-        { min: 101, title: 'GOLD' },
-        { min: 51, title: 'SILVER' },
-        { min: 0, title: 'BRONZE' }
-      ];
-      
-      // Award titles for current rank and all lower ranks
-      const currentRankEntry = rankTitleMap.find(r => newTrophies >= r.min);
-      if (currentRankEntry) {
-        const currentRankIndex = rankTitleMap.indexOf(currentRankEntry);
-        const ranksToAward = rankTitleMap.slice(currentRankIndex);
-        
-        ranksToAward.forEach(({ title }) => {
-          const seasonalTitle = `S${currentSeason.seasonNumber} ${title}`;
-          if (!newTitles.includes(seasonalTitle)) {
-            newTitles.push(seasonalTitle);
-            earnedItems.push({ type: 'title', titleId: seasonalTitle });
-          }
-        });
-      }
-    }
     
     // Track peak rank and trophies
     let newPeakTrophies = playerData.peakTrophies || playerData.trophies;

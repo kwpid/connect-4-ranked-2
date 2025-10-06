@@ -91,7 +91,7 @@ export function generateAIParticipants(
 
 function generateAITournamentTitle(trophies: number, currentSeasonNumber: number): string | null {
   // Only give tournament titles to AI if they have appropriate rank
-  if (trophies < 41) return null; // Bronze V minimum for titles
+  if (trophies < 33) return null; // Bronze II minimum for titles
   
   // Random chance to have a tournament title (higher rank = higher chance)
   const titleChance = Math.min(0.3 + (trophies / 1000) * 0.5, 0.8);
@@ -102,12 +102,12 @@ function generateAITournamentTitle(trophies: number, currentSeasonNumber: number
   let tier = '';
   
   if (trophies >= 701) { rankName = 'CONNECT LEGEND'; tier = 'legend'; }
-  else if (trophies >= 551) { rankName = 'GRAND CHAMPION'; tier = 'grand_champion'; }
-  else if (trophies >= 401) { rankName = 'CHAMPION'; tier = 'champion'; }
-  else if (trophies >= 276) { rankName = 'DIAMOND'; tier = 'diamond'; }
-  else if (trophies >= 176) { rankName = 'PLATINUM'; tier = 'platinum'; }
-  else if (trophies >= 101) { rankName = 'GOLD'; tier = 'gold'; }
-  else if (trophies >= 51) { rankName = 'SILVER'; tier = 'silver'; }
+  else if (trophies >= 599) { rankName = 'GRAND CHAMPION'; tier = 'grand_champion'; }
+  else if (trophies >= 497) { rankName = 'CHAMPION'; tier = 'champion'; }
+  else if (trophies >= 396) { rankName = 'DIAMOND'; tier = 'diamond'; }
+  else if (trophies >= 297) { rankName = 'PLATINUM'; tier = 'platinum'; }
+  else if (trophies >= 198) { rankName = 'GOLD'; tier = 'gold'; }
+  else if (trophies >= 99) { rankName = 'SILVER'; tier = 'silver'; }
   else { rankName = 'BRONZE'; tier = 'bronze'; }
   
   // Determine season (current or previous)
