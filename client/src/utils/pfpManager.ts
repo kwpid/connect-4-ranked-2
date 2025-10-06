@@ -126,3 +126,70 @@ export function generateShopPfpRotation(
   
   return selected;
 }
+
+export function getAIPfp(
+  pfps: Pfp[],
+  aiTrophies: number,
+  currentSeason: number
+): number | null {
+  const rankOrder = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Champion', 'Grand Champion', 'Connect Legend'];
+  
+  const getRankTierFromTrophies = (trophies: number): string | null => {
+    if (trophies >= 701) return 'Connect Legend';
+    if (trophies >= 551) return 'Grand Champion';
+    if (trophies >= 401) return 'Champion';
+    if (trophies >= 276) return 'Diamond';
+    if (trophies >= 176) return 'Platinum';
+    if (trophies >= 101) return 'Gold';
+    if (trophies >= 51) return 'Silver';
+    if (trophies >= 0) return 'Bronze';
+    return null;
+  };
+
+  const aiRankTier = getRankTierFromTrophies(aiTrophies);
+  if (!aiRankTier) return null;
+
+  const shopPfpIds = getShopPfps(pfps).map(p => p.pfpId);
+  
+  const availableRankedPfps: Pfp[] = [];
+  for (let season = 1; season < currentSeason; season++) {
+    const pfp = pfps.find(
+      p => p.ranked && p.season === season && p.rank === aiRankTier
+    );
+    if (pfp) {
+      availableRankedPfps.push(pfp);
+    }
+  }
+
+  const possiblePfps: number[] = [];
+  
+  if (aiTrophies < 176) {
+    possiblePfps.push(...shopPfpIds);
+    if (availableRankedPfps.length > 0) {
+      possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
+    }
+    possiblePfps.push(null as any);
+  } else if (aiTrophies < 401) {
+    if (availableRankedPfps.length > 0) {
+      possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
+      possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
+    }
+    possiblePfps.push(...shopPfpIds);
+    possiblePfps.push(null as any);
+  } else {
+    if (availableRankedPfps.length > 0) {
+      possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
+      possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
+      possiblePfps.push(...availableRankedPfps.map(p => p.pfpId));
+    }
+    possiblePfps.push(...shopPfpIds);
+    possiblePfps.push(null as any);
+  }
+
+  if (possiblePfps.length === 0) {
+    return null;
+  }
+
+  const randomIndex = Math.floor(Math.random() * possiblePfps.length);
+  return possiblePfps[randomIndex] || null;
+}

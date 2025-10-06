@@ -8,6 +8,7 @@ import { getTitleFromId } from '../../utils/titleManager';
 import { getCurrentSeasonData } from '../../utils/seasonManager';
 import { BannerDisplay } from '../common/BannerDisplay';
 import { loadBanners, getAIBanner } from '../../utils/bannerManager';
+import { loadPfps, getAIPfp } from '../../utils/pfpManager';
 
 interface GameScreenProps {
   playerData: PlayerData;
@@ -151,17 +152,21 @@ export function GameScreen({
   });
   
   const [opponentBannerId, setOpponentBannerId] = useState<number | null>(null);
+  const [opponentPfpId, setOpponentPfpId] = useState<number | null>(null);
   
   useEffect(() => {
-    const loadOpponentBanner = async () => {
+    const loadOpponentCosmetics = async () => {
       if (!isPracticeMode) {
         const banners = await loadBanners();
+        const pfps = await loadPfps();
         const currentSeason = getCurrentSeasonData();
         const aiBannerId = getAIBanner(banners, opponent.trophies, currentSeason.seasonNumber);
+        const aiPfpId = getAIPfp(pfps, opponent.trophies, currentSeason.seasonNumber);
         setOpponentBannerId(aiBannerId);
+        setOpponentPfpId(aiPfpId);
       }
     };
-    loadOpponentBanner();
+    loadOpponentCosmetics();
   }, []);
   const [initialPlayer] = useState<'player' | 'ai'>(() => Math.random() < 0.5 ? 'player' : 'ai');
   const [playerColor] = useState<'blue' | 'red'>(() => Math.random() < 0.5 ? 'blue' : 'red');
@@ -450,6 +455,7 @@ export function GameScreen({
                 bannerId={opponentBannerId}
                 username={opponent.name}
                 titleId={opponent.titleId}
+                pfpId={opponentPfpId}
                 className="scale-100"
               />
             </div>
