@@ -1,5 +1,106 @@
 [
   {
+    "id": "ui_revamp_v1_0_2",
+    "type": "update",
+    "version": "1.0.2",
+    "title": "Major UI Overhaul, Rank System Updates & More!",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": "We're excited to announce a massive update to Connect Ranked! This update brings a complete visual overhaul, improvements to the rank system, and various quality of life enhancements."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "🎨 Complete UI Redesign"
+      },
+      {
+        "type": "paragraph",
+        "content": "Every screen in the game has been redesigned with a modern, sleek dark theme. The new UI features:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Unified color palette with consistent blue accents throughout",
+          "Cleaner, more professional button designs",
+          "Improved card layouts with better spacing and shadows",
+          "Enhanced readability with optimized text sizes and contrast",
+          "Smoother animations and transitions"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "🏆 Rank System Improvements"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Simplified rank divisions: Each rank now has 3 divisions instead of 5",
+          "Rank images now display consistently across the game",
+          "Tournament titles now show rank images instead of text-only names",
+          "Better visual hierarchy for rank displays"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "📊 Enhanced Match History"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Match history expanded from 5 to 10 recent matches",
+          "Scrollable match history for better navigation",
+          "Trophy tracking: See your trophies before and after each match",
+          "Improved match result visualization"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "⏱️ Queue Screen Updates"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Time elapsed counter shows how long you've been in queue",
+          "Estimated wait time displayed for transparency",
+          "Visual progress bar for queue progress",
+          "Cleaner, more informative queue interface"
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "🎁 Crate Opening Improvements"
+      },
+      {
+        "type": "paragraph",
+        "content": "The crate opening animation has been refined with the removal of the close button during the reveal, ensuring you don't accidentally skip the exciting moment when your reward is revealed!"
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "content": "🐛 Bug Fixes"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Fixed various UI alignment issues",
+          "Improved consistency across all screens",
+          "Better responsive design for different screen sizes",
+          "Performance optimizations throughout the app"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": "We hope you enjoy these improvements! Keep climbing the ranks and good luck in your matches!"
+      }
+    ],
+    "date": "10-06-2025"
+  },
+  {
     "id": "pfp_system_v1",
     "type": "update",
     "version": "1.0.1",

@@ -395,7 +395,7 @@ export function ShopScreen({ playerData, onPurchase, onPurchaseBanner, onPurchas
         
         {/* Crate Opening Animation */}
         <Dialog open={isOpening} onOpenChange={() => {}}>
-          <DialogContent className="bg-gray-900 text-white border-purple-500/50" aria-describedby="crate-opening-description" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogContent hideCloseButton className="bg-gray-900 text-white border-purple-500/50" aria-describedby="crate-opening-description" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle className="sr-only">Crate Opening</DialogTitle>
               <DialogDescription id="crate-opening-description" className="sr-only">

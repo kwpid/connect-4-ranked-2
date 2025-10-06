@@ -498,7 +498,9 @@ function App() {
         trophyChange,
         opponentName,
         opponentTrophies,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        trophyBefore: playerData.trophies,
+        trophyAfter: newTrophies
       });
       // Keep only last 20 matches
       if (newMatchHistory.length > 20) {
