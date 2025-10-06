@@ -25,14 +25,14 @@ The frontend is built with React 18 and Vite. State management relies on local c
 -   **Tournament System**: Occurs every 10 minutes with a 16-player single-elimination bracket (15 AI, 1 player). Offers coin prizes and exclusive tournament titles. Opponent matching is within ±150 trophy range, and tournaments continue autonomously via AI simulation after player elimination.
 -   **Queue System**: Realistic matchmaking with trophy-based queue times (2-60s) and time-of-day variance, generating opponents with similar trophy counts (±30 variance).
 -   **Match System**: Best-of-3 format with a 15-second turn timer. Dynamic trophy rewards/penalties, XP, level progression, and balanced coin rewards.
--   **Shop System**: Rotates 3 titles and 3 banners every 12 hours for in-game currency. Includes a "Featured Items" section with time-based exclusivity.
+-   **Shop System**: Rotates 3 items (titles, banners, or PFPs) every 12 hours for in-game currency. Includes a "Featured Items" section with time-based exclusivity. PFPs can now appear in both daily shop rotations and featured items.
 -   **News Feed System**: Displays updates, announcements, and season news with notification badges and rich content support. News can be filtered by type and automatically appears on load for unread items.
 -   **Item Notification System**: Rocket League-style popup notifications when cosmetic items are obtained, showing visual previews.
 -   **Profile Picture (PFP) System**: Cosmetic profile pictures displayed as circular overlays on player banners. PFPs have rarities and attributes, available through shop purchases and crates. Managed via inventory with filtering and search functionality.
 -   **RP Currency System**: New RP (Ranked Points) currency with migration support, displayed on the main menu.
 -   **Dynamic AI Leaderboard**: Automatic 5-minute refresh system where AI competitors update trophy counts to ensure a dynamic leaderboard, with a visible countdown timer.
 -   **CSL (Competitive Seasonal League) Screen**: Dedicated screen showing RP, upcoming tournaments (placeholder), and career earnings.
--   **Season System Overhaul**: Redesigned to use a fixed global schedule, ending every 2 weeks on Wednesdays at 11:59 PM Eastern time, with DST-aware calculations.
+-   **Season System**: Uses a fixed global schedule, ending every week on Wednesdays at 12:00 PM Eastern time, with DST-aware calculations. Players receive seasonal rank titles (S# BRONZE through S# CHAMPION) with grey color, while S# GRAND CHAMPION and S# CONNECT LEGEND retain special colors (red and white with glow).
 -   **Game Board**: 9x7 dimensions, Connect 4 win condition.
 
 ## External Dependencies
@@ -76,16 +76,26 @@ The project has been successfully imported from GitHub and configured for the Re
 ✅ Frontend loads and displays correctly
 ✅ Deployment configuration ready
 
-### Recent Updates (October 5, 2025)
+### Recent Updates
 
-**Profile Picture (PFP) System Implementation**
+**October 6, 2025 - Season System & Shop Updates**
+- Changed season duration from 2 weeks to 1 week (every Wednesday at 12PM EST)
+- Added seasonal rank titles for all ranks: S# BRONZE, S# SILVER, S# GOLD, S# PLATINUM, S# DIAMOND, S# CHAMPION (grey color)
+- S# GRAND CHAMPION and S# CONNECT LEGEND retain special colors (red and white with glow)
+- Implemented flexible reward system that distributes banners or PFPs based on availability
+- Added full PFP support to shop system (daily rotations and featured items)
+- Default PFP (ID 1) now equipped automatically for all new and existing players
+- Shop screen properly displays PFP items with circular preview images
+- Inventory screen now keeps users on current tab after equipping items
+
+**October 5, 2025 - Profile Picture (PFP) System Implementation**
 - Created PFP infrastructure: `pfps.json` with 10 initial PFPs, `pfpManager.ts` utility
 - Added PFP to player data types: `ownedPfps`, `equippedPfp` fields with localStorage persistence
 - Integrated PFP display: Circular overlays on banners in main menu and game screen
 - Enhanced inventory system: New PFP tab with search, rarity filtering, and instant equipping
-- Shop & crate integration: PFPs available in crates and future shop rotations
+- Shop & crate integration: PFPs available in crates and shop rotations
 - Item notifications: PFP support in Rocket League-style unlock popups
-- News announcement: Added PFP feature announcement to news feed (10/5/2025)
+- News announcement: Added PFP feature announcement to news feed
 
 **UX Improvements**
 - Inventory items now equip on click (removed scroll-to-equip requirement)
