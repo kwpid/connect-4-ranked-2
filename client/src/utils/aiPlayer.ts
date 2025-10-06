@@ -7,6 +7,7 @@ export class AIPlayer {
   private difficulty: number; // 0-10, based on trophies or difficulty setting
   private playerMoveHistory: number[] = [];
   private playStyle: 'aggressive' | 'defensive' | 'balanced' | 'opportunistic';
+  private aiMoveHistory: number[] = [];
   
   constructor(playerTrophiesOrDifficulty: number | AIDifficulty) {
     const styleOptions: ('aggressive' | 'defensive' | 'balanced' | 'opportunistic')[] = ['aggressive', 'defensive', 'balanced', 'opportunistic'];
@@ -57,16 +58,20 @@ export class AIPlayer {
     const availableColumns = getAvailableColumns(board);
     if (availableColumns.length === 0) return -1;
     
-    // Opening move strategy: vary based on play style
+    // Opening move strategy: vary based on play style and make more unpredictable
     if (isFirstMove && this.difficulty >= 3) {
       const openingMove = this.getOpeningMove(availableColumns);
-      if (openingMove !== -1) return openingMove;
+      if (openingMove !== -1) {
+        this.aiMoveHistory.push(openingMove);
+        return openingMove;
+      }
     }
     
     // Check for winning move
     for (const col of availableColumns) {
       const testBoard = dropPiece(board, col, 'ai');
       if (testBoard && checkWinner(testBoard) === 'ai') {
+        this.aiMoveHistory.push(col);
         return col;
       }
     }
@@ -80,9 +85,9 @@ export class AIPlayer {
       } else if (this.difficulty <= 6) {
         blockingChance = 0.80; // Mid ranks: 80% chance
       } else if (this.difficulty <= 8) {
-        blockingChance = 0.90; // High ranks: 90% chance
+        blockingChance = 0.95; // High ranks: 95% chance
       } else {
-        blockingChance = 0.98; // Top ranks: 98% chance
+        blockingChance = 0.99; // Top ranks: 99% chance (almost never miss)
       }
       
       // Only attempt to block if random roll succeeds
@@ -90,6 +95,7 @@ export class AIPlayer {
         for (const col of availableColumns) {
           const testBoard = dropPiece(board, col, 'player');
           if (testBoard && checkWinner(testBoard) === 'player') {
+            this.aiMoveHistory.push(col);
             return col;
           }
         }
@@ -99,7 +105,25 @@ export class AIPlayer {
     // Advanced threat detection - look for player building threats (3 in a row or 2 in a row)
     if (this.difficulty >= 5) {
       const threatMove = this.detectAndBlockThreat(board, availableColumns);
-      if (threatMove !== -1) return threatMove;
+      if (threatMove !== -1) {
+        this.aiMoveHistory.push(threatMove);
+        return threatMove;
+      }
+    }
+    
+    // Use minimax for high-level AI (difficulty 8+)
+    if (this.difficulty >= 8) {
+      const depth = this.difficulty === 10 ? 5 : this.difficulty === 9 ? 4 : 3;
+      const minimaxMove = this.minimaxWithAlphaBeta(board, depth, -Infinity, Infinity, true);
+      
+      if (minimaxMove.column !== -1) {
+        // Even at top level, add slight unpredictability
+        const variance = this.difficulty === 10 ? 0.03 : 0.08;
+        if (Math.random() > variance) {
+          this.aiMoveHistory.push(minimaxMove.column);
+          return minimaxMove.column;
+        }
+      }
     }
     
     // Advanced strategy based on difficulty
@@ -107,20 +131,29 @@ export class AIPlayer {
       // Use player pattern analysis for high-level AI
       if (this.difficulty >= 7 && this.playerMoveHistory.length >= 4) {
         const pattern = this.analyzePlayerPattern();
+        
+        // Detect if player is trying the same strategy repeatedly
+        if (this.difficulty >= 8 && this.detectRepeatedPattern()) {
+          // Counter with a trap move
+          const trapMove = this.findTrapMove(board, availableColumns);
+          if (trapMove !== -1) {
+            this.aiMoveHistory.push(trapMove);
+            return trapMove;
+          }
+        }
+        
         // Counter player's favored columns by controlling nearby spaces
         if (pattern.favoredColumns.length > 0) {
           const counterMoves = pattern.favoredColumns
             .flatMap(col => [col - 1, col, col + 1])
             .filter(col => col >= 0 && col < 9 && availableColumns.includes(col));
           
-          if (counterMoves.length > 0) {
-            // Sometimes (30% chance) play to counter the pattern
-            if (Math.random() > 0.7) {
-              const bestCounter = counterMoves[Math.floor(Math.random() * counterMoves.length)];
-              const testBoard = dropPiece(board, bestCounter, 'ai');
-              if (testBoard && this.evaluatePosition(testBoard, 'ai') > 2) {
-                return bestCounter;
-              }
+          if (counterMoves.length > 0 && Math.random() > 0.6) {
+            const bestCounter = counterMoves[Math.floor(Math.random() * counterMoves.length)];
+            const testBoard = dropPiece(board, bestCounter, 'ai');
+            if (testBoard && this.evaluatePosition(testBoard, 'ai') > 2) {
+              this.aiMoveHistory.push(bestCounter);
+              return bestCounter;
             }
           }
         }
@@ -128,16 +161,18 @@ export class AIPlayer {
       
       const strategicMove = this.findStrategicMove(board, availableColumns);
       if (strategicMove !== -1) {
-        // Add slight randomness even for strategic moves to feel human
-        // Even top-level AI (difficulty 10) should sometimes make mistakes (5% chance)
-        const mistakeChance = this.difficulty === 10 ? 0.05 : 0.15;
-        if (Math.random() < mistakeChance) {
-          // Chance to pick a different good move instead of the best
-          const altMoves = availableColumns.filter(c => c !== strategicMove).slice(0, 3);
-          if (altMoves.length > 0 && Math.random() > 0.5) {
-            return altMoves[Math.floor(Math.random() * altMoves.length)];
+        // Vary strategy more at high levels to be unpredictable
+        const variance = this.difficulty >= 8 ? 0.12 : 0.15;
+        if (Math.random() < variance) {
+          // Pick a different strong move to be unpredictable
+          const altMoves = this.findAlternativeStrategicMoves(board, availableColumns, strategicMove);
+          if (altMoves.length > 0) {
+            const chosen = altMoves[Math.floor(Math.random() * altMoves.length)];
+            this.aiMoveHistory.push(chosen);
+            return chosen;
           }
         }
+        this.aiMoveHistory.push(strategicMove);
         return strategicMove;
       }
     }
@@ -146,11 +181,15 @@ export class AIPlayer {
     if (this.difficulty >= 3) {
       const centerColumns = availableColumns.filter(col => col >= 3 && col <= 5);
       if (centerColumns.length > 0 && Math.random() > 0.3) {
-        return centerColumns[Math.floor(Math.random() * centerColumns.length)];
+        const chosen = centerColumns[Math.floor(Math.random() * centerColumns.length)];
+        this.aiMoveHistory.push(chosen);
+        return chosen;
       }
     }
     
-    return availableColumns[Math.floor(Math.random() * availableColumns.length)];
+    const chosen = availableColumns[Math.floor(Math.random() * availableColumns.length)];
+    this.aiMoveHistory.push(chosen);
+    return chosen;
   }
   
   // Get best move for cheat mode
@@ -449,5 +488,141 @@ export class AIPlayer {
     if (opponentCount === 3 && emptyCount === 1) return -4;
     
     return 0;
+  }
+  
+  private minimaxWithAlphaBeta(
+    board: GameBoard, 
+    depth: number, 
+    alpha: number, 
+    beta: number, 
+    isMaximizing: boolean
+  ): { score: number; column: number } {
+    const availableColumns = getAvailableColumns(board);
+    
+    // Check terminal states
+    const winner = checkWinner(board);
+    if (winner === 'ai') return { score: 100000, column: -1 };
+    if (winner === 'player') return { score: -100000, column: -1 };
+    if (availableColumns.length === 0) return { score: 0, column: -1 };
+    if (depth === 0) return { score: this.evaluatePosition(board, 'ai'), column: -1 };
+    
+    if (isMaximizing) {
+      let maxScore = -Infinity;
+      let bestColumn = availableColumns[0];
+      
+      for (const col of availableColumns) {
+        const testBoard = dropPiece(board, col, 'ai');
+        if (!testBoard) continue;
+        
+        const result = this.minimaxWithAlphaBeta(testBoard, depth - 1, alpha, beta, false);
+        if (result.score > maxScore) {
+          maxScore = result.score;
+          bestColumn = col;
+        }
+        
+        alpha = Math.max(alpha, maxScore);
+        if (beta <= alpha) break; // Beta cutoff
+      }
+      
+      return { score: maxScore, column: bestColumn };
+    } else {
+      let minScore = Infinity;
+      let bestColumn = availableColumns[0];
+      
+      for (const col of availableColumns) {
+        const testBoard = dropPiece(board, col, 'player');
+        if (!testBoard) continue;
+        
+        const result = this.minimaxWithAlphaBeta(testBoard, depth - 1, alpha, beta, true);
+        if (result.score < minScore) {
+          minScore = result.score;
+          bestColumn = col;
+        }
+        
+        beta = Math.min(beta, minScore);
+        if (beta <= alpha) break; // Alpha cutoff
+      }
+      
+      return { score: minScore, column: bestColumn };
+    }
+  }
+  
+  private detectRepeatedPattern(): boolean {
+    // Check if player is using the same pattern multiple times
+    if (this.playerMoveHistory.length < 8) return false;
+    
+    const recent = this.playerMoveHistory.slice(-6);
+    const earlier = this.playerMoveHistory.slice(-12, -6);
+    
+    // Simple pattern detection: check for repeated sequences
+    let matchCount = 0;
+    for (let i = 0; i < 3; i++) {
+      if (Math.abs(recent[i] - earlier[i]) <= 1) {
+        matchCount++;
+      }
+    }
+    
+    return matchCount >= 2;
+  }
+  
+  private findTrapMove(board: GameBoard, availableColumns: number[]): number {
+    // Look for moves that create a "fork" - multiple winning threats
+    let bestTrapScore = 0;
+    let bestTrapMove = -1;
+    
+    for (const col of availableColumns) {
+      const testBoard = dropPiece(board, col, 'ai');
+      if (!testBoard) continue;
+      
+      // Count how many winning moves this creates for AI
+      let winningMoveCount = 0;
+      const nextAvailable = getAvailableColumns(testBoard);
+      
+      for (const nextCol of nextAvailable) {
+        const nextBoard = dropPiece(testBoard, nextCol, 'ai');
+        if (nextBoard && checkWinner(nextBoard) === 'ai') {
+          winningMoveCount++;
+        }
+      }
+      
+      // A fork is when AI can create 2+ winning threats
+      if (winningMoveCount >= 2 && winningMoveCount > bestTrapScore) {
+        bestTrapScore = winningMoveCount;
+        bestTrapMove = col;
+      }
+    }
+    
+    return bestTrapMove;
+  }
+  
+  private findAlternativeStrategicMoves(
+    board: GameBoard, 
+    availableColumns: number[], 
+    bestMove: number
+  ): number[] {
+    // Find moves that are almost as good as the best move
+    const scores: { col: number; score: number }[] = [];
+    
+    for (const col of availableColumns) {
+      if (col === bestMove) continue;
+      
+      const testBoard = dropPiece(board, col, 'ai');
+      if (!testBoard) continue;
+      
+      const score = this.evaluatePosition(testBoard, 'ai');
+      scores.push({ col, score });
+    }
+    
+    // Sort by score and return top alternatives
+    scores.sort((a, b) => b.score - a.score);
+    
+    // Return moves that are within 30% of the best score
+    const bestScore = scores.length > 0 ? scores[0].score : 0;
+    const threshold = bestScore * 0.7;
+    
+    return scores
+      .filter(s => s.score >= threshold)
+      .slice(0, 3)
+      .map(s => s.col);
   }
 }
