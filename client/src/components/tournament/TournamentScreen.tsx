@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TournamentData, PlayerData, TournamentMatch } from '../../types/game';
 import { getTimeUntilTournament, simulateAIMatch, advanceTournamentRound } from '../../utils/tournamentManager';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
+import { Button } from '../ui/button';
 
 interface TournamentScreenProps {
   tournament: TournamentData;
@@ -65,16 +66,17 @@ export function TournamentScreen({
     tournament.playerPlacement !== null;
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-6">
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
-        <button
+        <Button 
           onClick={onBack}
-          className="mb-6 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-2"
+          variant="secondary"
+          size="sm"
+          className="mb-6"
         >
-          <span>←</span>
-          <span>Back to Menu</span>
-        </button>
+          ← Back to Menu
+        </Button>
         
         {/* Header */}
         <div className="text-center mb-8">

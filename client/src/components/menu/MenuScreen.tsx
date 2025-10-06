@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlayerData } from '../../types/game';
 import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
 import { BannerDisplay } from '../common/BannerDisplay';
 import { Button } from '../ui/button';
+import { getCurrentSeasonData } from '../../utils/seasonManager';
 
 interface MenuScreenProps {
   playerData: PlayerData;
   onPlay: () => void;
   onLeaderboard: () => void;
-  onCSL: () => void;
   onShop: () => void;
   onStats: () => void;
   onSettings: () => void;
@@ -22,7 +22,6 @@ export function MenuScreen({
   playerData,
   onPlay,
   onLeaderboard,
-  onCSL,
   onShop,
   onStats,
   onSettings,
@@ -33,6 +32,32 @@ export function MenuScreen({
 }: MenuScreenProps) {
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
+  
+  const [seasonInfo, setSeasonInfo] = useState({ seasonNumber: 0, timeLeft: '' });
+  
+  useEffect(() => {
+    const updateSeasonInfo = () => {
+      const seasonData = getCurrentSeasonData();
+      const now = Date.now();
+      const diff = seasonData.endDate - now;
+      
+      if (diff <= 0) {
+        setSeasonInfo({ seasonNumber: seasonData.seasonNumber, timeLeft: '00 00 00' });
+        return;
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      const timeLeft = `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
+      setSeasonInfo({ seasonNumber: seasonData.seasonNumber, timeLeft });
+    };
+    
+    updateSeasonInfo();
+    const interval = setInterval(updateSeasonInfo, 60000);
+    return () => clearInterval(interval);
+  }, []);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-6">
@@ -105,22 +130,22 @@ export function MenuScreen({
             </Button>
             <Button
               onClick={onLeaderboard}
-              className="h-12"
+              className="h-12 relative"
               size="lg"
             >
               Leaderboard
+              <div className="absolute -top-2 -left-2 -right-2 flex justify-between items-center pointer-events-none">
+                <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  S{seasonInfo.seasonNumber}
+                </span>
+                <span className="bg-orange-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  {seasonInfo.timeLeft}
+                </span>
+              </div>
             </Button>
           </div>
           
-          <div className="grid grid-cols-4 gap-3">
-            <Button
-              onClick={onCSL}
-              className="h-10"
-              variant="secondary"
-              size="sm"
-            >
-              CSL
-            </Button>
+          <div className="grid grid-cols-3 gap-3">
             <Button
               onClick={onStats}
               className="h-10"

@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlayerData } from '../../types/game';
-import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
+import { getRankByTrophies, getTierColor, getRankImagePath } from '../../utils/rankSystem';
 import { Button } from '../ui/button';
 
 interface StatsScreenProps {
@@ -11,12 +11,14 @@ interface StatsScreenProps {
 export function StatsScreen({ playerData, onBack }: StatsScreenProps) {
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
+  const rankImagePath = getRankImagePath(rank.name);
   const winRate = playerData.totalGames > 0 
     ? ((playerData.wins / playerData.totalGames) * 100).toFixed(1)
     : '0.0';
   
   const peakRank = playerData.peakRank ? getRankByTrophies(parseInt(playerData.peakRank)) : rank;
   const peakTierColor = getTierColor(peakRank.tier);
+  const peakRankImagePath = getRankImagePath(peakRank.name);
   
   const matchHistory = playerData.matchHistory || [];
   const recentMatches = matchHistory.slice(0, 10);
@@ -35,9 +37,19 @@ export function StatsScreen({ playerData, onBack }: StatsScreenProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="bg-card border border-border rounded-2xl p-4 text-center shadow-xl">
             <h3 className="text-gray-400 text-xs mb-1">Current Rank</h3>
-            <p className="text-2xl font-bold" style={{ color: tierColor }}>
-              {rank.name}
-            </p>
+            <div className="flex items-center justify-center gap-2 mt-1">
+              <img 
+                src={rankImagePath} 
+                alt={rank.name} 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <p className="text-xl font-bold" style={{ color: tierColor }}>
+                {rank.name}
+              </p>
+            </div>
           </div>
           
           <div className="bg-card border border-border rounded-2xl p-4 text-center shadow-xl">
@@ -116,9 +128,19 @@ export function StatsScreen({ playerData, onBack }: StatsScreenProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <div className="bg-card border border-border rounded-2xl p-4 shadow-xl">
             <h3 className="text-gray-400 text-xs mb-1">Peak Rank</h3>
-            <p className="text-xl font-bold" style={{ color: peakTierColor }}>
-              {peakRank.name}
-            </p>
+            <div className="flex items-center justify-center gap-2 mt-1">
+              <img 
+                src={peakRankImagePath} 
+                alt={peakRank.name} 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <p className="text-xl font-bold" style={{ color: peakTierColor }}>
+                {peakRank.name}
+              </p>
+            </div>
             {playerData.peakSeason && (
               <p className="text-xs text-gray-400 mt-1">
                 Season {playerData.peakSeason}

@@ -54,7 +54,7 @@ export function PlayMenuScreen({
             <button
               onClick={onQueue}
               disabled={isRegistered}
-              className={`h-32 ${isRegistered ? 'bg-gray-700 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'} rounded-2xl text-lg font-bold transition-all shadow-xl flex flex-col items-center justify-center border ${isRegistered ? 'border-border' : 'border-blue-600/50'}`}
+              className={`h-32 ${isRegistered ? 'bg-gray-700 cursor-not-allowed' : 'bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600'} rounded-2xl text-lg font-bold transition-all duration-300 ease-in-out shadow-xl hover:shadow-2xl transform hover:scale-[1.02] flex flex-col items-center justify-center border ${isRegistered ? 'border-border' : 'border-blue-500/50'}`}
             >
               <span>{isRegistered ? 'Registered for Tournament' : 'Queue Ranked'}</span>
               {!isRegistered && (
@@ -78,7 +78,7 @@ export function PlayMenuScreen({
             
             <button
               onClick={onPractice}
-              className="h-32 bg-primary hover:bg-primary/90 rounded-2xl text-lg font-bold transition-all shadow-xl border border-blue-600/50"
+              className="h-32 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 rounded-2xl text-lg font-bold transition-all duration-300 ease-in-out shadow-xl hover:shadow-2xl transform hover:scale-[1.02] border border-blue-500/50"
             >
               Practice
             </button>
@@ -87,7 +87,7 @@ export function PlayMenuScreen({
           {currentTournament && (
             <button
               onClick={onTournament}
-              className="w-full py-5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-2xl text-lg font-bold transition-all shadow-xl border border-yellow-500/50"
+              className="w-full py-5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 rounded-2xl text-lg font-bold transition-all duration-300 ease-in-out shadow-xl hover:shadow-2xl transform hover:scale-[1.02] border border-yellow-500/50"
             >
               Tournament
               <span className="text-xs block mt-1 opacity-90">

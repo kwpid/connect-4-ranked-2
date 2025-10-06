@@ -1,5 +1,6 @@
 import React from 'react';
 import { AIDifficulty } from '../../utils/aiPlayer';
+import { Button } from '../ui/button';
 
 interface PracticeScreenProps {
   onSelectDifficulty: (difficulty: AIDifficulty) => void;
@@ -35,16 +36,17 @@ export function PracticeScreen({ onSelectDifficulty, onBack }: PracticeScreenPro
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center mb-8">
-          <button
+          <Button 
             onClick={onBack}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            variant="secondary"
+            size="sm"
           >
             ← Back
-          </button>
+          </Button>
           <div className="flex-1 text-center">
             <h1 className="text-4xl font-bold mb-2">Practice Mode</h1>
             <p className="text-gray-400">Choose your AI difficulty level</p>
@@ -65,7 +67,7 @@ export function PracticeScreen({ onSelectDifficulty, onBack }: PracticeScreenPro
             <button
               key={level}
               onClick={() => onSelectDifficulty(level)}
-              className={`w-full p-6 bg-gradient-to-r ${color} rounded-xl transition-all transform hover:scale-105 shadow-lg text-left`}
+              className={`w-full p-6 bg-gradient-to-r ${color} rounded-xl transition-all duration-300 ease-in-out transform hover:scale-[1.02] shadow-xl hover:shadow-2xl text-left`}
             >
               <h3 className="text-2xl font-bold mb-2">{name}</h3>
               <p className="text-gray-200">{description}</p>

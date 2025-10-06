@@ -11,10 +11,26 @@ interface QueueScreenProps {
 }
 
 export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenProps) {
-  const [queueTime, setQueueTime] = useState(calculateQueueTime(playerData.trophies));
+  const estimatedTime = calculateQueueTime(playerData.trophies);
+  const [actualMatchTime] = useState(() => {
+    const base = estimatedTime;
+    const variance = Math.max(1, Math.floor(base * 0.15));
+    
+    const offset = Math.random() < 0.5 
+      ? -Math.floor(Math.random() * variance + 1)
+      : Math.floor(Math.random() * variance + 1);
+    let actual = Math.max(1, base + offset);
+    
+    if (actual === estimatedTime) {
+      actual = estimatedTime + 1;
+    }
+    
+    return actual;
+  });
   const [elapsed, setElapsed] = useState(0);
   const [dots, setDots] = useState('.');
   const [matchFound, setMatchFound] = useState(false);
+  const [waitingForPlayers, setWaitingForPlayers] = useState(false);
   
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
@@ -39,7 +55,7 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
   }, []);
   
   useEffect(() => {
-    if (elapsed >= queueTime) {
+    if (elapsed >= actualMatchTime && !matchFound) {
       setMatchFound(true);
       if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
         new Notification('Connect Ranked', {
@@ -47,9 +63,15 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
           icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏆</text></svg>'
         });
       }
-      onMatchFound();
+      
+      setTimeout(() => {
+        setWaitingForPlayers(true);
+        setTimeout(() => {
+          onMatchFound();
+        }, 1000 + Math.random() * 1000);
+      }, 800);
     }
-  }, [elapsed, queueTime, onMatchFound]);
+  }, [elapsed, actualMatchTime, matchFound, onMatchFound]);
   
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -68,24 +90,18 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
       <div className="max-w-md w-full">
         <div className="bg-card border border-border rounded-2xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <h2 className={`text-3xl font-bold mb-3 ${matchFound ? 'text-green-400 animate-pulse' : ''}`}>
-              {matchFound ? 'Match Found!' : `Searching for opponent${dots}`}
+            <h2 className={`text-3xl font-bold mb-3 ${matchFound || waitingForPlayers ? 'text-green-400 animate-pulse' : ''}`}>
+              {waitingForPlayers ? 'Waiting for Players...' : matchFound ? 'Match Found!' : `Searching for opponent${dots}`}
             </h2>
             {!matchFound && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center px-4">
                   <span className="text-gray-400 text-sm">Time Elapsed</span>
                   <span className="text-blue-400 font-bold">{formatTime(elapsed)}</span>
                 </div>
                 <div className="flex justify-between items-center px-4">
                   <span className="text-gray-400 text-sm">Est. Time</span>
-                  <span className="text-gray-400 font-bold">{formatTime(queueTime)}</span>
-                </div>
-                <div className="bg-background rounded-full h-2 overflow-hidden mx-4">
-                  <div
-                    className="bg-primary h-full transition-all duration-1000"
-                    style={{ width: `${Math.min(100, (elapsed / queueTime) * 100)}%` }}
-                  />
+                  <span className="text-gray-400 font-bold">{formatTime(estimatedTime)}</span>
                 </div>
               </div>
             )}

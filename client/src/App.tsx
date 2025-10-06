@@ -872,7 +872,6 @@ function App() {
           playerData={playerData}
           onPlay={() => setScreen('playMenu')}
           onLeaderboard={() => setScreen('leaderboard')}
-          onCSL={() => setScreen('csl')}
           onShop={() => setScreen('shop')}
           onStats={() => setScreen('stats')}
           onSettings={() => setScreen('settings')}
@@ -1062,12 +1061,6 @@ function App() {
         />
       )}
       
-      {screen === 'csl' && (
-        <CSLScreen
-          playerData={playerData}
-          onBack={() => setScreen('menu')}
-        />
-      )}
     </>
   );
 }

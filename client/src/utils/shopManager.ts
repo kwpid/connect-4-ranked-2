@@ -71,9 +71,9 @@ export async function generateShopItems(seed: number): Promise<ShopItem[]> {
     });
   }
   
-  // Load and add 2 banners (only shop banners, not ranked ones)
+  // Load and add 3 banners (only shop banners, not ranked ones)
   const banners = await loadBanners();
-  const shopBanners = generateShopBannerRotation(banners, seed, 2);
+  const shopBanners = generateShopBannerRotation(banners, seed, 3);
   
   shopBanners.forEach(banner => {
     // Only add if it has a valid price (ranked banners have null price)
@@ -86,9 +86,9 @@ export async function generateShopItems(seed: number): Promise<ShopItem[]> {
     }
   });
 
-  // Load and add 2 PFPs (only shop PFPs, not ranked ones)
+  // Load and add 3 PFPs (only shop PFPs, not ranked ones)
   const pfps = await loadPfps();
-  const shopPfps = generateShopPfpRotation(pfps, seed, 2);
+  const shopPfps = generateShopPfpRotation(pfps, seed, 3);
   
   shopPfps.forEach(pfp => {
     // Only add if it has a valid price (ranked pfps have null price)
