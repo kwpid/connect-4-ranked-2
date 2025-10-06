@@ -381,7 +381,7 @@ export function GameScreen({
     }
   };
   
-  // New trophy calculation system (up to 7 trophies, like elo systems)
+  // New trophy calculation system (min 5, max 10 trophies)
   const calculateNewTrophyChange = (
     won: boolean, 
     playerTrophies: number, 
@@ -391,18 +391,18 @@ export function GameScreen({
   ): number => {
     if (won) {
       // Base trophy reward based on opponent comparison
-      let baseTrophies = 3; // Default for lower-ranked opponent
+      let baseTrophies = 5; // Minimum win reward
       
       const trophyDiff = opponentTrophies - playerTrophies;
       
       if (trophyDiff >= 50) {
-        baseTrophies = 5; // Much higher rank (underdog victory)
+        baseTrophies = 7; // Much higher rank (underdog victory)
       } else if (trophyDiff >= 30) {
-        baseTrophies = 5; // Much higher rank (underdog victory)
+        baseTrophies = 7; // Much higher rank (underdog victory)
       } else if (trophyDiff >= 10) {
-        baseTrophies = 4; // Slightly higher rank
+        baseTrophies = 6; // Slightly higher rank
       } else if (trophyDiff >= -10) {
-        baseTrophies = 3; // Equal rank
+        baseTrophies = 5; // Equal rank
       }
       
       // Win streak bonus: +1 if 3+ wins in a row, +2 if 10+ wins
@@ -416,14 +416,14 @@ export function GameScreen({
       // Fast win bonus: +1 if won in under 20 moves
       const fastWinBonus = moves < 20 ? 1 : 0;
       
-      // Total can be up to 7 trophies (5 base + 2 streak + 1 fast win, capped at 7)
-      return Math.min(7, baseTrophies + streakBonus + fastWinBonus);
+      // Total can be up to 10 trophies, minimum 5
+      return Math.min(10, Math.max(5, baseTrophies + streakBonus + fastWinBonus));
     } else {
-      // Loss penalties based on opponent rank (min 5, max 8)
+      // Loss penalties based on opponent rank (min -5, max -10)
       const trophyDiff = opponentTrophies - playerTrophies;
       
       if (trophyDiff <= -30) {
-        return -8; // Lost to much lower rank (hurts most)
+        return -10; // Lost to much lower rank (hurts most)
       } else if (trophyDiff <= -10) {
         return -7; // Lost to lower rank
       } else {

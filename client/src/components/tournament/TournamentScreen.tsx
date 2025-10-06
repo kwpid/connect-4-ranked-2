@@ -185,19 +185,17 @@ export function TournamentScreen({
                 <div className="bg-gray-900/50 rounded-lg p-6 mb-6">
                   <div className="flex items-center justify-between">
                     <div className="text-center flex-1">
-                      <p className="font-bold text-xl mb-1" style={{ color: tierColor }}>
+                      <p className="font-bold text-xl" style={{ color: tierColor }}>
                         {playerMatch.participant1.isPlayer ? 'You' : playerMatch.participant1.username}
                       </p>
-                      <p className="text-yellow-400">{playerMatch.participant1.trophies} 🏆</p>
                     </div>
                     
                     <div className="text-3xl mx-6">VS</div>
                     
                     <div className="text-center flex-1">
-                      <p className="font-bold text-xl mb-1" style={{ color: tierColor }}>
+                      <p className="font-bold text-xl" style={{ color: tierColor }}>
                         {playerMatch.participant2.isPlayer ? 'You' : playerMatch.participant2.username}
                       </p>
-                      <p className="text-yellow-400">{playerMatch.participant2.trophies} 🏆</p>
                     </div>
                   </div>
                 </div>

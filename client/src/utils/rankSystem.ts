@@ -48,6 +48,13 @@ export function getTierColor(tier: string): string {
   return colors[tier] || '#FFFFFF';
 }
 
+export function getRankImagePath(rankName: string): string {
+  // Convert rank name to image filename
+  // Example: "Diamond I" -> "diamond_i.png"
+  const imageName = rankName.toLowerCase().replace(/ /g, '_') + '.png';
+  return `/ranks/${imageName}`;
+}
+
 export function calculateTrophyChange(won: boolean, winStreak: number): number {
   if (won) {
     const streakBonus = Math.floor(winStreak / 5);

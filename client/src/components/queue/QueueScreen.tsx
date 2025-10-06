@@ -13,6 +13,7 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
   const [queueTime, setQueueTime] = useState(calculateQueueTime(playerData.trophies));
   const [elapsed, setElapsed] = useState(0);
   const [dots, setDots] = useState('.');
+  const [matchFound, setMatchFound] = useState(false);
   
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
@@ -38,6 +39,7 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
   
   useEffect(() => {
     if (elapsed >= queueTime) {
+      setMatchFound(true);
       // Send notification if user is not viewing the tab
       if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
         new Notification('Connect Ranked', {
@@ -62,10 +64,9 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
         <div className="bg-gray-800/50 backdrop-blur rounded-xl p-8 border border-gray-700">
           {/* Searching Animation */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">
-              Searching for opponent{dots}
+            <h2 className={`text-3xl font-bold mb-2 ${matchFound ? 'text-green-400 animate-pulse' : ''}`}>
+              {matchFound ? 'Match Found!' : `Searching for opponent${dots}`}
             </h2>
-            <p className="text-gray-400">{elapsed}s elapsed</p>
           </div>
           
           {/* Player Info */}
@@ -85,12 +86,6 @@ export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenP
               </div>
             </div>
           </div>
-          
-          {elapsed >= queueTime - 1 && (
-            <div className="text-center mb-4 text-green-400 font-semibold animate-pulse">
-              Match Found!
-            </div>
-          )}
           
           {/* Cancel Button */}
           <button

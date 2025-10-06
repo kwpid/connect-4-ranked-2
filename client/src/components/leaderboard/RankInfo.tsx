@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { RANKS, getTierColor, getSeasonRewardCoins, getRankByTrophies } from '../../utils/rankSystem';
+import { RANKS, getTierColor, getSeasonRewardCoins, getRankByTrophies, getRankImagePath } from '../../utils/rankSystem';
 import { PlayerData } from '../../types/game';
 import { getAICompetitors } from '../../utils/storageManager';
 
@@ -50,6 +50,7 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
             const reward = getSeasonRewardCoins(rank.minTrophies);
             const isCurrentRank = rank.name === currentRank.name;
             const playerCount = rankCounts.get(rank.name) || 0;
+            const rankImagePath = getRankImagePath(rank.name);
             
             return (
               <div
@@ -61,18 +62,29 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
                 }`}
               >
                 <div className="flex justify-between items-center">
-                  <div className="flex-1">
-                    <h3 className={`text-xl font-bold ${isCurrentRank ? 'text-2xl' : ''}`} style={{ color: tierColor }}>
-                      {rank.name}
-                    </h3>
-                    <p className="text-gray-400 text-sm">
-                      {rank.minTrophies} - {rank.maxTrophies === 999999 ? '∞' : rank.maxTrophies} trophies
-                      {isCurrentRank && (
-                        <span className="ml-2 text-blue-400 font-semibold">
-                          (Your trophies: {playerData.trophies})
-                        </span>
-                      )}
-                    </p>
+                  <div className="flex items-center gap-3 flex-1">
+                    <img 
+                      src={rankImagePath} 
+                      alt={rank.name} 
+                      className="w-12 h-12 object-contain"
+                      onError={(e) => {
+                        // Hide image if it fails to load
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    <div className="flex-1">
+                      <h3 className={`text-xl font-bold ${isCurrentRank ? 'text-2xl' : ''}`} style={{ color: tierColor }}>
+                        {rank.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        {rank.minTrophies} - {rank.maxTrophies === 999999 ? '∞' : rank.maxTrophies} trophies
+                        {isCurrentRank && (
+                          <span className="ml-2 text-blue-400 font-semibold">
+                            (Your trophies: {playerData.trophies})
+                          </span>
+                        )}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="text-yellow-400 font-semibold">
@@ -89,12 +101,12 @@ export function RankInfo({ onBack, playerData }: RankInfoProps) {
         <div className="mt-8 bg-blue-600/20 backdrop-blur rounded-xl p-6 border border-blue-600/50">
           <h3 className="text-xl font-bold mb-3">Trophy System</h3>
           <ul className="space-y-2 text-gray-300">
-            <li>• Win: +3 to +7 trophies (based on opponent rank)</li>
-            <li>• Loss: -2 to -4 trophies (based on opponent rank)</li>
+            <li>• Win: +5 to +10 trophies (based on opponent rank)</li>
+            <li>• Loss: -5 to -10 trophies (based on opponent rank)</li>
             <li>• Higher opponent rank = more trophies on win</li>
             <li>• Win Streak Bonus: +1 for 3+ wins, +2 for 10+ wins</li>
             <li>• Fast Win Bonus: +1 for wins in under 20 moves</li>
-            <li>• Maximum reward: 7 trophies per match</li>
+            <li>• Minimum per match: 5 trophies, Maximum: 10 trophies</li>
           </ul>
         </div>
       </div>

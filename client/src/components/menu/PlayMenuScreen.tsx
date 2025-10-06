@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlayerData, TournamentData } from '../../types/game';
-import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
+import { getRankByTrophies, getTierColor, getRankImagePath } from '../../utils/rankSystem';
 import { getTimeUntilTournament } from '../../utils/tournamentManager';
 
 interface PlayMenuScreenProps {
@@ -36,6 +36,7 @@ export function PlayMenuScreen({
   
   const rank = getRankByTrophies(playerData.trophies);
   const tierColor = getTierColor(rank.tier);
+  const rankImagePath = getRankImagePath(rank.name);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
@@ -56,11 +57,22 @@ export function PlayMenuScreen({
             >
               <span>{isRegistered ? 'Registered for Tournament' : 'Queue Ranked'}</span>
               {!isRegistered && (
-                <span className="text-sm font-normal mt-2 opacity-80">
-                  <span style={{ color: tierColor }} className="font-bold">{rank.name}</span>
-                  {' • '}
-                  <span className="text-yellow-400 font-bold">🏆 {playerData.trophies}</span>
-                </span>
+                <div className="flex items-center gap-2 mt-2">
+                  <img 
+                    src={rankImagePath} 
+                    alt={rank.name} 
+                    className="w-8 h-8 object-contain"
+                    onError={(e) => {
+                      // Hide image if it fails to load
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                  <span className="text-sm font-normal opacity-80">
+                    <span style={{ color: tierColor }} className="font-bold">{rank.name}</span>
+                    {' • '}
+                    <span className="text-yellow-400 font-bold">🏆 {playerData.trophies}</span>
+                  </span>
+                </div>
               )}
             </button>
             
