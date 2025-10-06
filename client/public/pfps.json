@@ -22,5 +22,65 @@
     "offSale": false,
     "rarity": "common",
     "attributes": ["starter"]
+  },
+  {
+    "pfpId": 3,
+    "pfpName": "Black",
+    "imageName": "black_pfp.png",
+    "price": 50,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "common",
+    "attributes": []
+  },
+  {
+    "pfpId": 4,
+    "pfpName": "Bunny W/ Headphones",
+    "imageName": "bunny_hp.png",
+    "price": 250,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "deluxe",
+    "attributes": []
+  },
+  {
+    "pfpId": 5,
+    "pfpName": "Robo Dog",
+    "imageName": "robo_dog.png",
+    "price": 75,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "common",
+    "attributes": []
+  },
+  {
+    "pfpId": 5,
+    "pfpName": "Robo Dog",
+    "imageName": "robo_dog.png",
+    "price": 75,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "common",
+    "attributes": []
+  },
+  {
+    "pfpId": 6,
+    "pfpName": "Robo Dog (Pink)",
+    "imageName": "robo_dog2.png",
+    "price": 125,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "common",
+    "attributes": ["painted"]
   }
 ]

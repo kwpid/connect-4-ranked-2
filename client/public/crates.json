@@ -8,6 +8,11 @@
     "rewards": [
       {
         "type": "banner",
+        "id": 14,
+        "dropRate": 5
+      },
+      {
+        "type": "banner",
         "id": 2,
         "dropRate": 40
       },
@@ -19,6 +24,11 @@
       {
         "type": "title",
         "id": "grey_novice",
+        "dropRate": 25
+      },
+      {
+        "type": "pfp",
+        "id": 2,
         "dropRate": 25
       }
     ]
@@ -47,8 +57,37 @@
       },
       {
         "type": "pfp",
-        "id": 2,
+        "id": 4,
         "dropRate": 20
+      }
+    ]
+  },
+  {
+    "crateId": 3,
+    "crateName": "PFP Crate",
+    "crateImage": "premium_crate.png",
+    "price": 50,
+    "description": "A premium crate with PFP items",
+    "rewards": [
+      {
+        "type": "pfp",
+        "id": 2,
+        "dropRate": 25
+      },
+      {
+        "type": "pfp",
+        "id": 3,
+        "dropRate": 25
+      },
+      {
+        "type": "pfp",
+        "id": 4,
+        "dropRate": 25
+      },
+      {
+        "type": "pfp",
+        "id": 5,
+        "dropRate": 25
       }
     ]
   }
