@@ -9,7 +9,7 @@
     "rank": null,
     "offSale": false,
     "rarity": "common",
-    "attributes": ["starter"]
+    "attributes": []
   },
   {
     "bannerId": 2,
@@ -153,7 +153,7 @@
     "rank": null,
     "offSale": true,
     "rarity": "blackmarket",
-    "attributes": ["limited", "series"]
+    "attributes": ["series"]
   },
   {
     "bannerId": 14,
@@ -165,7 +165,7 @@
     "rank": null,
     "offSale": false,
     "rarity": "deluxe",
-    "attributes": ["artistic"]
+    "attributes": []
   },
   {
     "bannerId": 15,
@@ -177,7 +177,7 @@
     "rank": null,
     "offSale": false,
     "rarity": "special",
-    "attributes": ["aesthetic", "animated"]
+    "attributes": []
   },
   {
     "bannerId": 16,
@@ -189,7 +189,7 @@
     "rank": null,
     "offSale": false,
     "rarity": "exotic",
-    "attributes": ["cute", "animated"]
+    "attributes": []
   },
   {
     "bannerId": 17,
@@ -201,7 +201,7 @@
     "rank": null,
     "offSale": false,
     "rarity": "special",
-    "attributes": ["brand", "tech"]
+    "attributes": []
   },
   {
     "bannerId": 18,
@@ -298,5 +298,29 @@
     "offSale": false,
     "rarity": "blackmarket",
     "attributes": ["ranked", "season2", "legend", "animated"]
+  },
+  {
+    "bannerId": 26,
+    "bannerName": "Warm and Cool",
+    "imageName": "warm_cool.png",
+    "price": 250,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "special",
+    "attributes": []
+  },
+  {
+    "bannerId": 27,
+    "bannerName": "Spacey Vibe",
+    "imageName": "spacey.png",
+    "price": 300,
+    "ranked": false,
+    "season": null,
+    "rank": null,
+    "offSale": false,
+    "rarity": "special",
+    "attributes": []
   }
 ]
