@@ -571,7 +571,7 @@ export function GameScreen({
               Match Score: {match.playerWins} - {match.aiWins}
             </p>
             
-            {!isPracticeMode && match.matchWinner && (() => {
+            {!isPracticeMode && !isTournamentMode && match.matchWinner && (() => {
               const won = match.matchWinner === 'player';
               const trophyChange = calculateNewTrophyChange(
                 won, 
