@@ -17,7 +17,7 @@ export interface RankInfo {
 
 export type ItemRarity = 'common' | 'regular' | 'special' | 'deluxe' | 'exotic' | 'blackmarket' | 'legacy';
 
-export type ItemAttribute = 'certified' | 'painted' | 'animated' | 'seasonal';
+export type ItemAttribute = 'certified' | 'painted' | 'animated' | 'seasonal' | 'win_tracker';
 
 export interface Title {
   id: string;

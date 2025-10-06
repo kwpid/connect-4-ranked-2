@@ -35,6 +35,7 @@ const attributeIcons: Record<ItemAttribute, string> = {
   painted: "🎨",
   animated: "✨",
   seasonal: "🎄",
+  win_tracker: "📊",
 };
 
 export function ItemCard({ 
