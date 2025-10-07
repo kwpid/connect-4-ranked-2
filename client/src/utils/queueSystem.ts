@@ -45,7 +45,8 @@ export function calculateQueueTime(trophies: number, playersInRank?: number): nu
   const extraVariance = Math.random() < 0.15 ? (Math.random() < 0.5 ? -5 : 8) : 0;
   const variance = baseVariance + extraVariance;
   
-  return Math.max(2, totalTime + variance);
+  // Cap at 120 seconds (2 minutes) as specified, minimum 2 seconds
+  return Math.max(2, Math.min(120, totalTime + variance));
 }
 
 export function getEstimatedQueueTime(trophies: number): string {
