@@ -557,7 +557,14 @@ function getSeasonResetTrophiesForAI(currentTrophies: number): number {
 // Generate random title for AI based on their trophy count
 function getRandomAITitle(trophies: number, currentSeasonNum: number): string | null {
   // Ensure season numbers are valid (only prior seasons, not current)
-  const getValidSeasonNum = () => Math.max(1, currentSeasonNum - 1 - Math.floor(Math.random() * 2));
+  // AI can only have titles from completed seasons
+  const getValidSeasonNum = () => {
+    // Must be at least 1 season before current
+    const maxPriorSeason = Math.max(1, currentSeasonNum - 1);
+    // Randomly select from available prior seasons (1 to maxPriorSeason)
+    if (maxPriorSeason === 1) return 1;
+    return Math.floor(Math.random() * maxPriorSeason) + 1;
+  };
   
   // Lower ranks (< 297 trophies) - 50% chance of grey title, 50% no title
   if (trophies < 297) {
