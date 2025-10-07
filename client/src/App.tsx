@@ -323,17 +323,20 @@ function App() {
         saveAICompetitors(updatedAI);
         return updatedAI;
       });
-      // Update player's leaderboard trophy snapshot
-      setPlayerLeaderboardTrophies(playerData.trophies);
+      // Update player's leaderboard trophy snapshot to current value
+      setPlayerData(current => {
+        setPlayerLeaderboardTrophies(current.trophies);
+        return current;
+      });
       setNextAIUpdate(Date.now() + 5 * 60 * 1000);
       console.log("Leaderboard AI updated - some AI won/lost trophies");
-      console.log("Player leaderboard position updated to", playerData.trophies, "trophies");
+      console.log("Player leaderboard position updated");
     };
 
     const interval = setInterval(updateLeaderboard, 5 * 60 * 1000); // Every 5 minutes
 
     return () => clearInterval(interval);
-  }, [playerData.trophies]); // Update when player trophies change to capture current value
+  }, []); // No dependencies - interval runs independently every 5 minutes
 
   // Check for season reset and shop rotation on load and periodically
   useEffect(() => {
