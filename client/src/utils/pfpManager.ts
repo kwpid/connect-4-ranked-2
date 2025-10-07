@@ -57,7 +57,7 @@ export function getRankedPfpsBySeasonAndRank(
     pfp => 
       pfp.ranked && 
       pfp.season === season && 
-      pfp.rank === rank
+      (pfp.rank === rank || (Array.isArray(pfp.rank) && pfp.rank.includes(rank)))
   );
 }
 
@@ -85,7 +85,7 @@ export function getRankPfpsForPlayer(
   const earnedPfps: number[] = [];
   earnedRanks.forEach(rank => {
     const pfp = pfps.find(
-      p => p.ranked && p.season === season && p.rank === rank
+      p => p.ranked && p.season === season && (p.rank === rank || (Array.isArray(p.rank) && p.rank.includes(rank)))
     );
     if (pfp) {
       earnedPfps.push(pfp.pfpId);
