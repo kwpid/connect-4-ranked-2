@@ -55,8 +55,8 @@ export function getCurrentSeasonData(): SeasonData {
     }
   }
   
-  // Default test season: Season ends on Oct 7, 2025 at 6:20 PM Eastern
-  const seasonEndUTC = getEasternTimeInUTC(2025, 10, 7, 18, 20);
+  // Default test season: Season ends on Oct 7, 2025 at 6:23 PM Eastern
+  const seasonEndUTC = getEasternTimeInUTC(2025, 10, 7, 18, 23);
   const seasonStartUTC = seasonEndUTC - (7 * 24 * 60 * 60 * 1000);
   
   const defaultSeason = {
