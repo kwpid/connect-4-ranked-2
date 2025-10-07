@@ -46,40 +46,83 @@ function getEasternTimeInUTC(
   return Date.UTC(year, month - 1, day, utcHour, minute, 0);
 }
 
+// Calculate the next Wednesday at 12 PM EST from a given date
+function getNextWednesdayAt12PM(fromDate: Date): number {
+  const date = new Date(fromDate);
+  const currentDay = date.getDay(); // 0 = Sunday, 3 = Wednesday
+  
+  // Calculate days until next Wednesday
+  let daysUntilWednesday = (3 - currentDay + 7) % 7;
+  if (daysUntilWednesday === 0 && (date.getHours() >= 12 || date.getDate() !== fromDate.getDate())) {
+    // If today is Wednesday but it's past 12 PM EST, or we're already on a different date, go to next Wednesday
+    daysUntilWednesday = 7;
+  }
+  
+  const nextWednesday = new Date(date);
+  nextWednesday.setDate(date.getDate() + daysUntilWednesday);
+  
+  const year = nextWednesday.getFullYear();
+  const month = nextWednesday.getMonth() + 1;
+  const day = nextWednesday.getDate();
+  
+  return getEasternTimeInUTC(year, month, day, 12, 0);
+}
+
 export function getCurrentSeasonData(): SeasonData {
-  // TESTING: First check if we have saved season data
   const STORAGE_KEY = "connect-ranked-season";
   const stored = localStorage.getItem(STORAGE_KEY);
+  const now = Date.now();
 
   if (stored) {
     try {
       const savedSeason: SeasonData = JSON.parse(stored);
-      // If we have valid saved data, use it
-      if (
-        savedSeason.seasonNumber &&
-        savedSeason.startDate &&
-        savedSeason.endDate
-      ) {
-        return savedSeason;
+      
+      // Check if saved season is valid and current
+      if (savedSeason.seasonNumber && savedSeason.startDate && savedSeason.endDate) {
+        // If the saved season hasn't ended yet, return it
+        if (now < savedSeason.endDate) {
+          return savedSeason;
+        }
+        
+        // Season has ended, auto-advance to the next season
+        console.log('Season', savedSeason.seasonNumber, 'has ended. Auto-advancing to next season.');
+        
+        // Calculate how many weeks have passed since the season ended
+        const weeksSinceEnd = Math.floor((now - savedSeason.endDate) / (7 * 24 * 60 * 60 * 1000));
+        const nextSeasonNumber = savedSeason.seasonNumber + 1 + weeksSinceEnd;
+        
+        // Calculate the start and end dates for the current season
+        const seasonStartUTC = savedSeason.endDate + (weeksSinceEnd * 7 * 24 * 60 * 60 * 1000);
+        const seasonEndUTC = getNextWednesdayAt12PM(new Date(seasonStartUTC));
+        
+        const newSeason = {
+          seasonNumber: nextSeasonNumber,
+          startDate: seasonStartUTC,
+          endDate: seasonEndUTC,
+          leaderboard: [],
+        };
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newSeason));
+        return newSeason;
       }
     } catch (e) {
       console.error("Error parsing saved season data:", e);
     }
   }
 
-  const seasonEndUTC = getEasternTimeInUTC(2025, 10, 8, 12, 0);
+  // No saved data or invalid - create initial season
+  // Calculate the next Wednesday at 12 PM EST from now
+  const seasonEndUTC = getNextWednesdayAt12PM(new Date());
   const seasonStartUTC = seasonEndUTC - 7 * 24 * 60 * 60 * 1000;
 
   const defaultSeason = {
-    seasonNumber: 2,
+    seasonNumber: 2, // Starting at season 2 as per requirement
     startDate: seasonStartUTC,
     endDate: seasonEndUTC,
     leaderboard: [],
   };
 
-  // Save the default season
   localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSeason));
-
   return defaultSeason;
 }
 
