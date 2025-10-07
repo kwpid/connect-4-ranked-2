@@ -1,4 +1,5 @@
 import { SeasonData, AICompetitor, LeaderboardEntry } from "../types/game";
+import { getRankByTrophies } from "./rankSystem";
 
 // Helper to determine if a date is in DST for US Eastern timezone
 function isEasternDST(year: number, month: number, day: number): boolean {
@@ -694,29 +695,16 @@ export function resetAICompetitorsForSeason(
 }
 
 function getSeasonResetTrophiesForAI(currentTrophies: number): number {
-  // Use new 3-division rank structure for season reset
-  if (currentTrophies >= 701) return 701; // Connect Legend
-  if (currentTrophies >= 667) return 667; // Grand Champion III
-  if (currentTrophies >= 633) return 633; // Grand Champion II
-  if (currentTrophies >= 599) return 599; // Grand Champion I
-  if (currentTrophies >= 565) return 565; // Champion III
-  if (currentTrophies >= 531) return 531; // Champion II
-  if (currentTrophies >= 497) return 497; // Champion I
-  if (currentTrophies >= 463) return 463; // Diamond III
-  if (currentTrophies >= 429) return 429; // Diamond II
-  if (currentTrophies >= 396) return 396; // Diamond I
-  if (currentTrophies >= 363) return 363; // Platinum III
-  if (currentTrophies >= 330) return 330; // Platinum II
-  if (currentTrophies >= 297) return 297; // Platinum I
-  if (currentTrophies >= 264) return 264; // Gold III
-  if (currentTrophies >= 231) return 231; // Gold II
-  if (currentTrophies >= 198) return 198; // Gold I
-  if (currentTrophies >= 165) return 165; // Silver III
-  if (currentTrophies >= 132) return 132; // Silver II
-  if (currentTrophies >= 99) return 99; // Silver I
-  if (currentTrophies >= 66) return 66; // Bronze III
-  if (currentTrophies >= 33) return 33; // Bronze II
-  return 0; // Bronze I
+  // Use same logic as player reset: 10-20% below minimum trophies
+  const rank = getRankByTrophies(currentTrophies);
+  const minTrophies = rank.name === 'Connect Legend' ? 701 : rank.minTrophies;
+  
+  // Reset 10-20% below minimum trophies (same as player)
+  const reductionPercent = 0.10 + (Math.random() * 0.10); // Random between 10-20%
+  const reduction = Math.floor(minTrophies * reductionPercent);
+  const resetTrophies = Math.max(0, minTrophies - reduction);
+  
+  return resetTrophies;
 }
 
 // Generate random title for AI based on their trophy count
