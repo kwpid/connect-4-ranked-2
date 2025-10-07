@@ -413,16 +413,26 @@ function App() {
 
   const handleSeasonReset = async () => {
     const currentSeason = getCurrentSeasonData();
+    
+    // IMPORTANT: currentSeason is the NEW season that just started
+    // We need to award rewards for the PREVIOUS season that just ended
+    const endedSeasonNumber = Math.max(1, currentSeason.seasonNumber - 1);
+    
+    console.log('=== SEASON RESET ===');
+    console.log('New season:', currentSeason.seasonNumber);
+    console.log('Awarding rewards for season:', endedSeasonNumber);
+    console.log('Player trophies:', playerData.trophies);
+    console.log('Season reward wins:', playerData.seasonRewardWins);
 
     // Generate and save season end news dynamically
-    const seasonNews = generateSeasonNews(currentSeason.seasonNumber);
+    const seasonNews = generateSeasonNews(endedSeasonNumber);
     addDynamicNews(seasonNews);
 
     // Reload news to include the new season news
     const updatedNews = await loadNews();
     setNews(updatedNews);
 
-    // Capture final trophies before reset for title awarding
+    // Capture final trophies before reset for coin/trophy calculation
     const finalTrophies = playerData.trophies;
 
     // Award season rewards
@@ -432,32 +442,59 @@ function App() {
     // Collect new items for notification
     const earnedItems: NewItem[] = [];
 
-    // Award season title based on final rank
-    const newTitles = [...playerData.ownedTitles];
-    const rankTitleMap = [
-      { min: 701, title: "CONNECT LEGEND" },
-      { min: 599, title: "GRAND CHAMPION" },
-      { min: 497, title: "CHAMPION" },
-      { min: 396, title: "DIAMOND" },
-      { min: 297, title: "PLATINUM" },
-      { min: 198, title: "GOLD" },
-      { min: 99, title: "SILVER" },
-      { min: 0, title: "BRONZE" },
+    // Map tier to rank name
+    const tierToRankName: Record<string, string> = {
+      legend: "Connect Legend",
+      grand_champion: "Grand Champion",
+      champion: "Champion",
+      diamond: "Diamond",
+      platinum: "Platinum",
+      gold: "Gold",
+      silver: "Silver",
+      bronze: "Bronze",
+    };
+
+    // Rank order for cascading rewards (Bronze to Connect Legend)
+    const rankOrder = [
+      'Bronze',
+      'Silver',
+      'Gold',
+      'Platinum',
+      'Diamond',
+      'Champion',
+      'Grand Champion',
+      'Connect Legend'
     ];
 
-    // Award title for current rank and all lower ranks based on FINAL trophies
-    const currentRankEntry = rankTitleMap.find((r) => finalTrophies >= r.min);
-    if (currentRankEntry) {
-      const currentRankIndex = rankTitleMap.indexOf(currentRankEntry);
-      const ranksToAward = rankTitleMap.slice(currentRankIndex);
+    // Find highest tier with 5+ wins for reward eligibility
+    let highestEarnedTierIndex = -1;
+    for (let i = rankOrder.length - 1; i >= 0; i--) {
+      if ((playerData.seasonRewardWins?.[rankOrder[i]] || 0) >= 5) {
+        highestEarnedTierIndex = i;
+        break;
+      }
+    }
 
-      ranksToAward.forEach(({ title }) => {
-        const seasonTitle = `S${currentSeason.seasonNumber} ${title}`;
+    // Award season titles based on 5+ wins requirement (same as banners/PFPs)
+    const newTitles = [...playerData.ownedTitles];
+    
+    if (highestEarnedTierIndex >= 0) {
+      console.log('Highest earned tier:', rankOrder[highestEarnedTierIndex]);
+      // Award titles for all tiers from Bronze up to highest earned tier
+      for (let i = 0; i <= highestEarnedTierIndex; i++) {
+        const tierName = rankOrder[i].toUpperCase().replace(' ', ' ');
+        const seasonTitle = `S${endedSeasonNumber} ${tierName}`;
+        
         if (!newTitles.includes(seasonTitle)) {
           newTitles.push(seasonTitle);
           earnedItems.push({ type: "title", titleId: seasonTitle });
+          console.log('Awarded title:', seasonTitle);
+        } else {
+          console.log('Already owned title:', seasonTitle);
         }
-      });
+      }
+    } else {
+      console.log('No tier with 5+ wins - no season titles awarded');
     }
 
     // Check leaderboard position and extract top 100 AI IDs
@@ -468,15 +505,15 @@ function App() {
     if (playerEntry && playerEntry.rank && playerEntry.rank <= 50) {
       let lbTitle = "";
       if (playerEntry.rank === 1)
-        lbTitle = `S${currentSeason.seasonNumber} TOP CHAMPION`;
+        lbTitle = `S${endedSeasonNumber} TOP CHAMPION`;
       else if (playerEntry.rank <= 10)
-        lbTitle = `S${currentSeason.seasonNumber} TOP 10`;
+        lbTitle = `S${endedSeasonNumber} TOP 10`;
       else if (playerEntry.rank <= 25)
-        lbTitle = `S${currentSeason.seasonNumber} TOP 25`;
+        lbTitle = `S${endedSeasonNumber} TOP 25`;
       else if (playerEntry.rank <= 50)
-        lbTitle = `S${currentSeason.seasonNumber} TOP 50`;
+        lbTitle = `S${endedSeasonNumber} TOP 50`;
 
-      if (lbTitle) {
+      if (lbTitle && !newTitles.includes(lbTitle)) {
         newTitles.push(lbTitle);
         earnedItems.push({ type: "title", titleId: lbTitle });
       }
@@ -500,45 +537,43 @@ function App() {
     const newPfps = [...playerData.ownedPfps];
     const rank = getRankByTrophies(finalTrophies);
 
-    // Map tier to rank name
-    const tierToRankName: Record<string, string> = {
-      legend: "Connect Legend",
-      grand_champion: "Grand Champion",
-      champion: "Champion",
-      diamond: "Diamond",
-      platinum: "Platinum",
-      gold: "Gold",
-      silver: "Silver",
-      bronze: "Bronze",
-    };
-
     const finalRankName = tierToRankName[rank.tier] || "";
 
     if (finalRankName) {
       // Get seasonal rewards (tries banners first, falls back to PFPs if not available)
+      // Now using the correct season number (the season that ended)
       const rewards = await getSeasonalRewardsForPlayer(
         finalRankName,
         playerData.seasonRewardWins || {},
-        currentSeason.seasonNumber,
+        endedSeasonNumber,
       );
 
       // Process rewards
+      console.log('Processing', rewards.length, 'banner/PFP rewards');
       rewards.forEach((reward) => {
         if (reward.type === "banner") {
           const banner = reward.item as any;
           if (!newBanners.includes(banner.bannerId)) {
             newBanners.push(banner.bannerId);
             earnedItems.push({ type: "banner", banner });
+            console.log('Awarded banner:', banner.bannerName, 'for rank:', reward.rank);
           }
         } else if (reward.type === "pfp") {
           const pfp = reward.item as any;
           if (!newPfps.includes(pfp.pfpId)) {
             newPfps.push(pfp.pfpId);
             earnedItems.push({ type: "pfp", pfp });
+            console.log('Awarded PFP:', pfp.pfpName, 'for rank:', reward.rank);
           }
         }
       });
+    } else {
+      console.log('No valid rank for banner/PFP rewards');
     }
+
+    console.log('Total items earned:', earnedItems.length);
+    console.log('Coins reward:', coinsReward);
+    console.log('Trophy reset:', playerData.trophies, '->', resetTrophies);
 
     // Update player
     const updatedPlayer = {
