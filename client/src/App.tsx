@@ -414,18 +414,19 @@ function App() {
   const handleSeasonReset = async () => {
     const currentSeason = getCurrentSeasonData();
     
-    // IMPORTANT: currentSeason is the NEW season that just started
-    // We need to award rewards for the PREVIOUS season that just ended
-    const endedSeasonNumber = Math.max(1, currentSeason.seasonNumber - 1);
+    // IMPORTANT: currentSeason is the season that is ENDING right now
+    // We award rewards for THIS season, then move to the NEXT season
+    const endingSeasonNumber = currentSeason.seasonNumber;
+    const nextSeasonNumber = currentSeason.seasonNumber + 1;
     
     console.log('=== SEASON RESET ===');
-    console.log('New season:', currentSeason.seasonNumber);
-    console.log('Awarding rewards for season:', endedSeasonNumber);
+    console.log('Ending season:', endingSeasonNumber);
+    console.log('Next season will be:', nextSeasonNumber);
     console.log('Player trophies:', playerData.trophies);
     console.log('Season reward wins:', playerData.seasonRewardWins);
 
     // Generate and save season end news dynamically
-    const seasonNews = generateSeasonNews(endedSeasonNumber);
+    const seasonNews = generateSeasonNews(endingSeasonNumber);
     addDynamicNews(seasonNews);
 
     // Reload news to include the new season news
@@ -483,7 +484,7 @@ function App() {
       // Award titles for all tiers from Bronze up to highest earned tier
       for (let i = 0; i <= highestEarnedTierIndex; i++) {
         const tierName = rankOrder[i].toUpperCase().replace(' ', ' ');
-        const seasonTitle = `S${endedSeasonNumber} ${tierName}`;
+        const seasonTitle = `S${endingSeasonNumber} ${tierName}`;
         
         if (!newTitles.includes(seasonTitle)) {
           newTitles.push(seasonTitle);
@@ -505,13 +506,13 @@ function App() {
     if (playerEntry && playerEntry.rank && playerEntry.rank <= 50) {
       let lbTitle = "";
       if (playerEntry.rank === 1)
-        lbTitle = `S${endedSeasonNumber} TOP CHAMPION`;
+        lbTitle = `S${endingSeasonNumber} TOP CHAMPION`;
       else if (playerEntry.rank <= 10)
-        lbTitle = `S${endedSeasonNumber} TOP 10`;
+        lbTitle = `S${endingSeasonNumber} TOP 10`;
       else if (playerEntry.rank <= 25)
-        lbTitle = `S${endedSeasonNumber} TOP 25`;
+        lbTitle = `S${endingSeasonNumber} TOP 25`;
       else if (playerEntry.rank <= 50)
-        lbTitle = `S${endedSeasonNumber} TOP 50`;
+        lbTitle = `S${endingSeasonNumber} TOP 50`;
 
       if (lbTitle && !newTitles.includes(lbTitle)) {
         newTitles.push(lbTitle);
@@ -541,11 +542,11 @@ function App() {
 
     if (finalRankName) {
       // Get seasonal rewards (tries banners first, falls back to PFPs if not available)
-      // Now using the correct season number (the season that ended)
+      // Now using the correct season number (the season that is ending)
       const rewards = await getSeasonalRewardsForPlayer(
         finalRankName,
         playerData.seasonRewardWins || {},
-        endedSeasonNumber,
+        endingSeasonNumber,
       );
 
       // Process rewards
@@ -604,9 +605,18 @@ function App() {
     setAiCompetitors(resetAI);
     saveAICompetitors(resetAI);
 
-    // Update season data
-    setSeasonData(currentSeason);
-    saveSeasonData(currentSeason);
+    // Update season data to the NEXT season
+    const newSeasonData = {
+      ...currentSeason,
+      seasonNumber: nextSeasonNumber,
+      startDate: currentSeason.endDate, // New season starts when old one ends
+      endDate: currentSeason.endDate + (7 * 24 * 60 * 60 * 1000), // Add 7 days
+      leaderboard: []
+    };
+    setSeasonData(newSeasonData);
+    saveSeasonData(newSeasonData);
+    
+    console.log('Advanced to season:', nextSeasonNumber);
 
     // Show item notifications if any items were earned
     if (earnedItems.length > 0) {

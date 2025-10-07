@@ -39,21 +39,37 @@ function getEasternTimeInUTC(year: number, month: number, day: number, hour: num
 }
 
 export function getCurrentSeasonData(): SeasonData {
-  // TESTING: Season ends on Oct 7, 2025 at 6:15 PM Eastern
-  const now = Date.now();
+  // TESTING: First check if we have saved season data
+  const STORAGE_KEY = 'connect-ranked-season';
+  const stored = localStorage.getItem(STORAGE_KEY);
   
-  // Fixed season end time for testing: Oct 7, 2025 at 6:15 PM EST (18:15)
+  if (stored) {
+    try {
+      const savedSeason: SeasonData = JSON.parse(stored);
+      // If we have valid saved data, use it
+      if (savedSeason.seasonNumber && savedSeason.startDate && savedSeason.endDate) {
+        return savedSeason;
+      }
+    } catch (e) {
+      console.error('Error parsing saved season data:', e);
+    }
+  }
+  
+  // Default test season: Season ends on Oct 7, 2025 at 6:15 PM Eastern
   const seasonEndUTC = getEasternTimeInUTC(2025, 10, 7, 18, 15);
-  
-  // Season starts 7 days before it ends
   const seasonStartUTC = seasonEndUTC - (7 * 24 * 60 * 60 * 1000);
   
-  return {
+  const defaultSeason = {
     seasonNumber: 2,
     startDate: seasonStartUTC,
     endDate: seasonEndUTC,
     leaderboard: []
   };
+  
+  // Save the default season
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSeason));
+  
+  return defaultSeason;
 }
 
 export function shouldResetSeason(lastChecked: number): boolean {
