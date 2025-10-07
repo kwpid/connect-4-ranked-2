@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlayerData } from '../../types/game';
-import { getRankByTrophies, getTierColor } from '../../utils/rankSystem';
+import { getRankByTrophies, getTierColor, getRankImagePath } from '../../utils/rankSystem';
 import { BannerDisplay } from '../common/BannerDisplay';
 import { Button } from '../ui/button';
 import { getCurrentSeasonData } from '../../utils/seasonManager';
@@ -85,7 +85,15 @@ export function MenuScreen({
           <div className="grid grid-cols-4 gap-3 mb-4">
             <div className="bg-background rounded-xl p-3 text-center border border-border">
               <p className="text-gray-400 text-xs mb-1">Rank</p>
-              <p className="text-sm font-bold" style={{ color: tierColor }}>{rank.name}</p>
+              <div className="flex items-center justify-center gap-1.5">
+                <img 
+                  src={getRankImagePath(rank.name)} 
+                  alt={rank.name}
+                  className="w-5 h-5"
+                  style={{ imageRendering: 'crisp-edges' }}
+                />
+                <p className="text-sm font-bold" style={{ color: tierColor }}>{rank.name}</p>
+              </div>
             </div>
             <div className="bg-background rounded-xl p-3 text-center border border-border">
               <p className="text-gray-400 text-xs mb-1">Trophies</p>

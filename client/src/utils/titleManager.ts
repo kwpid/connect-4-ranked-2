@@ -105,8 +105,8 @@ export function getTitleFromId(titleId: string): Title {
         color = '#FF69B4'; // Pink for multi-win Legend
         glow = '#FF69B4';
       } else if (rank.startsWith('GRAND CHAMPION')) {
-        color = '#FFD700'; // Gold for multi-win GC
-        glow = '#FFD700';
+        color = '#FF0000'; // Red with glow for multi-win GC
+        glow = '#FF0000';
       } else {
         color = '#00FF00'; // Green for multi-win regular ranks
         glow = '#00FF00';
@@ -117,8 +117,8 @@ export function getTitleFromId(titleId: string): Title {
         color = '#FFFFFF'; // White for Legend
         glow = '#FFFFFF';
       } else if (rank.startsWith('GRAND CHAMPION')) {
-        color = '#FF0000'; // Red for GC
-        glow = '#FF0000';
+        color = '#9CA3AF'; // Grey for single-win GC
+        glow = 'none';
       } else {
         color = '#9CA3AF'; // Grey for regular ranks
         glow = 'none';

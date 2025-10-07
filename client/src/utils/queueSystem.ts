@@ -4,10 +4,17 @@ export function calculateQueueTime(trophies: number, playersInRank?: number): nu
   // Base time based on trophies (lower ranks = faster queues, higher ranks = longer queues)
   let baseTime = 5; // seconds - default for low ranks
   
-  if (trophies > 700) baseTime = 45; // Connect Legend - longest queues
-  else if (trophies > 600) baseTime = 40; // Grand Champion V
-  else if (trophies > 500) baseTime = 35; // Champion V - Grand Champion I
-  else if (trophies > 400) baseTime = 30; // Champion I-V
+  // Connect Legend has longer queues with scaling based on trophy count
+  if (trophies > 850) baseTime = 90; // Very high Connect Legend - up to 2 minutes
+  else if (trophies > 800) baseTime = 75; // High Connect Legend
+  else if (trophies > 750) baseTime = 65; // Mid Connect Legend
+  else if (trophies > 700) baseTime = 55; // Low Connect Legend
+  else if (trophies > 650) baseTime = 50; // Grand Champion III
+  else if (trophies > 600) baseTime = 45; // Grand Champion II
+  else if (trophies > 550) baseTime = 40; // Grand Champion I
+  else if (trophies > 500) baseTime = 35; // Champion III
+  else if (trophies > 450) baseTime = 32; // Champion II
+  else if (trophies > 400) baseTime = 30; // Champion I
   else if (trophies > 300) baseTime = 25; // Diamond
   else if (trophies > 200) baseTime = 20; // Platinum
   else if (trophies > 100) baseTime = 15; // Gold

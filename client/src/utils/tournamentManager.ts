@@ -110,9 +110,10 @@ function generateAITournamentTitle(trophies: number, currentSeasonNumber: number
   else if (trophies >= 99) { rankName = 'SILVER III'; tier = 'silver_iii'; }
   else { rankName = 'BRONZE III'; tier = 'bronze_iii'; }
   
-  // Determine season (current or previous)
+  // Determine season (ONLY prior seasons, never current)
+  // AI should only have tournament titles from completed seasons
   const season = currentSeasonNumber === 1 ? 1 : 
-    Math.random() < 0.7 ? currentSeasonNumber : currentSeasonNumber - 1;
+    (currentSeasonNumber - 1) - Math.floor(Math.random() * Math.min(2, currentSeasonNumber - 1));
   
   // Determine if multi-win title (3+ wins)
   const isMultiWin = Math.random() < 0.2; // 20% chance

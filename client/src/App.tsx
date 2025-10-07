@@ -888,7 +888,11 @@ function App() {
         lastTournamentLeft: null,
       };
 
+      // Calculate new season wins (this is the count AFTER this win)
       const newSeasonWins = tournamentStats.currentSeasonWins + 1;
+      
+      // Get title based on new win count
+      // Note: Multi-win title (3+) is awarded starting from the 3rd win
       const title = getTournamentTitle(
         placement,
         playerData.trophies,
