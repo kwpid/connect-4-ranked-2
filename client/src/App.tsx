@@ -77,6 +77,7 @@ import {
   ItemNotificationPopup,
   type NewItem,
 } from "./components/common/ItemNotificationPopup";
+import { SeasonRewardsProgress } from "./components/common/SeasonRewardsProgress";
 import {
   loadNews,
   getUnreadCount,
@@ -119,6 +120,8 @@ function App() {
   const [showItemNotification, setShowItemNotification] = useState(false);
   const [refundAmount, setRefundAmount] = useState<number>(0);
   const [showRefundNotification, setShowRefundNotification] = useState(false);
+  const [showSeasonRewardsProgress, setShowSeasonRewardsProgress] = useState(false);
+  const [seasonProgressData, setSeasonProgressData] = useState<{ tier: string; wins: number }>({ tier: 'Bronze', wins: 0 });
   const [showMobileTestPanel, setShowMobileTestPanel] = useState(false); // Set to false to disable
 
   // Catch up AI competitors on initial load (simulates grinding while player was away)
@@ -315,8 +318,27 @@ function App() {
     };
   }, []);
 
-  // Leaderboard AI update every 5 minutes
+  // Leaderboard AI update every 5 minutes based on clock time (XX:00, XX:05, XX:10, etc.)
   useEffect(() => {
+    // Calculate next 5-minute mark timestamp
+    const getNext5MinuteTimestamp = () => {
+      const now = new Date();
+      const next = new Date(now);
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      
+      // If we're in a 5-minute slot (minutes % 5 === 0), always go to next 5-minute mark
+      // Otherwise, round up to the next 5-minute mark
+      const nextMinuteMark = (minutes % 5 === 0) 
+        ? minutes + 5
+        : Math.ceil(minutes / 5) * 5;
+      
+      next.setMinutes(nextMinuteMark);
+      next.setSeconds(0);
+      next.setMilliseconds(0);
+      return next.getTime();
+    };
+
     const updateLeaderboard = () => {
       setAiCompetitors((currentAI) => {
         const updatedAI = updateLeaderboardAI(currentAI);
@@ -328,15 +350,35 @@ function App() {
         setPlayerLeaderboardTrophies(current.trophies);
         return current;
       });
-      setNextAIUpdate(Date.now() + 5 * 60 * 1000);
+      
+      // Calculate next update timestamp
+      const nextUpdate = getNext5MinuteTimestamp();
+      setNextAIUpdate(nextUpdate);
       console.log("Leaderboard AI updated - some AI won/lost trophies");
       console.log("Player leaderboard position updated");
     };
 
-    const interval = setInterval(updateLeaderboard, 5 * 60 * 1000); // Every 5 minutes
+    // Calculate initial delay to sync with clock time
+    const nextUpdate = getNext5MinuteTimestamp();
+    const delay = Math.max(0, nextUpdate - Date.now());
+    setNextAIUpdate(nextUpdate);
+    
+    // Store timeout and interval IDs for cleanup
+    let timeoutId: NodeJS.Timeout | null = null;
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    // Set initial timeout to sync with clock
+    timeoutId = setTimeout(() => {
+      updateLeaderboard();
+      // Then set interval for every 5 minutes
+      intervalId = setInterval(updateLeaderboard, 5 * 60 * 1000);
+    }, delay);
 
-    return () => clearInterval(interval);
-  }, []); // No dependencies - interval runs independently every 5 minutes
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, []); // No dependencies - interval runs independently based on clock time
 
   // Check for season reset and shop rotation on load and periodically
   useEffect(() => {
@@ -476,6 +518,7 @@ function App() {
       // Get seasonal rewards (tries banners first, falls back to PFPs if not available)
       const rewards = await getSeasonalRewardsForPlayer(
         finalRankName,
+        playerData.seasonRewardWins || {},
         currentSeason.seasonNumber,
       );
 
@@ -514,6 +557,8 @@ function App() {
         }),
         currentSeasonWins: 0,
       },
+      seasonRewardWins: {}, // Reset season reward wins
+      seasonRewardTier: undefined, // Reset season reward tier
     };
 
     setPlayerData(updatedPlayer);
@@ -594,6 +639,54 @@ function App() {
       }
     }
 
+    // Track season reward wins per tier
+    const currentRank = getRankByTrophies(newTrophies);
+    const tierToRankName: Record<string, string> = {
+      legend: "Connect Legend",
+      grand_champion: "Grand Champion",
+      champion: "Champion",
+      diamond: "Diamond",
+      platinum: "Platinum",
+      gold: "Gold",
+      silver: "Silver",
+      bronze: "Bronze",
+    };
+    const currentTierName = tierToRankName[currentRank.tier] || "Bronze";
+    
+    const seasonRewardWins = { ...(playerData.seasonRewardWins || {}) };
+    if (won) {
+      seasonRewardWins[currentTierName] = (seasonRewardWins[currentTierName] || 0) + 1;
+    }
+    
+    // Update seasonRewardTier to the highest tier with 5+ wins or current tier
+    let highestRewardTier = playerData.seasonRewardTier || "Bronze";
+    const rankOrder = [
+      'Bronze',
+      'Silver',
+      'Gold',
+      'Platinum',
+      'Diamond',
+      'Champion',
+      'Grand Champion',
+      'Connect Legend'
+    ];
+    
+    // Find highest tier with 5+ wins or the current tier
+    for (let i = rankOrder.length - 1; i >= 0; i--) {
+      const tier = rankOrder[i];
+      if ((seasonRewardWins[tier] || 0) >= 5) {
+        highestRewardTier = tier;
+        break;
+      }
+    }
+    
+    // If current tier is higher than highestRewardTier, use current tier
+    const currentTierIndex = rankOrder.indexOf(currentTierName);
+    const highestTierIndex = rankOrder.indexOf(highestRewardTier);
+    if (currentTierIndex > highestTierIndex) {
+      highestRewardTier = currentTierName;
+    }
+
     const updatedPlayer: PlayerData = {
       ...playerData,
       trophies: newTrophies,
@@ -612,6 +705,8 @@ function App() {
       peakRank: newPeakRank,
       peakSeason: newPeakSeason,
       matchHistory: newMatchHistory,
+      seasonRewardWins,
+      seasonRewardTier: highestRewardTier,
     };
 
     setPlayerData(updatedPlayer);
@@ -622,6 +717,18 @@ function App() {
     if (earnedItems.length > 0) {
       setNewItems(earnedItems);
       setShowItemNotification(true);
+    }
+    
+    // Show season rewards progress after winning a ranked game (not practice)
+    if (won && !isPracticeMode) {
+      setSeasonProgressData({
+        tier: currentTierName,
+        wins: seasonRewardWins[currentTierName] || 0
+      });
+      // Show progress after item notification or immediately if no items
+      if (earnedItems.length === 0) {
+        setShowSeasonRewardsProgress(true);
+      }
     }
   };
 
@@ -1033,6 +1140,10 @@ function App() {
           onClose={() => {
             setShowItemNotification(false);
             setNewItems([]);
+            // Show season rewards progress after item notification if it was set
+            if (seasonProgressData.wins > 0 || seasonProgressData.tier !== 'Bronze') {
+              setShowSeasonRewardsProgress(true);
+            }
           }}
         />
       )}
@@ -1063,6 +1174,17 @@ function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {showSeasonRewardsProgress && (
+        <SeasonRewardsProgress
+          currentTier={seasonProgressData.tier}
+          winsInTier={seasonProgressData.wins}
+          onClose={() => {
+            setShowSeasonRewardsProgress(false);
+            setSeasonProgressData({ tier: 'Bronze', wins: 0 });
+          }}
+        />
       )}
 
       {screen === "playMenu" && (

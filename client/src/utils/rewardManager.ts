@@ -9,14 +9,16 @@ export interface SeasonReward {
 }
 
 /**
- * Get seasonal rewards for a player based on their final rank.
+ * Get seasonal rewards for a player based on their reward progress.
  * Tries to award banners first, but falls back to PFPs if banners are not available for that season/rank.
- * @param finalRank The player's final rank tier (Bronze, Silver, Gold, etc.)
+ * @param currentTier The player's current rank tier (Bronze, Silver, Gold, etc.)
+ * @param seasonRewardWins Wins per tier for the current season
  * @param season The season number
  * @returns Array of rewards (banners or PFPs) that the player earned
  */
 export async function getSeasonalRewardsForPlayer(
-  finalRank: string,
+  currentTier: string,
+  seasonRewardWins: { [tier: string]: number } = {},
   season: number
 ): Promise<SeasonReward[]> {
   const rankOrder = [
@@ -30,39 +32,52 @@ export async function getSeasonalRewardsForPlayer(
     'Connect Legend'
   ];
   
-  const finalRankIndex = rankOrder.findIndex(r => r.toLowerCase() === finalRank.toLowerCase());
-  if (finalRankIndex === -1) return [];
+  const currentTierIndex = rankOrder.findIndex(r => r.toLowerCase() === currentTier.toLowerCase());
+  if (currentTierIndex === -1) return [];
   
-  const earnedRanks = rankOrder.slice(0, finalRankIndex + 1);
   const rewards: SeasonReward[] = [];
   
   // Load both banners and PFPs
   const banners = await loadBanners();
   const pfps = await loadPfps();
   
-  // For each earned rank, try to find a reward
-  earnedRanks.forEach(rank => {
-    // First, try to find a banner for this rank/season
-    const banner = getRankedBannersBySeasonAndRank(banners, season, rank);
+  // Find highest tier with 5+ wins
+  let highestEarnedTierIndex = -1;
+  for (let i = rankOrder.length - 1; i >= 0; i--) {
+    if ((seasonRewardWins[rankOrder[i]] || 0) >= 5) {
+      highestEarnedTierIndex = i;
+      break;
+    }
+  }
+  
+  // Award rewards for highest earned tier and all below
+  rankOrder.forEach((rank, index) => {
+    // Award reward if this tier is at or below the highest earned tier
+    const shouldAward = index <= highestEarnedTierIndex;
     
-    if (banner) {
-      rewards.push({
-        type: 'banner',
-        item: banner,
-        rank
-      });
-    } else {
-      // If no banner available, try to find a PFP
-      const pfp = getRankedPfpsBySeasonAndRank(pfps, season, rank);
+    if (shouldAward) {
+      // First, try to find a banner for this rank/season
+      const banner = getRankedBannersBySeasonAndRank(banners, season, rank);
       
-      if (pfp) {
+      if (banner) {
         rewards.push({
-          type: 'pfp',
-          item: pfp,
+          type: 'banner',
+          item: banner,
           rank
         });
+      } else {
+        // If no banner available, try to find a PFP
+        const pfp = getRankedPfpsBySeasonAndRank(pfps, season, rank);
+        
+        if (pfp) {
+          rewards.push({
+            type: 'pfp',
+            item: pfp,
+            rank
+          });
+        }
+        // If neither banner nor PFP available, no reward for this rank
       }
-      // If neither banner nor PFP available, no reward for this rank
     }
   });
   

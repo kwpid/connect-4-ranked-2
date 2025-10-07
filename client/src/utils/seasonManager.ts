@@ -408,13 +408,13 @@ export function catchUpAICompetitors(competitors: AICompetitor[]): AICompetitor[
         if (won) {
           consecutiveWins++;
           consecutiveLosses = 0;
-          const baseGain = Math.floor(Math.random() * 4) + 2;
+          const baseGain = Math.floor(Math.random() * 5) + 4; // 4-8 trophies (increased from 2-5)
           const streakBonus = Math.floor(consecutiveWins / 3);
           currentTrophies += (baseGain + streakBonus);
         } else {
           consecutiveLosses++;
           consecutiveWins = 0;
-          const trophyLoss = Math.floor(Math.random() * 4) + 1;
+          const trophyLoss = Math.floor(Math.random() * 5) + 2; // 2-6 trophies (increased from 1-4)
           currentTrophies = Math.max(0, currentTrophies - trophyLoss);
         }
       }
@@ -492,15 +492,15 @@ export function updateLeaderboardAI(competitors: AICompetitor[]): AICompetitor[]
       if (won) {
         consecutiveWins++;
         consecutiveLosses = 0;
-        // Trophy gain: 2-5 trophies per win, with streak bonus
-        const baseGain = Math.floor(Math.random() * 4) + 2;
+        // Trophy gain: 4-8 trophies per win, with streak bonus (increased from 2-5)
+        const baseGain = Math.floor(Math.random() * 5) + 4;
         const streakBonus = Math.floor(consecutiveWins / 3);
         currentTrophies += (baseGain + streakBonus);
       } else {
         consecutiveLosses++;
         consecutiveWins = 0;
-        // Trophy loss: 1-4 trophies per loss
-        const trophyLoss = Math.floor(Math.random() * 4) + 1;
+        // Trophy loss: 2-6 trophies per loss (increased from 1-4)
+        const trophyLoss = Math.floor(Math.random() * 5) + 2;
         currentTrophies = Math.max(0, currentTrophies - trophyLoss);
       }
     }
