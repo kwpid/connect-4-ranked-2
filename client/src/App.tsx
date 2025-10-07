@@ -108,6 +108,10 @@ function App() {
   const [nextAIUpdate, setNextAIUpdate] = useState<number>(
     Date.now() + 5 * 60 * 1000,
   );
+  // Player's trophy count snapshot for leaderboard (updates every 5 minutes with AI)
+  const [playerLeaderboardTrophies, setPlayerLeaderboardTrophies] = useState<number>(
+    playerData.trophies,
+  );
   const [news, setNews] = useState<NewsItem[]>([]);
   const [showNewsPopup, setShowNewsPopup] = useState(false);
   const [newsAutoOpened, setNewsAutoOpened] = useState(false);
@@ -319,14 +323,17 @@ function App() {
         saveAICompetitors(updatedAI);
         return updatedAI;
       });
+      // Update player's leaderboard trophy snapshot
+      setPlayerLeaderboardTrophies(playerData.trophies);
       setNextAIUpdate(Date.now() + 5 * 60 * 1000);
       console.log("Leaderboard AI updated - some AI won/lost trophies");
+      console.log("Player leaderboard position updated to", playerData.trophies, "trophies");
     };
 
     const interval = setInterval(updateLeaderboard, 5 * 60 * 1000); // Every 5 minutes
 
     return () => clearInterval(interval);
-  }, []); // No dependencies - interval runs continuously
+  }, [playerData.trophies]); // Update when player trophies change to capture current value
 
   // Check for season reset and shop rotation on load and periodically
   useEffect(() => {
@@ -409,7 +416,8 @@ function App() {
     }
 
     // Check leaderboard position and extract top 100 AI IDs
-    const leaderboard = getTop100Leaderboard(playerData, aiCompetitors);
+    // Use snapshot trophies for leaderboard (updates every 5 minutes)
+    const leaderboard = getTop100Leaderboard(playerData, aiCompetitors, playerLeaderboardTrophies);
     const playerEntry = leaderboard.find((e) => e.isPlayer);
     // Only top 50 get placement titles
     if (playerEntry && playerEntry.rank && playerEntry.rank <= 50) {
@@ -982,7 +990,8 @@ function App() {
 
   const isPlayerRegistered =
     currentTournament?.participants.some((p) => p.isPlayer) || false;
-  const leaderboard = getTop100Leaderboard(playerData, aiCompetitors);
+  // Use snapshot trophies for leaderboard display (updates every 5 minutes)
+  const leaderboard = getTop100Leaderboard(playerData, aiCompetitors, playerLeaderboardTrophies);
 
   return (
     <>

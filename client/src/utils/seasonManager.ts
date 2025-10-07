@@ -624,12 +624,14 @@ function getRandomAITitle(trophies: number, currentSeasonNum: number): string | 
   return `S${getValidSeasonNum()} CONNECT LEGEND`;
 }
 
-export function getTop100Leaderboard(playerData: any, aiCompetitors: AICompetitor[]): LeaderboardEntry[] {
+export function getTop100Leaderboard(playerData: any, aiCompetitors: AICompetitor[], playerTrophyOverride?: number): LeaderboardEntry[] {
   const currentSeason = getCurrentSeasonData();
+  // Use trophy override if provided (for delayed leaderboard updates)
+  const playerTrophies = playerTrophyOverride !== undefined ? playerTrophyOverride : playerData.trophies;
   const entries: LeaderboardEntry[] = [
     {
       username: playerData.username,
-      trophies: playerData.trophies,
+      trophies: playerTrophies,
       isPlayer: true,
       titleId: playerData.equippedTitle
     },
