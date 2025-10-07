@@ -114,7 +114,11 @@ export function MenuScreen({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img 
-                    src={getRankImagePath(`${playerData.seasonRewardTier} III`)} 
+                    src={getRankImagePath(
+                      playerData.seasonRewardTier === 'Connect Legend' 
+                        ? 'Connect Legend' 
+                        : `${playerData.seasonRewardTier} III`
+                    )} 
                     alt={playerData.seasonRewardTier}
                     className="w-10 h-10"
                     style={{ imageRendering: 'crisp-edges' }}

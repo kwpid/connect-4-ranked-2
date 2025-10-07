@@ -95,10 +95,11 @@ export function SettingsScreen({ playerData, onUsernameChange, onBack }: Setting
           <div className="bg-card border border-border rounded-2xl p-5 shadow-xl">
             <h3 className="text-lg font-bold mb-4">About Connect Ranked</h3>
             <div className="space-y-1.5 text-gray-300 text-sm">
-              <p>• Competitive Connect 4 with ranked matchmaking</p>
-              <p>• Trophy-based ranking system</p>
-              <p>• 2-week seasonal competitions</p>
-              <p>• Earn titles and rewards</p>
+              <p>• Competitive Connect 4 with AI opponents</p>
+              <p>• Trophy-based ranking system (Bronze to Connect Legend)</p>
+              <p>• Weekly seasonal competitions and rewards</p>
+              <p>• Earn exclusive titles, banners, and profile pictures</p>
+              <p>• Climb the leaderboard and track your stats</p>
             </div>
           </div>
           
