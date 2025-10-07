@@ -39,55 +39,21 @@ function getEasternTimeInUTC(year: number, month: number, day: number, hour: num
 }
 
 export function getCurrentSeasonData(): SeasonData {
-  // Season 1 ended on Oct 1, 2025 at 12:00 PM Eastern (Wed)
-  // All seasons last exactly 1 week and end on Wednesdays at 12:00 PM Eastern
-  // Starting season number is 2
-  
+  // TESTING: Season ends on Oct 7, 2025 at 6:15 PM Eastern
   const now = Date.now();
   
-  // Base season: Season 1 ended Oct 1, 2025 (season 2 starts then)
-  let seasonStartYear = 2025;
-  let seasonStartMonth = 10;
-  let seasonStartDay = 1;
-  let seasonNumber = 2;
+  // Fixed season end time for testing: Oct 7, 2025 at 6:15 PM EST (18:15)
+  const seasonEndUTC = getEasternTimeInUTC(2025, 10, 7, 18, 15);
   
-  // Find current season by iterating through season boundaries
-  // Each season spans exactly 7 calendar days in Eastern time
-  while (true) {
-    // Calculate when this season ends (7 days after it started)
-    const startDate = new Date(seasonStartYear, seasonStartMonth - 1, seasonStartDay);
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 7);
-    
-    const endYear = endDate.getFullYear();
-    const endMonth = endDate.getMonth() + 1;
-    const endDay = endDate.getDate();
-    
-    // Convert end boundary to UTC using Eastern timezone rules (12:00 PM noon)
-    const seasonEndUTC = getEasternTimeInUTC(endYear, endMonth, endDay, 12, 0);
-    
-    // If we haven't reached this season's end yet, this is our current season
-    if (now < seasonEndUTC) {
-      const seasonStartUTC = getEasternTimeInUTC(seasonStartYear, seasonStartMonth, seasonStartDay, 12, 0);
-      return {
-        seasonNumber,
-        startDate: seasonStartUTC,
-        endDate: seasonEndUTC,
-        leaderboard: []
-      };
-    }
-    
-    // Move to next season
-    seasonStartYear = endYear;
-    seasonStartMonth = endMonth;
-    seasonStartDay = endDay;
-    seasonNumber++;
-    
-    // Safety check to prevent infinite loop (max 1000 seasons ~38 years)
-    if (seasonNumber > 1000) {
-      throw new Error('Season calculation exceeded maximum iterations');
-    }
-  }
+  // Season starts 7 days before it ends
+  const seasonStartUTC = seasonEndUTC - (7 * 24 * 60 * 60 * 1000);
+  
+  return {
+    seasonNumber: 2,
+    startDate: seasonStartUTC,
+    endDate: seasonEndUTC,
+    leaderboard: []
+  };
 }
 
 export function shouldResetSeason(lastChecked: number): boolean {
