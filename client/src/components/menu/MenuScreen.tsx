@@ -109,6 +109,42 @@ export function MenuScreen({
             </div>
           </div>
           
+          {playerData.seasonRewardTier && (
+            <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 rounded-xl p-3 mb-4 border border-blue-500/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={getRankImagePath(`${playerData.seasonRewardTier} III`)} 
+                    alt={playerData.seasonRewardTier}
+                    className="w-10 h-10"
+                    style={{ imageRendering: 'crisp-edges' }}
+                  />
+                  <div>
+                    <p className="text-xs text-gray-400">Season Reward Progress</p>
+                    <p className="text-sm font-bold text-blue-400">{playerData.seasonRewardTier}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 h-6 rounded-sm ${
+                          i < (playerData.seasonRewardWins?.[playerData.seasonRewardTier!] || 0)
+                            ? 'bg-gradient-to-t from-blue-500 to-blue-400'
+                            : 'bg-gray-700'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs font-bold text-white">
+                    {playerData.seasonRewardWins?.[playerData.seasonRewardTier] || 0}/5
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <Button
             onClick={onInventory}
             className="w-full"

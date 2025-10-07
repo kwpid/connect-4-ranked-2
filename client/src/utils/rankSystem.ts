@@ -66,8 +66,14 @@ export function calculateTrophyChange(won: boolean, winStreak: number): number {
 
 export function getSeasonResetTrophies(currentTrophies: number): number {
   const rank = getRankByTrophies(currentTrophies);
-  if (rank.name === 'Connect Legend') return 701;
-  return rank.minTrophies;
+  const minTrophies = rank.name === 'Connect Legend' ? 701 : rank.minTrophies;
+  
+  // Reset 10-20% below minimum trophies
+  const reductionPercent = 0.10 + (Math.random() * 0.10); // Random between 10-20%
+  const reduction = Math.floor(minTrophies * reductionPercent);
+  const resetTrophies = Math.max(0, minTrophies - reduction);
+  
+  return resetTrophies;
 }
 
 export function getSeasonRewardCoins(trophies: number): number {
