@@ -64,23 +64,14 @@ export function getTitleFromId(titleId: string): Title {
     };
   }
   
-  // Leaderboard titles (S# TOP CHAMPION, S# TOP 10, S# TOP 30, S# TOP 100)
-  const leaderboardMatch = titleId.match(/^S(\d+)\s+TOP\s+(CHAMPION|10|30|100)$/);
+  // Leaderboard titles (S# TOP CHAMPION, S# TOP 10, S# TOP 25, S# TOP 50)
+  const leaderboardMatch = titleId.match(/^S(\d+)\s+TOP\s+(CHAMPION|\d+)$/);
   if (leaderboardMatch) {
-    const [, seasonNum, placement] = leaderboardMatch;
-    let color = '#FFD700'; // Gold
-    let glow = '#FFD700'; // Gold glow
+    const [, seasonNum] = leaderboardMatch;
     
-    if (placement === 'CHAMPION') {
-      color = '#FFD700'; // Bright gold
-      glow = '#FFD700';
-    } else if (placement === '10') {
-      color = '#C0C0C0'; // Silver
-      glow = '#C0C0C0';
-    } else {
-      color = '#CD7F32'; // Bronze
-      glow = '#CD7F32';
-    }
+    // All leaderboard titles have golden glow
+    const color = '#FFD700'; // Gold
+    const glow = '#FFD700'; // Gold glow
     
     return {
       id: titleId,
