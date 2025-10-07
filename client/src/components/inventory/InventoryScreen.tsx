@@ -38,11 +38,11 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
   
   const [bannerSearch, setBannerSearch] = useState('');
   const [bannerRarityFilter, setBannerRarityFilter] = useState<string>('all');
-  const [bannerSortBy, setBannerSortBy] = useState<'alphabetical' | 'rarity'>('alphabetical');
+  const [bannerSortBy, setBannerSortBy] = useState<'alphabetical' | 'rarity'>('rarity');
   
   const [pfpSearch, setPfpSearch] = useState('');
   const [pfpRarityFilter, setPfpRarityFilter] = useState<string>('all');
-  const [pfpSortBy, setPfpSortBy] = useState<'alphabetical' | 'rarity'>('alphabetical');
+  const [pfpSortBy, setPfpSortBy] = useState<'alphabetical' | 'rarity'>('rarity');
   
   const [titleSearch, setTitleSearch] = useState('');
   const [titleTypeFilter, setTitleTypeFilter] = useState<string>('all');
@@ -151,6 +151,9 @@ export function InventoryScreen({ playerData, onEquipTitle, onEquipBanner, onEqu
     }
     
     filteredPfps.sort((a, b) => {
+      if (a.pfpId === 1) return -1;
+      if (b.pfpId === 1) return 1;
+      
       if (pfpSortBy === 'alphabetical') {
         return a.pfpName.localeCompare(b.pfpName);
       } else {
