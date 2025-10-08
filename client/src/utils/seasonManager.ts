@@ -47,26 +47,55 @@ function getEasternTimeInUTC(
   return Date.UTC(year, month - 1, day, utcHour, minute, 0);
 }
 
-// Calculate the next Wednesday at 12 PM EST from a given date
-function getNextWednesdayAt12PM(fromDate: Date): number {
-  const date = new Date(fromDate);
-  const currentDay = date.getDay(); // 0 = Sunday, 3 = Wednesday
+// Calculate the next Wednesday at 12 PM EST from a given UTC timestamp
+function getNextWednesdayAt12PM(fromTimestamp: number): number {
+  // Convert UTC to Eastern time with proper DST handling
+  // We need to iterate because DST status depends on the Eastern date, not UTC date
+  
+  // Initial guess: assume EST (UTC-5)
+  let offsetHours = 5;
+  let easternTimestamp = fromTimestamp - (offsetHours * 60 * 60 * 1000);
+  let easternDate = new Date(easternTimestamp);
+  
+  // Check DST for the Eastern-adjusted date
+  let easternYear = easternDate.getUTCFullYear();
+  let easternMonth = easternDate.getUTCMonth() + 1;
+  let easternDay = easternDate.getUTCDate();
+  let isDST = isEasternDST(easternYear, easternMonth, easternDay);
+  
+  // If DST status indicates we should use a different offset, recalculate
+  const correctOffsetHours = isDST ? 4 : 5;
+  if (correctOffsetHours !== offsetHours) {
+    offsetHours = correctOffsetHours;
+    easternTimestamp = fromTimestamp - (offsetHours * 60 * 60 * 1000);
+    easternDate = new Date(easternTimestamp);
+    easternYear = easternDate.getUTCFullYear();
+    easternMonth = easternDate.getUTCMonth() + 1;
+    easternDay = easternDate.getUTCDate();
+  }
+  
+  // Get Eastern time components
+  const easternHour = easternDate.getUTCHours();
+  const easternDayOfWeek = easternDate.getUTCDay(); // 0 = Sunday, 3 = Wednesday
   
   // Calculate days until next Wednesday
-  let daysUntilWednesday = (3 - currentDay + 7) % 7;
-  if (daysUntilWednesday === 0 && (date.getHours() >= 12 || date.getDate() !== fromDate.getDate())) {
-    // If today is Wednesday but it's past 12 PM EST, or we're already on a different date, go to next Wednesday
+  let daysUntilWednesday = (3 - easternDayOfWeek + 7) % 7;
+  
+  // If today is Wednesday in ET but it's past 12 PM, go to next Wednesday
+  if (daysUntilWednesday === 0 && easternHour >= 12) {
     daysUntilWednesday = 7;
   }
   
-  const nextWednesday = new Date(date);
-  nextWednesday.setDate(date.getDate() + daysUntilWednesday);
+  // Calculate the target Wednesday in Eastern time
+  const targetEasternDate = new Date(easternDate);
+  targetEasternDate.setUTCDate(easternDay + daysUntilWednesday);
   
-  const year = nextWednesday.getFullYear();
-  const month = nextWednesday.getMonth() + 1;
-  const day = nextWednesday.getDate();
+  const targetYear = targetEasternDate.getUTCFullYear();
+  const targetMonth = targetEasternDate.getUTCMonth() + 1;
+  const targetDay = targetEasternDate.getUTCDate();
   
-  return getEasternTimeInUTC(year, month, day, 12, 0);
+  // Return Wednesday at 12 PM ET in UTC
+  return getEasternTimeInUTC(targetYear, targetMonth, targetDay, 12, 0);
 }
 
 export function getCurrentSeasonData(): SeasonData {
@@ -94,7 +123,7 @@ export function getCurrentSeasonData(): SeasonData {
         
         // Calculate the start and end dates for the current season
         const seasonStartUTC = savedSeason.endDate + (weeksSinceEnd * 7 * 24 * 60 * 60 * 1000);
-        const seasonEndUTC = getNextWednesdayAt12PM(new Date(seasonStartUTC));
+        const seasonEndUTC = getNextWednesdayAt12PM(seasonStartUTC);
         
         const newSeason = {
           seasonNumber: nextSeasonNumber,
@@ -113,7 +142,7 @@ export function getCurrentSeasonData(): SeasonData {
 
   // No saved data or invalid - create initial season
   // Calculate the next Wednesday at 12 PM EST from now
-  const seasonEndUTC = getNextWednesdayAt12PM(new Date());
+  const seasonEndUTC = getNextWednesdayAt12PM(now);
   const seasonStartUTC = seasonEndUTC - 7 * 24 * 60 * 60 * 1000;
 
   const defaultSeason = {
