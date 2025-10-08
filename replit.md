@@ -88,11 +88,20 @@ The project has been successfully imported from GitHub and configured for the Re
 - Renamed function from `getNextWednesdayAt10AM` to `getNextWednesdayAt12PM` for accuracy
 - Verified schedule: Seasons end at 12 PM EST on Wednesdays (DST-aware)
 
+**October 8, 2025 - Trophy Reset Formula Fix**
+- Fixed trophy reset calculation to never increase player trophies
+- New formula: Math.min(currentTrophies, minTrophies + 0-10% variance)
+- Players now reset to their rank tier minimum + 0-10% above (capped at current trophies)
+- Example: Connect Legend at 1000 trophies → resets to 701-771
+- Example: Connect Legend at 705 trophies → resets to 701-705 (prevents increase to 771)
+- Applied to both player and AI reset functions
+- Fixed season display showing "Season Ended" instead of new season countdown
+- Added defensive null check in MenuScreen to prevent crashes during initial load
+
 **October 8, 2025 - Season Auto-Advance & Trophy Reset Improvements**
 - Fixed season auto-advance: Seasons now automatically transition to the next season when they end
 - Dynamic Wednesday calculation: Seasons always end on Wednesday at 12 PM EST, calculated dynamically (not hardcoded)
 - DST-aware timezone handling: Properly handles Daylight Saving Time transitions for accurate season end times across all timezones
-- Consistent AI trophy reset: AI opponents now reset using the same logic as players (10-20% below minimum trophies)
 - Golden glow for leaderboard titles: All S# TOP # titles now display with golden (#FFD700) color and glow
 
 **October 6, 2025 - Complete UI Overhaul & Enhanced Features (v1.0.2)**
