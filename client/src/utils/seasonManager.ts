@@ -693,16 +693,18 @@ export function resetAICompetitorsForSeason(
 }
 
 function getSeasonResetTrophiesForAI(currentTrophies: number): number {
-  // Use same logic as player reset: 10-20% below minimum trophies
+  // Use same logic as player reset: reset to minimum + 0-10% above
   const rank = getRankByTrophies(currentTrophies);
   const minTrophies = rank.name === 'Connect Legend' ? 701 : rank.minTrophies;
   
-  // Reset 10-20% below minimum trophies (same as player)
-  const reductionPercent = 0.10 + (Math.random() * 0.10); // Random between 10-20%
-  const reduction = Math.floor(minTrophies * reductionPercent);
-  const resetTrophies = Math.max(0, minTrophies - reduction);
+  // Reset to minimum trophies of current tier (stay at or slightly above minimum)
+  // Add 0-10% above minimum to give slight variance
+  const additionPercent = Math.random() * 0.10; // Random between 0-10%
+  const addition = Math.floor(minTrophies * additionPercent);
+  const resetTrophies = minTrophies + addition;
   
-  return resetTrophies;
+  // Never reset to more than current trophies (prevent trophy gains)
+  return Math.min(currentTrophies, resetTrophies);
 }
 
 // Generate random title for AI based on their trophy count

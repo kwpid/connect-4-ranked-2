@@ -1174,6 +1174,7 @@ function App() {
       {screen === "menu" && (
         <MenuScreen
           playerData={playerData}
+          seasonData={seasonData}
           onPlay={() => setScreen("playMenu")}
           onLeaderboard={() => setScreen("leaderboard")}
           onShop={() => setScreen("shop")}

@@ -68,12 +68,14 @@ export function getSeasonResetTrophies(currentTrophies: number): number {
   const rank = getRankByTrophies(currentTrophies);
   const minTrophies = rank.name === 'Connect Legend' ? 701 : rank.minTrophies;
   
-  // Reset 10-20% below minimum trophies
-  const reductionPercent = 0.10 + (Math.random() * 0.10); // Random between 10-20%
-  const reduction = Math.floor(minTrophies * reductionPercent);
-  const resetTrophies = Math.max(0, minTrophies - reduction);
+  // Reset to minimum trophies of current tier (stay at or slightly above minimum)
+  // Add 0-10% above minimum to give slight variance
+  const additionPercent = Math.random() * 0.10; // Random between 0-10%
+  const addition = Math.floor(minTrophies * additionPercent);
+  const resetTrophies = minTrophies + addition;
   
-  return resetTrophies;
+  // Never reset to more than current trophies (prevent trophy gains)
+  return Math.min(currentTrophies, resetTrophies);
 }
 
 export function getSeasonRewardCoins(trophies: number): number {

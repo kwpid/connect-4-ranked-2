@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { PlayerData } from '../../types/game';
+import { PlayerData, SeasonData } from '../../types/game';
 import { getRankByTrophies, getTierColor, getRankImagePath } from '../../utils/rankSystem';
 import { BannerDisplay } from '../common/BannerDisplay';
 import { Button } from '../ui/button';
-import { getCurrentSeasonData } from '../../utils/seasonManager';
 
 interface MenuScreenProps {
   playerData: PlayerData;
+  seasonData: SeasonData;
   onPlay: () => void;
   onLeaderboard: () => void;
   onShop: () => void;
@@ -20,6 +20,7 @@ interface MenuScreenProps {
 
 export function MenuScreen({
   playerData,
+  seasonData,
   onPlay,
   onLeaderboard,
   onShop,
@@ -37,7 +38,12 @@ export function MenuScreen({
   
   useEffect(() => {
     const updateSeasonInfo = () => {
-      const seasonData = getCurrentSeasonData();
+      // Guard against null/undefined seasonData
+      if (!seasonData || !seasonData.endDate) {
+        setSeasonInfo({ seasonNumber: 0, timeLeft: '00 00 00' });
+        return;
+      }
+      
       const now = Date.now();
       const diff = seasonData.endDate - now;
       
@@ -57,7 +63,7 @@ export function MenuScreen({
     updateSeasonInfo();
     const interval = setInterval(updateSeasonInfo, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [seasonData]);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white p-6">
