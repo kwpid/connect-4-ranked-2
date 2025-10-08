@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MatchState, PlayerData, GameResult, TournamentMatch } from '../../types/game';
+import { MatchState, PlayerData, GameResult, TournamentMatch, AICompetitor } from '../../types/game';
 import { createEmptyBoard, dropPiece, getWinnerWithCells, WinningCells } from '../../utils/gameLogic';
 import { AIPlayer, AIDifficulty } from '../../utils/aiPlayer';
 import { Connect4Board } from './Connect4Board';
@@ -19,6 +19,7 @@ interface GameScreenProps {
   practiceDifficulty?: AIDifficulty;
   isTournamentMode?: boolean;
   tournamentMatch?: TournamentMatch;
+  aiCompetitors?: AICompetitor[];
 }
 
 export function GameScreen({ 
@@ -28,7 +29,8 @@ export function GameScreen({
   isPracticeMode = false, 
   practiceDifficulty,
   isTournamentMode = false,
-  tournamentMatch
+  tournamentMatch,
+  aiCompetitors = []
 }: GameScreenProps) {
   // Generate opponent username and trophies based on player's trophy range
   const generateOpponent = () => {
@@ -79,7 +81,35 @@ export function GameScreen({
     
     // Generate opponent trophies around player's level
     const variance = Math.floor(Math.random() * 60) - 30; // -30 to +30 trophies
-    const trophies = Math.max(0, playerData.trophies + variance);
+    let trophies = Math.max(0, playerData.trophies + variance);
+    
+    // For Connect Legend players (701+), if opponent has more trophies, pick from actual leaderboard
+    if (playerData.trophies >= 701 && trophies > playerData.trophies) {
+      if (aiCompetitors.length > 0) {
+        // Find AI competitors at Connect Legend rank with more trophies than player
+        const eligibleOpponents = aiCompetitors.filter(ai => ai.trophies >= 701 && ai.trophies > playerData.trophies);
+        
+        if (eligibleOpponents.length > 0) {
+          // Sort by trophies (highest first) and pick from top players
+          eligibleOpponents.sort((a, b) => b.trophies - a.trophies);
+          // Pick randomly from top 50% of eligible opponents to ensure they're actually top-ranked
+          const topHalfCount = Math.max(1, Math.floor(eligibleOpponents.length * 0.5));
+          const selectedOpponent = eligibleOpponents[Math.floor(Math.random() * topHalfCount)];
+          
+          // Use the leaderboard AI's actual data
+          name = selectedOpponent.username;
+          trophies = selectedOpponent.trophies;
+        } else {
+          // No leaderboard opponents with higher trophies found
+          // Clamp opponent trophies to player's trophies or lower
+          trophies = Math.min(trophies, playerData.trophies);
+        }
+      } else {
+        // Leaderboard data not available
+        // Clamp opponent trophies to player's trophies or lower
+        trophies = Math.min(trophies, playerData.trophies);
+      }
+    }
     
     // Generate opponent title based on trophies (fixed to not use non-existent titles)
     let titleId: string | null = null;

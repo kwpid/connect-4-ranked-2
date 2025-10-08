@@ -134,7 +134,7 @@ export function MenuScreen({
                       <div
                         key={i}
                         className={`w-2 h-6 rounded-sm ${
-                          i < (playerData.seasonRewardWins?.[playerData.seasonRewardTier!] || 0)
+                          i < Math.min(5, playerData.seasonRewardWins?.[playerData.seasonRewardTier!] || 0)
                             ? 'bg-gradient-to-t from-blue-500 to-blue-400'
                             : 'bg-gray-700'
                         }`}
@@ -142,7 +142,7 @@ export function MenuScreen({
                     ))}
                   </div>
                   <p className="text-xs font-bold text-white">
-                    {playerData.seasonRewardWins?.[playerData.seasonRewardTier] || 0}/5
+                    {Math.min(5, playerData.seasonRewardWins?.[playerData.seasonRewardTier] || 0)}/5
                   </p>
                 </div>
               </div>

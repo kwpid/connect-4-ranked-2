@@ -47,8 +47,8 @@ function getEasternTimeInUTC(
   return Date.UTC(year, month - 1, day, utcHour, minute, 0);
 }
 
-// Calculate the next Wednesday at 12 PM EST from a given UTC timestamp
-function getNextWednesdayAt12PM(fromTimestamp: number): number {
+// Calculate the next Wednesday at 10 AM EST from a given UTC timestamp
+function getNextWednesdayAt10AM(fromTimestamp: number): number {
   // Convert UTC to Eastern time with proper DST handling
   // We need to iterate because DST status depends on the Eastern date, not UTC date
   
@@ -81,8 +81,8 @@ function getNextWednesdayAt12PM(fromTimestamp: number): number {
   // Calculate days until next Wednesday
   let daysUntilWednesday = (3 - easternDayOfWeek + 7) % 7;
   
-  // If today is Wednesday in ET but it's past 12 PM, go to next Wednesday
-  if (daysUntilWednesday === 0 && easternHour >= 12) {
+  // If today is Wednesday in ET but it's past 10 AM, go to next Wednesday
+  if (daysUntilWednesday === 0 && easternHour >= 10) {
     daysUntilWednesday = 7;
   }
   
@@ -94,8 +94,8 @@ function getNextWednesdayAt12PM(fromTimestamp: number): number {
   const targetMonth = targetEasternDate.getUTCMonth() + 1;
   const targetDay = targetEasternDate.getUTCDate();
   
-  // Return Wednesday at 12 PM ET in UTC
-  return getEasternTimeInUTC(targetYear, targetMonth, targetDay, 12, 0);
+  // Return Wednesday at 10 AM ET in UTC
+  return getEasternTimeInUTC(targetYear, targetMonth, targetDay, 10, 0);
 }
 
 export function getCurrentSeasonData(): SeasonData {
@@ -123,7 +123,7 @@ export function getCurrentSeasonData(): SeasonData {
         
         // Calculate the start and end dates for the current season
         const seasonStartUTC = savedSeason.endDate + (weeksSinceEnd * 7 * 24 * 60 * 60 * 1000);
-        const seasonEndUTC = getNextWednesdayAt12PM(seasonStartUTC);
+        const seasonEndUTC = getNextWednesdayAt10AM(seasonStartUTC);
         
         const newSeason = {
           seasonNumber: nextSeasonNumber,
@@ -141,8 +141,8 @@ export function getCurrentSeasonData(): SeasonData {
   }
 
   // No saved data or invalid - create initial season
-  // Calculate the next Wednesday at 12 PM EST from now
-  const seasonEndUTC = getNextWednesdayAt12PM(now);
+  // Calculate the next Wednesday at 10 AM EST from now
+  const seasonEndUTC = getNextWednesdayAt10AM(now);
   const seasonStartUTC = seasonEndUTC - 7 * 24 * 60 * 60 * 1000;
 
   const defaultSeason = {

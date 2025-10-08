@@ -685,6 +685,7 @@ function App() {
     }
 
     // Track season reward wins per tier
+    const previousRank = getRankByTrophies(playerData.trophies);
     const currentRank = getRankByTrophies(newTrophies);
     const tierToRankName: Record<string, string> = {
       legend: "Connect Legend",
@@ -696,7 +697,9 @@ function App() {
       silver: "Silver",
       bronze: "Bronze",
     };
+    const previousTierName = tierToRankName[previousRank.tier] || "Bronze";
     const currentTierName = tierToRankName[currentRank.tier] || "Bronze";
+    const tierChanged = previousTierName !== currentTierName;
     
     const seasonRewardWins = { ...(playerData.seasonRewardWins || {}) };
     if (won) {
@@ -765,14 +768,20 @@ function App() {
     }
     
     // Show season rewards progress after winning a ranked game (not practice)
+    // Only show if: player has less than 5 wins for current tier OR tier changed (ranked up)
     if (won && !isPracticeMode) {
-      setSeasonProgressData({
-        tier: currentTierName,
-        wins: seasonRewardWins[currentTierName] || 0
-      });
-      // Show progress after item notification or immediately if no items
-      if (earnedItems.length === 0) {
-        setShowSeasonRewardsProgress(true);
+      const currentWins = seasonRewardWins[currentTierName] || 0;
+      const shouldShowPopup = currentWins < 5 || tierChanged;
+      
+      if (shouldShowPopup) {
+        setSeasonProgressData({
+          tier: currentTierName,
+          wins: currentWins
+        });
+        // Show progress after item notification or immediately if no items
+        if (earnedItems.length === 0) {
+          setShowSeasonRewardsProgress(true);
+        }
       }
     }
   };
@@ -1292,6 +1301,7 @@ function App() {
           onBack={() => setScreen("menu")}
           isPracticeMode={isPracticeMode}
           practiceDifficulty={practiceDifficulty}
+          aiCompetitors={aiCompetitors}
         />
       )}
 
