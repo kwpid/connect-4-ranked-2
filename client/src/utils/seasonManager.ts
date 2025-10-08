@@ -47,8 +47,8 @@ function getEasternTimeInUTC(
   return Date.UTC(year, month - 1, day, utcHour, minute, 0);
 }
 
-// Calculate the next Wednesday at 10 AM EST from a given UTC timestamp
-function getNextWednesdayAt10AM(fromTimestamp: number): number {
+// Calculate the next Wednesday at 12 PM EST from a given UTC timestamp
+export function getNextWednesdayAt12PM(fromTimestamp: number): number {
   let offsetHours = 5;
   let easternTimestamp = fromTimestamp - offsetHours * 60 * 60 * 1000;
   let easternDate = new Date(easternTimestamp);
@@ -100,31 +100,9 @@ export function getCurrentSeasonData(): SeasonData {
       
       // Check if saved season is valid and current
       if (savedSeason.seasonNumber && savedSeason.startDate && savedSeason.endDate) {
-        // If the saved season hasn't ended yet, return it
-        if (now < savedSeason.endDate) {
-          return savedSeason;
-        }
-        
-        // Season has ended, auto-advance to the next season
-        console.log('Season', savedSeason.seasonNumber, 'has ended. Auto-advancing to next season.');
-        
-        // Calculate how many weeks have passed since the season ended
-        const weeksSinceEnd = Math.floor((now - savedSeason.endDate) / (7 * 24 * 60 * 60 * 1000));
-        const nextSeasonNumber = savedSeason.seasonNumber + 1 + weeksSinceEnd;
-        
-        // Calculate the start and end dates for the current season
-        const seasonStartUTC = savedSeason.endDate + (weeksSinceEnd * 7 * 24 * 60 * 60 * 1000);
-        const seasonEndUTC = getNextWednesdayAt10AM(seasonStartUTC);
-        
-        const newSeason = {
-          seasonNumber: nextSeasonNumber,
-          startDate: seasonStartUTC,
-          endDate: seasonEndUTC,
-          leaderboard: [],
-        };
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newSeason));
-        return newSeason;
+        // Return the saved season data even if it has ended
+        // The handleSeasonReset function in App.tsx will handle the reset logic
+        return savedSeason;
       }
     } catch (e) {
       console.error("Error parsing saved season data:", e);
@@ -132,8 +110,8 @@ export function getCurrentSeasonData(): SeasonData {
   }
 
   // No saved data or invalid - create initial season
-  // Calculate the next Wednesday at 10 AM EST from now
-  const seasonEndUTC = getNextWednesdayAt10AM(now);
+  // Calculate the next Wednesday at 12 PM EST from now
+  const seasonEndUTC = getNextWednesdayAt12PM(now);
   const seasonStartUTC = seasonEndUTC - 7 * 24 * 60 * 60 * 1000;
 
   const defaultSeason = {

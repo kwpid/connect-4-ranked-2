@@ -29,6 +29,7 @@ import {
   getTop100Leaderboard,
   getCurrentSeasonData,
   catchUpAICompetitors,
+  getNextWednesdayAt12PM,
 } from "./utils/seasonManager";
 import {
   getSeasonResetTrophies,
@@ -417,7 +418,11 @@ function App() {
     // IMPORTANT: currentSeason is the season that is ENDING right now
     // We award rewards for THIS season, then move to the NEXT season
     const endingSeasonNumber = currentSeason.seasonNumber;
-    const nextSeasonNumber = currentSeason.seasonNumber + 1;
+    
+    // Calculate how many weeks have passed since the season ended
+    const now = Date.now();
+    const weeksSinceEnd = Math.max(0, Math.floor((now - currentSeason.endDate) / (7 * 24 * 60 * 60 * 1000)));
+    const nextSeasonNumber = currentSeason.seasonNumber + 1 + weeksSinceEnd;
     
     console.log('=== SEASON RESET ===');
     console.log('Ending season:', endingSeasonNumber);
@@ -606,11 +611,18 @@ function App() {
     saveAICompetitors(resetAI);
 
     // Update season data to the NEXT season
+    // Calculate the next Wednesday at 12 PM EST from current time
+    // This handles cases where user has been away for multiple weeks
+    const newSeasonEnd = getNextWednesdayAt12PM(now);
+    // Ensure the new season is exactly 7 days long
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    const newSeasonStart = newSeasonEnd - WEEK_MS;
+    
     const newSeasonData = {
       ...currentSeason,
       seasonNumber: nextSeasonNumber,
-      startDate: currentSeason.endDate, // New season starts when old one ends
-      endDate: currentSeason.endDate + (7 * 24 * 60 * 60 * 1000), // Add 7 days
+      startDate: newSeasonStart,
+      endDate: newSeasonEnd,
       leaderboard: []
     };
     setSeasonData(newSeasonData);
