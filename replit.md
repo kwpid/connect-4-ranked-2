@@ -78,6 +78,16 @@ The project has been successfully imported from GitHub and configured for the Re
 
 ### Recent Updates
 
+**October 8, 2025 - Season End Critical Bug Fix**
+- Fixed critical bug where season rewards (pfps/banners/titles) were not being distributed at season end
+- Fixed bug where player and AI trophies were not being reset at season end
+- Root cause: `getCurrentSeasonData()` was auto-advancing the season number before `handleSeasonReset()` could run
+- Solution: Removed auto-advance logic from `getCurrentSeasonData()`, allowing proper reset sequence
+- Added multi-week absence handling: Season number now skips correctly if user is away for multiple weeks
+- Ensured seasons are always exactly 7 days long (startDate = endDate - 7 days)
+- Renamed function from `getNextWednesdayAt10AM` to `getNextWednesdayAt12PM` for accuracy
+- Verified schedule: Seasons end at 12 PM EST on Wednesdays (DST-aware)
+
 **October 8, 2025 - Season Auto-Advance & Trophy Reset Improvements**
 - Fixed season auto-advance: Seasons now automatically transition to the next season when they end
 - Dynamic Wednesday calculation: Seasons always end on Wednesday at 12 PM EST, calculated dynamically (not hardcoded)
