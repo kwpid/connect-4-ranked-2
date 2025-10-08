@@ -78,6 +78,13 @@ The project has been successfully imported from GitHub and configured for the Re
 
 ### Recent Updates
 
+**October 8, 2025 - Season Auto-Advance & Trophy Reset Improvements**
+- Fixed season auto-advance: Seasons now automatically transition to the next season when they end
+- Dynamic Wednesday calculation: Seasons always end on Wednesday at 12 PM EST, calculated dynamically (not hardcoded)
+- DST-aware timezone handling: Properly handles Daylight Saving Time transitions for accurate season end times across all timezones
+- Consistent AI trophy reset: AI opponents now reset using the same logic as players (10-20% below minimum trophies)
+- Golden glow for leaderboard titles: All S# TOP # titles now display with golden (#FFD700) color and glow
+
 **October 6, 2025 - Complete UI Overhaul & Enhanced Features (v1.0.2)**
 - Comprehensive UI redesign with modern dark theme and unified blue color palette
 - All screens updated: Menu, Play Menu, Queue, Leaderboard, Rank Info, Settings, and Stats
