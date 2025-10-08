@@ -79,36 +79,59 @@ export function GameScreen({
       name = `${baseName}${Math.floor(Math.random() * 9900) + 100}`; // 100-9999
     }
     
-    // Generate opponent trophies around player's level
-    const variance = Math.floor(Math.random() * 60) - 30; // -30 to +30 trophies
-    let trophies = Math.max(0, playerData.trophies + variance);
+    // Declare trophies variable
+    let trophies: number;
     
-    // For Connect Legend players (701+), if opponent has more trophies, pick from actual leaderboard
-    if (playerData.trophies >= 701 && trophies > playerData.trophies) {
-      if (aiCompetitors.length > 0) {
-        // Find AI competitors at Connect Legend rank with more trophies than player
-        const eligibleOpponents = aiCompetitors.filter(ai => ai.trophies >= 701 && ai.trophies > playerData.trophies);
+    // For Connect Legend players (701+), ALWAYS use leaderboard opponents
+    if (playerData.trophies >= 701 && aiCompetitors.length > 0) {
+      console.log(`[Matchmaking] Player is Connect Legend (${playerData.trophies} trophies), using leaderboard opponents`);
+      console.log(`[Matchmaking] Total AI competitors available: ${aiCompetitors.length}`);
+      
+      // Find AI competitors at Connect Legend rank within trophy range (±30)
+      const minTrophies = Math.max(701, playerData.trophies - 30);
+      const maxTrophies = playerData.trophies + 30;
+      const eligibleOpponents = aiCompetitors.filter(
+        ai => ai.trophies >= 701 && ai.trophies >= minTrophies && ai.trophies <= maxTrophies
+      );
+      
+      console.log(`[Matchmaking] Looking for opponents in range ${minTrophies}-${maxTrophies}`);
+      console.log(`[Matchmaking] Found ${eligibleOpponents.length} eligible opponents in range`);
+      
+      if (eligibleOpponents.length > 0) {
+        // Select random opponent from eligible leaderboard players
+        const selectedOpponent = eligibleOpponents[Math.floor(Math.random() * eligibleOpponents.length)];
         
-        if (eligibleOpponents.length > 0) {
-          // Sort by trophies (highest first) and pick from top players
-          eligibleOpponents.sort((a, b) => b.trophies - a.trophies);
-          // Pick randomly from top 50% of eligible opponents to ensure they're actually top-ranked
-          const topHalfCount = Math.max(1, Math.floor(eligibleOpponents.length * 0.5));
-          const selectedOpponent = eligibleOpponents[Math.floor(Math.random() * topHalfCount)];
-          
-          // Use the leaderboard AI's actual data
+        // Use the leaderboard AI's actual data
+        name = selectedOpponent.username;
+        trophies = selectedOpponent.trophies;
+        console.log(`[Matchmaking] Selected leaderboard opponent: ${name} (${trophies} trophies)`);
+      } else {
+        // No eligible leaderboard opponents in range - expand search
+        const allLegendOpponents = aiCompetitors.filter(ai => ai.trophies >= 701);
+        console.log(`[Matchmaking] No opponents in range, expanding to all Legend players (${allLegendOpponents.length} total)`);
+        
+        if (allLegendOpponents.length > 0) {
+          // Pick from all Connect Legend players on leaderboard
+          const selectedOpponent = allLegendOpponents[Math.floor(Math.random() * allLegendOpponents.length)];
           name = selectedOpponent.username;
           trophies = selectedOpponent.trophies;
+          console.log(`[Matchmaking] Selected leaderboard opponent (expanded range): ${name} (${trophies} trophies)`);
         } else {
-          // No leaderboard opponents with higher trophies found
-          // Clamp opponent trophies to player's trophies or lower
-          trophies = Math.min(trophies, playerData.trophies);
+          // Fallback: generate trophies around player's level (this should rarely happen)
+          console.warn(`[Matchmaking] WARNING: No Connect Legend opponents found on leaderboard! Using fallback generation.`);
+          const variance = Math.floor(Math.random() * 60) - 30;
+          trophies = Math.max(701, playerData.trophies + variance);
         }
-      } else {
-        // Leaderboard data not available
-        // Clamp opponent trophies to player's trophies or lower
-        trophies = Math.min(trophies, playerData.trophies);
       }
+    } else if (playerData.trophies < 701) {
+      // For non-Legend players, use random generation
+      const variance = Math.floor(Math.random() * 60) - 30;
+      trophies = Math.max(0, playerData.trophies + variance);
+    } else {
+      // Legend player but no leaderboard data - fallback to random
+      console.warn(`[Matchmaking] WARNING: Connect Legend player but no leaderboard data available!`);
+      const variance = Math.floor(Math.random() * 60) - 30;
+      trophies = Math.max(701, playerData.trophies + variance);
     }
     
     // Generate opponent title based on trophies (fixed to not use non-existent titles)
