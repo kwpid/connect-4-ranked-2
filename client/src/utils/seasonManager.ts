@@ -97,11 +97,35 @@ export function getCurrentSeasonData(): SeasonData {
   if (stored) {
     try {
       const savedSeason: SeasonData = JSON.parse(stored);
-      
-      // Check if saved season is valid and current
+
+      // Check if saved season is valid
       if (savedSeason.seasonNumber && savedSeason.startDate && savedSeason.endDate) {
-        // Return the saved season data even if it has ended
-        // The handleSeasonReset function in App.tsx will handle the reset logic
+        // If the season has ended, auto-advance to the next season
+        if (now >= savedSeason.endDate) {
+          // Calculate how many weeks have passed since the season ended
+          const weeksSinceEnd = Math.floor((now - savedSeason.endDate) / (7 * 24 * 60 * 60 * 1000));
+          const nextSeasonNumber = savedSeason.seasonNumber + 1 + weeksSinceEnd;
+
+          // Calculate the next Wednesday at 12 PM EST from now
+          const newSeasonEnd = getNextWednesdayAt12PM(now);
+          const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+          const newSeasonStart = newSeasonEnd - WEEK_MS;
+
+          const newSeason = {
+            seasonNumber: nextSeasonNumber,
+            startDate: newSeasonStart,
+            endDate: newSeasonEnd,
+            leaderboard: [],
+          };
+
+          // Save the new season data
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newSeason));
+          console.log(`Season auto-advanced from ${savedSeason.seasonNumber} to ${nextSeasonNumber}`);
+
+          return newSeason;
+        }
+
+        // Season is still active, return it
         return savedSeason;
       }
     } catch (e) {
@@ -135,8 +159,7 @@ export function getTimeUntilSeasonEnd(): string {
   const now = Date.now();
   const diff = seasonData.endDate - now;
 
-  if (diff <= 0) return "Season Ended";
-
+  // diff should always be positive since getCurrentSeasonData() auto-advances
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -696,13 +719,13 @@ function getSeasonResetTrophiesForAI(currentTrophies: number): number {
   // Use same logic as player reset: reset to minimum + 0-10% above
   const rank = getRankByTrophies(currentTrophies);
   const minTrophies = rank.name === 'Connect Legend' ? 701 : rank.minTrophies;
-  
+
   // Reset to minimum trophies of current tier (stay at or slightly above minimum)
   // Add 0-10% above minimum to give slight variance
   const additionPercent = Math.random() * 0.10; // Random between 0-10%
   const addition = Math.floor(minTrophies * additionPercent);
   const resetTrophies = minTrophies + addition;
-  
+
   // Never reset to more than current trophies (prevent trophy gains)
   return Math.min(currentTrophies, resetTrophies);
 }
