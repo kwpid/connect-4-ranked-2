@@ -112,13 +112,18 @@ function generateAITournamentTitle(trophies: number, currentSeasonNumber: number
   
   // Determine season (ONLY prior seasons, never current)
   // AI should only have tournament titles from completed seasons
+  // Ensure we don't pick currentSeasonNumber
+  const maxPriorSeason = Math.max(1, currentSeasonNumber - 1);
   const season = currentSeasonNumber === 1 ? 1 : 
-    (currentSeasonNumber - 1) - Math.floor(Math.random() * Math.min(2, currentSeasonNumber - 1));
+    maxPriorSeason - Math.floor(Math.random() * Math.min(3, maxPriorSeason));
+  
+  // If we accidentally picked current season, force to a prior one
+  const finalSeason = (season === currentSeasonNumber && currentSeasonNumber > 1) ? currentSeasonNumber - 1 : season;
   
   // Determine if multi-win title (3+ wins)
   const isMultiWin = Math.random() < 0.2; // 20% chance
   
-  return `S${season} ${rankName} TOURNAMENT WINNER${isMultiWin ? '_MULTI' : ''}`;
+  return `S${finalSeason} ${rankName} TOURNAMENT WINNER${isMultiWin ? '_MULTI' : ''}`;
 }
 
 export function registerPlayerForTournament(

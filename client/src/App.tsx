@@ -488,7 +488,7 @@ function App() {
       console.log('Highest earned tier:', rankOrder[highestEarnedTierIndex]);
       // Award titles for all tiers from Bronze up to highest earned tier
       for (let i = 0; i <= highestEarnedTierIndex; i++) {
-        const tierName = rankOrder[i].toUpperCase().replace(' ', ' ');
+        const tierName = rankOrder[i].toUpperCase();
         const seasonTitle = `S${endingSeasonNumber} ${tierName}`;
         
         if (!newTitles.includes(seasonTitle)) {
