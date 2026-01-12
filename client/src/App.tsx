@@ -767,6 +767,11 @@ function App() {
       matchHistory: newMatchHistory,
       seasonRewardWins,
       seasonRewardTier: highestRewardTier,
+      lastMatch: {
+        opponentName: opponentName || "",
+        opponentTrophies: opponentTrophies || 0,
+        endTime: Date.now()
+      }
     };
 
     setPlayerData(updatedPlayer);
