@@ -12,6 +12,18 @@ interface QueueScreenProps {
 
 export function QueueScreen({ playerData, onMatchFound, onCancel }: QueueScreenProps) {
   const [queueTimes] = useState(() => {
+    // Rematch logic for higher ranks
+    if (playerData.lastMatch && playerData.trophies >= 497) {
+      const timeSinceEnd = Date.now() - playerData.lastMatch.endTime;
+      if (timeSinceEnd <= 30000) {
+        // 40% chance for a rematch
+        if (Math.random() < 0.4) {
+          console.log(`[Queue] Fast rematch match found!`);
+          return { estimated: 2, actual: 3 };
+        }
+      }
+    }
+
     const estimated = calculateQueueTime(playerData.trophies);
     const variance = Math.max(1, Math.floor(estimated * 0.15));
     

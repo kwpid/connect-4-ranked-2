@@ -98,6 +98,11 @@ export interface PlayerData {
   tournamentStats?: PlayerTournamentStats;
   seasonRewardTier?: string; // Highest tier with 5 wins or currently working on
   seasonRewardWins?: { [tier: string]: number }; // Wins per tier for current season
+  lastMatch?: {
+    opponentName: string;
+    opponentTrophies: number;
+    endTime: number;
+  };
 }
 
 export interface AICompetitor {

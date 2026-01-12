@@ -191,7 +191,25 @@ export function GameScreen({
     return { name, trophies, titleId };
   };
   
-  const [opponent] = useState(() => {
+  const [opponent, setOpponent] = useState(() => {
+    // Check for rematch first
+    if (playerData.lastMatch && !isPracticeMode && !isTournamentMode) {
+      const timeSinceEnd = Date.now() - playerData.lastMatch.endTime;
+      const isHighRank = playerData.trophies >= 497; // Champion or higher
+      
+      if (timeSinceEnd <= 30000 && isHighRank) {
+        // 40% chance to rematch against previous opponent
+        if (Math.random() < 0.4) {
+          console.log(`[Rematch] Rematching against ${playerData.lastMatch.opponentName}`);
+          return {
+            name: playerData.lastMatch.opponentName,
+            trophies: playerData.lastMatch.opponentTrophies,
+            titleId: null
+          };
+        }
+      }
+    }
+
     if (isTournamentMode && tournamentMatch) {
       const opponentData = tournamentMatch.participant1.isPlayer ? tournamentMatch.participant2 : tournamentMatch.participant1;
       return { 
@@ -420,8 +438,14 @@ export function GameScreen({
         totalMoves
       );
       const matchScore = `${match.playerWins}-${match.aiWins}`;
+      
+      // Save rematch data if not in practice/tournament mode
+      if (!isPracticeMode && !isTournamentMode) {
+        onMatchEnd(won, trophyChange, opponent.name, opponent.trophies, matchScore);
+      } else {
+        onMatchEnd(won, trophyChange, opponent.name, opponent.trophies, matchScore);
+      }
       setShowResultDialog(false);
-      onMatchEnd(won, trophyChange, opponent.name, opponent.trophies, matchScore);
     }
   };
   
